@@ -50,6 +50,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
+
     //Dagger - Hilt
     implementation ("com.google.dagger:hilt-android:2.52")
     //implementation ("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")

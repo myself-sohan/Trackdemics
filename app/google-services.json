@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "242322758668",
+    "project_id": "project-unity-da9e4",
+    "storage_bucket": "project-unity-da9e4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242322758668:android:5e1e69b9b46a28922b6229",
+        "android_client_info": {
+          "package_name": "com.example.project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv3paR3CoPQFLnsvFX2s9tLOoqHv5Nnyc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242322758668:android:bbad181f9487295d2b6229",
+        "android_client_info": {
+          "package_name": "com.example.trackdemics"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBv3paR3CoPQFLnsvFX2s9tLOoqHv5Nnyc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
