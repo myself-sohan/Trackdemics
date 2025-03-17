@@ -45,13 +45,13 @@ android {
 
 dependencies {
     // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     // For example, add the dependencies for Firebase Authentication and Cloud Firestore
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
     //Dagger - Hilt
-    implementation ("com.google.dagger:hilt-android:2.51.1")
+    implementation ("com.google.dagger:hilt-android:2.52")
     //implementation ("androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
@@ -64,7 +64,7 @@ dependencies {
 // Coroutine Lifecycle Scopes
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     //lifecycle
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
     //Glide
     implementation ("com.github.bumptech.glide:glide:4.16.0")
@@ -79,7 +79,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 
     //material icons - use with caution!
-    implementation("androidx.compose.material:material-icons-extended-android:1.7.6")
+    implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
