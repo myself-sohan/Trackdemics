@@ -63,21 +63,24 @@ fun TrackdemicsAppBar(
                 )
             }
         },
+        navigationIcon ={
+            if (!isEntryScreen)
+            {
+                Surface {  }
+            }
+        },
         actions = {
-            if (isEntryScreen) {
-                IconButton(
-                    onClick = { /* Add navigation functionality if needed */ },
-                    modifier = Modifier
-                        .size(logoSize)
-                        .padding(end = 10.dp)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.nitm),
-                        contentDescription = "NIT Logo",
-                    )
-                }
-                else {
-                Surface { }
+             IconButton(
+                onClick = { /* Add navigation functionality if needed */ },
+                modifier = Modifier
+                    .size(logoSize)
+                    .padding(end = 10.dp)
+            )
+            {
+                Image(
+                    painter = painterResource(R.drawable.nitm),
+                    contentDescription = "NIT Logo",
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
