@@ -66,7 +66,7 @@ fun TrackdemicsAppBar(
         navigationIcon ={
             if (!isEntryScreen)
             {
-                Surface {  }
+                Surface {}
             }
         },
         actions = {
