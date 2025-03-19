@@ -1,5 +1,8 @@
 package com.example.trackdemics.navigation
 
-enum class TrackdemicsScreens {
+enum class TrackdemicsScreens
+{
+    RoleScreen,
     LoginScreen,
+    SignUpScreen,
 }
