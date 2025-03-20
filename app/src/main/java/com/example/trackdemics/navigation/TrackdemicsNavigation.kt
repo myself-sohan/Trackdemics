@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.trackdemics.screens.RoleScreen
+import com.example.trackdemics.screens.role.RoleScreen
 import com.example.trackdemics.screens.home.StudentHomeScreen
 import com.example.trackdemics.screens.login.LoginScreen
 import com.example.trackdemics.screens.signup.SignUpScreen
