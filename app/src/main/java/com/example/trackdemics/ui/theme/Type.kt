@@ -6,11 +6,11 @@ import androidx.compose.ui.text.font.FontFamily
 import com.example.trackdemics.R
 
 val bodyFontFamily = FontFamily(
-    Font(R.font.abril_fatface_regular)
+    Font(R.font.benne_regular)
 )
 
 val displayFontFamily = FontFamily(
-    Font(R.font.abril_fatface_regular)
+    Font(R.font.bodoni_moda)
 )
 
 val baseline = Typography()

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,25 +27,19 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -53,12 +48,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
 import com.example.trackdemics.widgets.TrackdemicsAppBar
-import kotlinx.coroutines.launch
 
 @Composable
 fun StudentHomeScreen(
@@ -73,7 +69,6 @@ fun StudentHomeScreen(
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
                     .background(color = MaterialTheme.colorScheme.background)
-                    .padding(top = 48.dp)
             ) {
                 SideNavigationPanel()
             }
@@ -85,16 +80,21 @@ fun StudentHomeScreen(
                 TrackdemicsAppBar(
                     navController = navController,
                     drawerState = drawerState,
-                    isEntryScreen = false
+                    isEntryScreen = false,
+                    titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    titleTextColor = MaterialTheme.colorScheme.background
                 )
             }
         ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .padding(paddingValues),
+                verticalArrangement = Arrangement.Center
             ) {
-                ProfileSection()
+                ProfileSection(
+                    modifier = Modifier
+                )
                 FeatureGrid()
             }
         }
@@ -102,9 +102,11 @@ fun StudentHomeScreen(
 }
 
 @Composable
-fun ProfileSection() {
+fun ProfileSection(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
@@ -134,25 +136,37 @@ fun ProfileSection() {
 }
 
 @Composable
-fun StudentCard() {
+fun StudentCard(
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier
-            .padding(bottom = 16.dp),
+        modifier = modifier
+            .height(90.dp)
+            .padding(bottom = 48.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
-        )
+        ),
+        elevation = CardDefaults.cardElevation(8.dp)
 
     ) {
-        Text(
-            "Welcome, Student!",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = 20.sp
-            ),
+        Column(
             modifier = Modifier
-                .padding(12.dp)
-        )
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                "Welcome, Student!",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 20.sp
+                ),
+                modifier = Modifier
+                    .padding(12.dp),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -217,7 +231,8 @@ fun SideNavigationPanel() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
