@@ -1,4 +1,4 @@
-package com.example.trackdemics.screens.signup
+package com.example.trackdemics.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +19,10 @@ import com.example.trackdemics.widgets.WelcomeText
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 
 @Composable
-fun SignUpScreen(
+fun AdminHomeScreen(
     navController: NavController,
-    role: String
-) {
+)
+{
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
@@ -58,8 +58,8 @@ fun SignUpScreen(
                 )
                 {
                     WelcomeText(
-                        greet = "Get Started",
-                        role = role
+                        greet = "Let's  Start",
+                        role = "Admin"
                     )
                 }
             }
