@@ -5,5 +5,7 @@ enum class TrackdemicsScreens
     RoleScreen,
     LoginScreen,
     SignUpScreen,
-    StudentHomeScreen
+    StudentHomeScreen,
+    AdminHomeScreen,
+    ProfessorHomeScreen
 }
