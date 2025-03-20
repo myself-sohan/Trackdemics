@@ -1,6 +1,7 @@
 package com.example.trackdemics.widgets
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -42,50 +44,64 @@ fun TrackdemicsAppBar(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val logoSize = screenWidth * 0.16f // Dynamically setting logo size as 12% of screen width
 
-    TopAppBar(
-        title = {
-            Card(
-                modifier = Modifier
-                    .padding(start = 6.dp, top = 8.dp, bottom = 8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = FontFamily(Font(R.font.abril_fatface_regular)),
-                        fontSize = 22.sp,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    ),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White,
+                        Color.White,
+                        MaterialTheme.colorScheme.primary.copy(1f),
+                    ) // Example gradient colors
                 )
-            }
-        },
-        navigationIcon ={
-            if (!isEntryScreen)
-            {
-                Surface {}
-            }
-        },
-        actions = {
-             IconButton(
-                onClick = { /* Add navigation functionality if needed */ },
-                modifier = Modifier
-                    .size(logoSize)
-                    .padding(end = 10.dp)
             )
-            {
-                Image(
-                    painter = painterResource(R.drawable.nitm),
-                    contentDescription = "NIT Logo",
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        ),
-        modifier = modifier
     )
+    {
+        TopAppBar(
+            title = {
+                Card(
+                    modifier = Modifier
+                        .padding(start = 6.dp, top = 8.dp, bottom = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontFamily = FontFamily(Font(R.font.abril_fatface_regular)),
+                            fontSize = 22.sp,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        ),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
+            },
+            navigationIcon = {
+                if (!isEntryScreen) {
+                    Surface {}
+                }
+            },
+            actions = {
+                IconButton(
+                    onClick = { /* Add navigation functionality if needed */ },
+                    modifier = Modifier
+                        .size(logoSize)
+                        .padding(end = 10.dp)
+                )
+                {
+                    Image(
+                        painter = painterResource(R.drawable.nitm),
+                        contentDescription = "NIT Logo",
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent
+            ),
+            modifier = Modifier
+        )
+    }
 }
