@@ -66,7 +66,7 @@ fun RoleDropDown(
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.inverseOnSurface
+                tint = Color.Black
             )
         }
     }
@@ -80,11 +80,11 @@ fun RoleDropDown(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.secondaryContainer,
+                        Color.Red.copy(0.5f),
                         Color.White,
-                        MaterialTheme.colorScheme.primaryContainer,
+                        Color.Yellow.copy(0.5f),
                         Color.White,
-                        MaterialTheme.colorScheme.tertiaryContainer
+                        Color.Green.copy(0.5f)
                     )
                 )
             )
@@ -100,6 +100,7 @@ fun RoleDropDown(
                     Icon(
                         imageVector = Icons.Default.Stream,
                         contentDescription = null,
+                        tint = Color.Black
                     )
                 },
                 text = {
@@ -110,7 +111,7 @@ fun RoleDropDown(
                             fontFamily = FontFamily(
                                 Font(R.font.abril_fatface_regular)
                             )     ,
-                            color = MaterialTheme.colorScheme.inverseOnSurface
+                            color = Color(0,0,128)
                         ),
                     )
                 },
