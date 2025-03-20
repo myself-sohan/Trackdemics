@@ -20,10 +20,10 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -36,6 +36,8 @@ fun TrackdemicsAppBar(
     modifier: Modifier = Modifier,
     title: String = "Trackdemics",
     navController: NavController,
+    titleContainerColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    titleTextColor: Color = MaterialTheme.colorScheme.onSecondary,
     isEntryScreen: Boolean = true,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
 )
@@ -50,16 +52,16 @@ fun TrackdemicsAppBar(
                 modifier = Modifier
                     .padding(start = 6.dp, top = 8.dp, bottom = 8.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = titleContainerColor
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = FontFamily(Font(R.font.abril_fatface_regular)),
-                        fontSize = 22.sp,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        color = titleTextColor
                     ),
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                 )
@@ -88,7 +90,7 @@ fun TrackdemicsAppBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.background
         ),
         modifier = modifier
     )
