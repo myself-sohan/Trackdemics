@@ -19,7 +19,7 @@ fun TrackdemicsNavigation()
     val navController = rememberNavController()
     NavHost (
         navController = navController,
-        startDestination = TrackdemicsScreens.StudentHomeScreen.name
+        startDestination = TrackdemicsScreens.ProfessorHomeScreen.name
     )
     {
         composable(TrackdemicsScreens.StudentHomeScreen.name)

@@ -12,8 +12,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Grade
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
@@ -35,7 +38,8 @@ import com.example.trackdemics.widgets.TrackdemicsAppBar
 @Composable
 fun StudentHomeScreen(
     navController: NavController
-) {
+)
+{
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
     ModalNavigationDrawer(
@@ -75,24 +79,21 @@ fun StudentHomeScreen(
                     modifier = Modifier,
                     label = "Student"
                 )
-                FeatureGrid()
+                StudentFeatureGrid()
             }
         }
     }
 }
 
 @Composable
-fun FeatureGrid() {
+fun StudentFeatureGrid() {
     val features = listOf(
-        FeatureItem(
-            "Attendance",
-            Icons.AutoMirrored.Filled.Assignment
-        ) { /* Navigate to Attendance */ },
+        FeatureItem("Attendance", Icons.Default.Groups) { /* Navigate to Attendance */ },
         FeatureItem("Results", Icons.Default.Grade) { /* Navigate to Results */ },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
         FeatureItem("Events", Icons.Default.Event) { /* Navigate to Events */ },
-        FeatureItem("Settings", Icons.Default.Settings) { /* Navigate to Settings */ }
+        FeatureItem("Courses", Icons.AutoMirrored.Filled.MenuBook) { /* Navigate to Settings */ }
     )
 
     LazyVerticalGrid(
