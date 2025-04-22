@@ -36,8 +36,8 @@ fun TrackdemicsAppBar(
     modifier: Modifier = Modifier,
     title: String = "Trackdemics",
     navController: NavController,
-    titleContainerColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    titleTextColor: Color = MaterialTheme.colorScheme.onSecondary,
+    titleContainerColor: Color = MaterialTheme.colorScheme.onPrimaryContainer   ,
+    titleTextColor: Color = MaterialTheme.colorScheme.background,
     isEntryScreen: Boolean = true,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
 )
