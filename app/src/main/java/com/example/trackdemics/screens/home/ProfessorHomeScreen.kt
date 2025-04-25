@@ -13,38 +13,30 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Groups2
-import androidx.compose.material.icons.filled.Groups3
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
-import com.example.trackdemics.widgets.WelcomeText
+import com.example.trackdemics.screens.signup.SignUpViewModel
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 
 @Composable
 fun ProfessorHomeScreen(
+    signupViewModel: SignUpViewModel = hiltViewModel(),
     navController: NavController,
 )
 {
@@ -59,7 +51,7 @@ fun ProfessorHomeScreen(
                     .background(color = MaterialTheme.colorScheme.background)
             )
             {
-                SideNavigationPanel()
+                SideNavigationPanel(signupViewModel, navController)
             }
         },
         scrimColor = MaterialTheme.colorScheme.background
