@@ -59,7 +59,7 @@ fun ProfessorHomeScreen(
                 {
                     WelcomeText(
                         greet = "Let's Start",
-                        role = "Professor"
+                        role = "Baby"
                     )
                 }
             }

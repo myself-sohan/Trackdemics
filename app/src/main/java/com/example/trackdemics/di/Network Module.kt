@@ -20,6 +20,7 @@ class FirebaseAuthService @Inject constructor(
         firstName: String,
         lastName: String
     ): Result<FirebaseUser?> {
+
         return try {
             val normalizedEmail = email.trim().lowercase()
             val normalizedRole = role.trim().uppercase()
