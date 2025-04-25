@@ -2,7 +2,7 @@ package com.example.trackdemics.screens.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.trackdemics.di.FirebaseAuthService
+import com.example.trackdemics.network.FirebaseAuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

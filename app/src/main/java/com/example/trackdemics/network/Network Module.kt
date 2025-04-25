@@ -1,4 +1,4 @@
-package com.example.trackdemics.di
+package com.example.trackdemics.network
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth

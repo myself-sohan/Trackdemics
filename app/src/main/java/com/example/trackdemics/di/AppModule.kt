@@ -1,5 +1,6 @@
 package com.example.trackdemics.di
 
+import com.example.trackdemics.network.FirebaseAuthService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
