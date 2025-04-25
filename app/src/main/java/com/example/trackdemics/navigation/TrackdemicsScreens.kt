@@ -7,5 +7,6 @@ enum class TrackdemicsScreens
     SignUpScreen,
     StudentHomeScreen,
     AdminHomeScreen,
-    ProfessorHomeScreen
+    ProfessorHomeScreen,
+    StudentAttendanceScreen
 }
