@@ -12,8 +12,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Grade
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
@@ -43,7 +47,8 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun StudentHomeScreen(
     navController: NavController
-) {
+)
+{
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
     val auth = remember { FirebaseAuth.getInstance() }
@@ -103,24 +108,25 @@ fun StudentHomeScreen(
                     modifier = Modifier,
                     label = "Welcome, ${firstName ?: "Student"} 👋"
                 )
-                FeatureGrid()
+                StudentFeatureGrid(
+                    navController = navController
+                )
             }
         }
     }
 }
 
 @Composable
-fun FeatureGrid() {
+fun StudentFeatureGrid(
+    navController: NavController
+) {
     val features = listOf(
-        FeatureItem(
-            "Attendance",
-            Icons.AutoMirrored.Filled.Assignment
-        ) { /* Navigate to Attendance */ },
+        FeatureItem("Attendance", Icons.Default.Groups,{navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name)}),
         FeatureItem("Results", Icons.Default.Grade) { /* Navigate to Results */ },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
         FeatureItem("Events", Icons.Default.Event) { /* Navigate to Events */ },
-        FeatureItem("Settings", Icons.Default.Settings) { /* Navigate to Settings */ }
+        FeatureItem("Courses", Icons.AutoMirrored.Filled.MenuBook) { /* Navigate to Settings */ }
     )
 
     LazyVerticalGrid(
