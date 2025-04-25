@@ -4,12 +4,10 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +19,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.unit.dp
 import com.example.trackdemics.widgets.EmailInput
 import com.example.trackdemics.widgets.PasswordInput
 import com.example.trackdemics.widgets.SubmitButton
@@ -30,29 +27,29 @@ import com.example.trackdemics.widgets.SubmitButton
 fun LoginForm(
     role: String,
     loading: Boolean,
-    onClicked: (String) -> Unit={}
-)
-{
+    onSubmit: (String, String) -> Unit // ✅ Updated from (String) -> Unit
+) {
     val context = LocalContext.current
     val email = rememberSaveable { mutableStateOf("") }
     val password = rememberSaveable { mutableStateOf("") }
     val passwordVisibility = rememberSaveable { mutableStateOf(false) }
     val passwordFocusRequest = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val valid = remember(email.value, password.value)
-    {
+
+    val valid = remember(email.value, password.value) {
         email.value.trim().isNotEmpty() && password.value.trim().isNotEmpty()
     }
+
     val modifier = Modifier
         .wrapContentHeight()
         .background(Color.Transparent)
         .verticalScroll(rememberScrollState())
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    )
-    {
+    ) {
         EmailInput(
             emailState = email,
             enabled = !loading,
@@ -60,9 +57,9 @@ fun LoginForm(
                 passwordFocusRequest.requestFocus()
             },
         )
+
         PasswordInput(
-            modifier = Modifier
-                .focusRequester(passwordFocusRequest),
+            modifier = Modifier.focusRequester(passwordFocusRequest),
             passwordState = password,
             enabled = !loading,
             passwordVisibility = passwordVisibility,
@@ -71,16 +68,22 @@ fun LoginForm(
                     Toast.makeText(context, "Invalid Credentials", Toast.LENGTH_SHORT).show()
                     return@KeyboardActions
                 }
+                keyboardController?.hide()
+                onSubmit(email.value.trim(), password.value.trim()) // ✅ Trigger login
             }
         )
+
         SubmitButton(
             textId = "Login",
             loading = loading,
             validInputs = valid
-        )
-        {
-            onClicked(role)
+        ) {
+            if (!valid) {
+                Toast.makeText(context, "Invalid Credentials", Toast.LENGTH_SHORT).show()
+                return@SubmitButton
+            }
             keyboardController?.hide()
+            onSubmit(email.value.trim(), password.value.trim()) // ✅ Trigger login
         }
     }
 }

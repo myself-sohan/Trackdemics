@@ -26,6 +26,11 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -35,6 +40,9 @@ import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun StudentHomeScreen(
@@ -42,6 +50,26 @@ fun StudentHomeScreen(
 )
 {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+
+    val auth = remember { FirebaseAuth.getInstance() }
+    val firestore = remember { FirebaseFirestore.getInstance() }
+
+    var firstName by remember { mutableStateOf<String?>(null) }
+    val user = auth.currentUser
+
+    LaunchedEffect(Unit) {
+        user?.email?.let { email ->
+            val normalizedEmail = email.trim().lowercase()
+
+            val snapshot = firestore.collection("students")
+                .whereEqualTo("email", normalizedEmail)
+                .get()
+                .await()
+
+            val doc = snapshot.documents.firstOrNull()
+            firstName = doc?.getString("first_name") ?: "Student"
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -52,7 +80,7 @@ fun StudentHomeScreen(
                     .background(color = MaterialTheme.colorScheme.background)
             )
             {
-                SideNavigationPanel()
+                SideNavigationPanel(navController = navController)
             }
         },
         scrimColor = MaterialTheme.colorScheme.background
@@ -78,7 +106,7 @@ fun StudentHomeScreen(
             ) {
                 ProfileSection(
                     modifier = Modifier,
-                    label = "Student"
+                    label = "Welcome, ${firstName ?: "Student"} 👋"
                 )
                 StudentFeatureGrid(
                     navController = navController

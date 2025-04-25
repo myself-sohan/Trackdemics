@@ -118,9 +118,9 @@ fun RoleDropDown(
                     selectedRole.value = role
                     expanded.value = false
                     when (role) {
-                        "Professor" -> navController.navigate("SignUpScreen/${role.uppercase()}")
-                        "Student" -> navController.navigate("SignUpScreen/${role.uppercase()}")
-                        "Admin" -> navController.navigate("LoginScreen/${role.uppercase()}")
+                        "Professor" -> navController.navigate("SignUpScreen/${role}")
+                        "Student" -> navController.navigate("SignUpScreen/${role}")
+                        "Admin" -> navController.navigate("LoginScreen/${role}")
                     }
                 }
             )

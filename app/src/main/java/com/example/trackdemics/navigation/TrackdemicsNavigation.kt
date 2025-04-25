@@ -1,6 +1,7 @@
 package com.example.trackdemics.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -13,6 +14,8 @@ import androidx.navigation.NavType
 import com.example.trackdemics.screens.attendance.StudentAttendanceScreen
 import com.example.trackdemics.screens.home.AdminHomeScreen
 import com.example.trackdemics.screens.home.ProfessorHomeScreen
+import com.example.trackdemics.screens.signup.SignUpViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun TrackdemicsNavigation()
@@ -20,7 +23,7 @@ fun TrackdemicsNavigation()
     val navController = rememberNavController()
     NavHost (
         navController = navController,
-        startDestination = TrackdemicsScreens.StudentHomeScreen.name
+        startDestination = TrackdemicsScreens.RoleScreen.name
     )
     {
         composable(TrackdemicsScreens.StudentHomeScreen.name)
@@ -73,9 +76,11 @@ fun TrackdemicsNavigation()
         )
         { backStackEntry ->
             val role = backStackEntry.arguments?.getString("role").orEmpty()
+            val viewModel = hiltViewModel<SignUpViewModel>()
             SignUpScreen(
                 navController = navController,
-                role = role
+                role = role,
+                viewModel = viewModel
             )
         }
     }
