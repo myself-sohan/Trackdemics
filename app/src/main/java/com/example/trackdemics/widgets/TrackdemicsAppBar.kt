@@ -4,7 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Sd
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
@@ -12,6 +15,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,6 +43,7 @@ fun TrackdemicsAppBar(
     titleContainerColor: Color = MaterialTheme.colorScheme.onPrimaryContainer   ,
     titleTextColor: Color = MaterialTheme.colorScheme.background,
     isEntryScreen: Boolean = true,
+    isActionScreen: Boolean = false,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
 )
 {
@@ -72,6 +77,20 @@ fun TrackdemicsAppBar(
             {
                 IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
                     Icon(Icons.Default.Menu, contentDescription = "Menu")
+                }
+            }
+            if(isActionScreen)
+            {
+                IconButton(
+                    onClick = {
+                        navController.popBackStack()
+                    },
+                )
+                {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back Arrow",
+                    )
                 }
             }
         },

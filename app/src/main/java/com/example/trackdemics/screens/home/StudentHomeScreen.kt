@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
@@ -79,16 +80,20 @@ fun StudentHomeScreen(
                     modifier = Modifier,
                     label = "Student"
                 )
-                StudentFeatureGrid()
+                StudentFeatureGrid(
+                    navController = navController
+                )
             }
         }
     }
 }
 
 @Composable
-fun StudentFeatureGrid() {
+fun StudentFeatureGrid(
+    navController: NavController
+) {
     val features = listOf(
-        FeatureItem("Attendance", Icons.Default.Groups) { /* Navigate to Attendance */ },
+        FeatureItem("Attendance", Icons.Default.Groups,{navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name)}),
         FeatureItem("Results", Icons.Default.Grade) { /* Navigate to Results */ },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
