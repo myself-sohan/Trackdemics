@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Groups
@@ -124,7 +125,7 @@ fun StudentFeatureGrid(
         FeatureItem("Attendance", Icons.Default.Groups,{navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name)}),
         FeatureItem("Results", Icons.Default.Grade) { /* Navigate to Results */ },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
-        FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
+        FeatureItem("Assignment", Icons.AutoMirrored.Filled.Assignment) { /* Navigate to Reminders */ },
         FeatureItem("Events", Icons.Default.Event) { /* Navigate to Events */ },
         FeatureItem("Courses", Icons.AutoMirrored.Filled.MenuBook) { /* Navigate to Settings */ }
     )
