@@ -29,11 +29,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.trackdemics.R
+import com.example.trackdemics.navigation.TrackdemicsScreens
+import com.example.trackdemics.screens.signup.SignUpViewModel
 
 
 @Composable
-fun SideNavigationPanel() {
+fun SideNavigationPanel(
+    signupViewModel: SignUpViewModel = hiltViewModel(),
+    navController: NavController
+) {
     Column(
         modifier = Modifier.Companion
             .fillMaxSize()
@@ -81,7 +89,10 @@ fun SideNavigationPanel() {
         NavItem(
             "Logout",
             Icons.AutoMirrored.Filled.Logout
-        ) { /* Handle Logout */ }
+        ) {
+            signupViewModel.logout()
+            navController.navigate(TrackdemicsScreens.RoleScreen.name)
+        }
     }
 }
 @Composable

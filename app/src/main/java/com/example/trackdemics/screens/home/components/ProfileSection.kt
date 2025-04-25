@@ -72,7 +72,7 @@ fun WelcomeCard(
     Card(
         modifier = modifier
             .height(90.dp)
-            .padding(bottom = 48.dp),
+            .padding(bottom = 32.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
@@ -86,7 +86,7 @@ fun WelcomeCard(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Welcome, $label!",
+                text = label,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Companion.Bold,
                     color = MaterialTheme.colorScheme.primary,

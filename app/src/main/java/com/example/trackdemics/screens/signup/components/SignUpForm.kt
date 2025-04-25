@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -20,7 +19,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.trackdemics.widgets.EmailInput
 import com.example.trackdemics.widgets.PasswordInput
 import com.example.trackdemics.widgets.SubmitButton
@@ -29,8 +28,9 @@ import com.example.trackdemics.widgets.SubmitButton
 fun SignUpForm(
     role: String,
     loading: Boolean,
-    onClicked: (String) -> Unit)
-{
+    onSubmit: (String, String, String, String) -> Unit,
+    navController: NavController
+) {
     val context = LocalContext.current
     val email = rememberSaveable { mutableStateOf("") }
     val password = rememberSaveable { mutableStateOf("") }
@@ -41,20 +41,21 @@ fun SignUpForm(
     val emailFocusRequest = remember { FocusRequester() }
     val passwordFocusRequest = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val valid = remember(email.value, password.value)
-    {
+
+    val valid = remember(email.value, password.value) {
         email.value.trim().isNotEmpty() && password.value.trim().isNotEmpty()
     }
-    val modifier = Modifier.Companion
+
+    val modifier = Modifier
         .wrapContentHeight()
         .background(Color.Transparent)
         .verticalScroll(rememberScrollState())
+
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.Companion.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    )
-    {
+    ) {
         NameInput(
             modifier = Modifier,
             nameState = firstName,
@@ -64,28 +65,28 @@ fun SignUpForm(
                 lastNameFocusRequest.requestFocus()
             },
         )
+
         NameInput(
             nameState = lastName,
-            modifier = Modifier
-                .focusRequester(lastNameFocusRequest),
+            modifier = Modifier.focusRequester(lastNameFocusRequest),
             labelId = "Last Name",
             enabled = !loading,
-            onAction = androidx.compose.foundation.text.KeyboardActions {
+            onAction = KeyboardActions {
                 emailFocusRequest.requestFocus()
             },
         )
+
         EmailInput(
-            modifier = Modifier
-                .focusRequester(emailFocusRequest),
+            modifier = Modifier.focusRequester(emailFocusRequest),
             emailState = email,
             enabled = !loading,
             onAction = KeyboardActions {
                 passwordFocusRequest.requestFocus()
             },
         )
+
         PasswordInput(
-            modifier = Modifier.Companion
-                .focusRequester(passwordFocusRequest),
+            modifier = Modifier.focusRequester(passwordFocusRequest),
             passwordState = password,
             enabled = !loading,
             passwordVisibility = passwordVisibility,
@@ -96,13 +97,22 @@ fun SignUpForm(
                 }
             }
         )
+
         SubmitButton(
-            textId = "SignUp",
+            textId = "Sign Up",
             loading = loading,
             validInputs = valid
-        )
-        {
-            onClicked(role)
+        ) {
+            if (!valid) {
+                Toast.makeText(context, "Invalid Credentials", Toast.LENGTH_SHORT).show()
+                return@SubmitButton
+            }
+            onSubmit(
+                email.value.trim(),
+                password.value.trim(),
+                firstName.value.trim(),
+                lastName.value.trim()
+            )
             keyboardController?.hide()
         }
     }
