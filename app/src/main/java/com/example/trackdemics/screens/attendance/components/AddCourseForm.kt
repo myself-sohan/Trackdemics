@@ -33,11 +33,17 @@ fun getCoursesForSemester(semester: Int, branch: String): List<Course> {
 @Composable
 fun AddCourseForm(
     openDialog: MutableState<Boolean> = remember { mutableStateOf(false) },
+    isStudent: Boolean = false,
     onAddCourse: (Course, String , String) -> Unit = { _, _, _ -> }
 )
 {
     var selectedBranch = remember { mutableStateOf("") }
-    var selectedSemester = remember { mutableStateOf<Int?>(null) }
+    var selectedSemester = remember {
+        if(isStudent)
+            mutableStateOf<Int?>(6)
+        else
+        mutableStateOf<Int?>(null)
+    }
     var selectedCourse = remember { mutableStateOf<Course?>(null) }
 
     var showBranchMenu = remember { mutableStateOf(false) }
@@ -95,16 +101,27 @@ fun AddCourseForm(
                 Box {
                     OutlinedTextField(
                         value = selectedSemester.value?.let { "Semester $it" } ?: "",
-                        onValueChange = {},
+                        onValueChange = {
+                            if(isStudent)
+                                selectedSemester.value = 6
+                            else
+                                selectedSemester.value = it.toIntOrNull()
+                        },
                         label = { Text("Semester") },
                         readOnly = true,
+                        enabled = !isStudent,
                         trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Dropdown",
-                                modifier = Modifier.Companion
-                                    .clickable { showSemesterMenu.value = true }
-                            )
+                            if(!isStudent)
+                            {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = "Dropdown",
+                                    modifier = Modifier.Companion
+                                        .clickable { showSemesterMenu.value = true }
+                                )
+                            }
+                            else
+                                Box{}
                         },
                         modifier = Modifier.Companion.fillMaxWidth()
                     )

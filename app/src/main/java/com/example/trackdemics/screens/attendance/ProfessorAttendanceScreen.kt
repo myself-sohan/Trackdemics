@@ -31,7 +31,6 @@ import androidx.navigation.NavController
 import com.example.trackdemics.screens.attendance.components.AddCourseCard
 import com.example.trackdemics.screens.attendance.components.AddCourseForm
 import com.example.trackdemics.screens.attendance.components.ProfessorAttendanceCard
-import com.example.trackdemics.screens.attendance.components.StudentAttendanceCard
 import com.example.trackdemics.screens.attendance.model.Course
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.screens.attendance.model.SemesterCourses
@@ -44,7 +43,7 @@ fun ProfessorAttendanceScreen(
 {
     val openDialog = remember { mutableStateOf(false) }
     // ✅ Maintain dynamic list of courses
-    val professorCourses = remember { mutableStateListOf<ProfessorCourse>() }
+    val courses = remember { mutableStateListOf<ProfessorCourse>() }
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
@@ -89,7 +88,7 @@ fun ProfessorAttendanceScreen(
                     openDialog = openDialog
                 )
                 {course, semester, branch ->
-                    professorCourses.add(
+                    courses.add(
                         ProfessorCourse(
                             courseName = course.name,
                             courseCode = course.code,
@@ -98,12 +97,12 @@ fun ProfessorAttendanceScreen(
                         )
                     )
                 }
-            if (professorCourses.isNotEmpty())
+            if (courses.isNotEmpty())
             {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(professorCourses.size) { index ->
+                    items(courses.size) { index ->
                         ProfessorAttendanceCard(
-                            course = professorCourses[index],
+                            course = courses[index],
                             navController = navController
                         )
                     }
