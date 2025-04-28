@@ -2,30 +2,33 @@ package com.example.trackdemics.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.trackdemics.screens.role.RoleScreen
-import com.example.trackdemics.screens.home.StudentHomeScreen
-import com.example.trackdemics.screens.login.LoginScreen
-import com.example.trackdemics.screens.signup.SignUpScreen
-import androidx.navigation.NavType
 import com.example.trackdemics.screens.attendance.StudentAttendanceScreen
 import com.example.trackdemics.screens.home.AdminHomeScreen
 import com.example.trackdemics.screens.home.ProfessorHomeScreen
+import com.example.trackdemics.screens.home.StudentHomeScreen
+import com.example.trackdemics.screens.login.LoginScreen
+import com.example.trackdemics.screens.role.RoleScreen
+import com.example.trackdemics.screens.signup.SignUpScreen
 import com.example.trackdemics.screens.signup.SignUpViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.trackdemics.screens.splash.SplashScreen
 
 @Composable
-fun TrackdemicsNavigation()
-{
+fun TrackdemicsNavigation() {
     val navController = rememberNavController()
-    NavHost (
+    NavHost(
         navController = navController,
-        startDestination = TrackdemicsScreens.RoleScreen.name
+        startDestination = TrackdemicsScreens.SplashScreen.name
     )
     {
+        composable(TrackdemicsScreens.SplashScreen.name)
+        {
+            SplashScreen(navController = navController)
+        }
         composable(TrackdemicsScreens.StudentHomeScreen.name)
         {
             StudentHomeScreen(navController = navController)
