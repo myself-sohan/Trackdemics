@@ -11,6 +11,7 @@ import com.example.trackdemics.screens.home.StudentHomeScreen
 import com.example.trackdemics.screens.login.LoginScreen
 import com.example.trackdemics.screens.signup.SignUpScreen
 import androidx.navigation.NavType
+import com.example.trackdemics.screens.attendance.ProfessorAttendanceScreen
 import com.example.trackdemics.screens.attendance.StudentAttendanceScreen
 import com.example.trackdemics.screens.home.AdminHomeScreen
 import com.example.trackdemics.screens.home.ProfessorHomeScreen
@@ -23,7 +24,7 @@ fun TrackdemicsNavigation()
     val navController = rememberNavController()
     NavHost (
         navController = navController,
-        startDestination = TrackdemicsScreens.RoleScreen.name
+        startDestination = TrackdemicsScreens.ProfessorAttendanceScreen.name
     )
     {
         composable(TrackdemicsScreens.StudentHomeScreen.name)
@@ -33,6 +34,10 @@ fun TrackdemicsNavigation()
         composable(TrackdemicsScreens.StudentAttendanceScreen.name)
         {
             StudentAttendanceScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.ProfessorAttendanceScreen.name)
+        {
+            ProfessorAttendanceScreen(navController = navController)
         }
         composable(TrackdemicsScreens.AdminHomeScreen.name)
         {

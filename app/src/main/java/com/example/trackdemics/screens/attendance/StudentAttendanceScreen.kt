@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.trackdemics.screens.attendance.components.AttendanceCard
+import com.example.trackdemics.screens.attendance.components.StudentAttendanceCard
 import com.example.trackdemics.screens.attendance.components.SemesterSelector
 import com.example.trackdemics.screens.attendance.model.StudentCourseAttendance
 import com.example.trackdemics.widgets.TrackdemicsAppBar
@@ -130,7 +130,7 @@ fun StudentAttendanceScreen(navController: NavController) {
                 if (selectedSemester.value == "Semester 6") {
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(courses.size) { index ->
-                            AttendanceCard(course = courses[index])
+                            StudentAttendanceCard(course = courses[index])
                         }
                     }
                 } else {
