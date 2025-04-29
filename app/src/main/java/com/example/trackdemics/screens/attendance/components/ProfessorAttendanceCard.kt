@@ -71,14 +71,14 @@ fun ProfessorAttendanceCard(
 
                         // Save QR session to Firestore
                         val qrData = mapOf(
-                            "courseCode" to course.courseCode,
-                            "generatedAt" to generatedAt,
-                            "expiresAt" to expiresAt,
-                            "qrContent" to qrContent
+                            "course_code" to course.courseCode,
+                            "generated_at" to generatedAt,
+                            "expires_at" to expiresAt,
+                            "qr_content" to qrContent
                         )
 
                         FirebaseFirestore.getInstance()
-                            .collection("qr_sessions")
+                            .collection("qr_codes")
                             .add(qrData)
                     }
                 },
@@ -89,7 +89,7 @@ fun ProfessorAttendanceCard(
         }
         if (showQrDialog.value) {
             QrCodeDialog(
-                course = course,
+                "TEST",
                 onDismiss = { showQrDialog.value = false }
             )
         }

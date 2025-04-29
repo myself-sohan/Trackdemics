@@ -17,9 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,22 +30,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.trackdemics.repository.AppFirestoreService.loadStudentCourses
 import com.example.trackdemics.screens.attendance.components.AddCourseCard
 import com.example.trackdemics.screens.attendance.components.AddCourseForm
-import com.example.trackdemics.screens.attendance.components.ProfessorAttendanceCard
 import com.example.trackdemics.screens.attendance.components.StudentAttendanceCard
-import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.screens.attendance.model.StudentCourse
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun StudentAttendanceScreen(
     navController: NavController
-)
-{
+) {
     val openDialog = remember { mutableStateOf(false) }
-    // ✅ Maintain dynamic list of courses
     val courses = remember { mutableStateListOf<StudentCourse>() }
+    val auth = remember { FirebaseAuth.getInstance() }
+    val firestore = remember { FirebaseFirestore.getInstance() }
+    val coroutineScope = rememberCoroutineScope()
+
+    // 🚀 Fetch courses from Firestore on screen load
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            loadStudentCourses(courses)
+        }
+    }
+
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
@@ -54,15 +69,13 @@ fun StudentAttendanceScreen(
                 isActionScreen = true
             )
         }
-    )
-    {
+    ) { padding ->
         Column(
             modifier = Modifier
-                .padding(it)
+                .padding(padding)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
-        )
-        {
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,32 +89,40 @@ fun StudentAttendanceScreen(
                         )
                     ),
                 contentAlignment = Alignment.Center
-            )
-            {
+            ) {
                 AddCourseCard {
                     openDialog.value = true
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-            if(openDialog.value)
+
+            if (openDialog.value) {
                 AddCourseForm(
                     openDialog = openDialog,
                     isStudent = true
-                )
-                {course, semester, branch ->
-                    courses.add(
-                        StudentCourse(
-                            name = course.name,
-                            code = course.code,
-                            sem = semester,
-                            total = 6,
-                            attended = 7
+                ) { course, semester, branch ->
+                    coroutineScope.launch {
+                        // 1. Update Firestore
+                        auth.currentUser?.email?.let { email ->
+                            val studentSnapshot = firestore.collection("students")
+                                .whereEqualTo("email", email.trim().lowercase())
+                                .get()
+                                .await()
 
-                        )
-                    )
+                            val studentDoc = studentSnapshot.documents.firstOrNull()
+                            studentDoc?.reference?.update(
+                                "enrolled_courses", FieldValue.arrayUnion(course.code)
+                            )?.await()
+
+                            // 2. Reload updated courses
+                            loadStudentCourses(courses)
+                        }
+                    }
+                    openDialog.value = false
                 }
-            if (courses.isNotEmpty())
-            {
+            }
+
+            if (courses.isNotEmpty()) {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(courses.size) { index ->
                         StudentAttendanceCard(
@@ -110,32 +131,36 @@ fun StudentAttendanceScreen(
                         )
                     }
                 }
+            } else {
+                EmptyState()
             }
-            else {
-                Card(
-                    modifier = Modifier
-                        .fillMaxHeight(0.1f)
-                        .fillMaxWidth(0.5f),
-                    shape = MaterialTheme.shapes.medium,
-                    elevation = CardDefaults.cardElevation(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "No Courses Found",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                    }
-                }
-            }
+        }
+    }
+}
+
+@Composable
+fun EmptyState() {
+    Card(
+        modifier = Modifier
+            .fillMaxHeight(0.1f)
+            .fillMaxWidth(0.5f),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "No Courses Found",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
         }
     }
 }

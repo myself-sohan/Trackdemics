@@ -2,6 +2,8 @@ package com.example.trackdemics.repository
 
 import android.util.Log
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
+import com.example.trackdemics.screens.attendance.model.StudentCourse
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -70,6 +72,45 @@ object AppFirestoreService {
                     semester = semester
                 )
             } else null
+        }
+    }
+    suspend fun loadStudentCourses(courses: MutableList<StudentCourse>) {
+        courses.clear() // important: reset list
+
+        val auth = FirebaseAuth.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
+
+        auth.currentUser?.email?.let { email ->
+            val studentSnapshot = firestore.collection("students")
+                .whereEqualTo("email", email.trim().lowercase())
+                .get()
+                .await()
+
+            val studentDoc = studentSnapshot.documents.firstOrNull()
+            val enrolledCourses = studentDoc?.get("enrolled_courses") as? List<String> ?: emptyList()
+
+            if (enrolledCourses.isNotEmpty()) {
+                val coursesSnapshot = firestore.collection("courses")
+                    .whereIn("code", enrolledCourses)
+                    .get()
+                    .await()
+
+                for (doc in coursesSnapshot.documents) {
+                    val name = doc.getString("name") ?: continue
+                    val code = doc.getString("code") ?: continue
+                    val branch = doc.getString("branch") ?: ""
+                    val semester = doc.get("semester")?.toString() ?: ""
+                    courses.add(
+                        StudentCourse(
+                            name = name,
+                            code = code,
+                            sem = semester,
+                            total = 0,   // TODO: replace with real total if needed
+                            attended = 0
+                        )
+                    )
+                }
+            }
         }
     }
 }
