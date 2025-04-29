@@ -44,6 +44,12 @@ android {
 }
 
 dependencies {
+
+    //QR Code
+    implementation ("com.google.zxing:core:3.5.1")
+    implementation ("androidx.core:core-ktx:1.16.0")
+
+
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     // For example, add the dependencies for Firebase Authentication and Cloud Firestore

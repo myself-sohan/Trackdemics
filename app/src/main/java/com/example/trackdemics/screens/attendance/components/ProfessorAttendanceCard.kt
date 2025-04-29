@@ -1,6 +1,5 @@
 package com.example.trackdemics.screens.attendance.components
 
-import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,20 +27,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.trackdemics.screens.attendance.model.ProfessorCourse
+import com.example.trackdemics.screens.home.components.QrCodeDialog
 import com.example.trackdemics.ui.theme.onSurfaceLight
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfessorAttendanceCard(
     navController: NavController,
-    course:ProfessorCourse
-)
-{
+    course: ProfessorCourse,
+    coroutineScope: CoroutineScope
+) {
+    var showQrDialog = remember { mutableStateOf(false) }
     var showDialog = remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
-            .clickable{
+            .clickable {
                 showDialog.value = true
             },
         shape = MaterialTheme.shapes.medium,
@@ -59,11 +64,33 @@ fun ProfessorAttendanceCard(
                     showDialog.value = false
                 },
                 onGenerateQr = {
-                    showDialog.value = false
+                    coroutineScope.launch {
+                        val qrContent = "${course.courseCode}_${System.currentTimeMillis()}"
+                        val generatedAt = System.currentTimeMillis()
+                        val expiresAt = generatedAt + (1 * 60 * 60 * 1000) // 1 hour later
+
+                        // Save QR session to Firestore
+                        val qrData = mapOf(
+                            "courseCode" to course.courseCode,
+                            "generatedAt" to generatedAt,
+                            "expiresAt" to expiresAt,
+                            "qrContent" to qrContent
+                        )
+
+                        FirebaseFirestore.getInstance()
+                            .collection("qr_sessions")
+                            .add(qrData)
+                    }
                 },
                 onDeleteCourse = {
                     showDialog.value = false
                 }
+            )
+        }
+        if (showQrDialog.value) {
+            QrCodeDialog(
+                course = course,
+                onDismiss = { showQrDialog.value = false }
             )
         }
         Box(
@@ -119,6 +146,7 @@ fun ProfessorAttendanceCard(
         }
     }
 }
+
 @Composable
 fun ActionDialog(
     onDismissRequest: () -> Unit,
