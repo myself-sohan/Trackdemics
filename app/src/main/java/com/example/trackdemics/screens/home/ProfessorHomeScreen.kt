@@ -80,16 +80,21 @@ fun ProfessorHomeScreen(
                     label = "Dr.Professor"
                 )
 
-                ProfessorFeatureGrid()
+                ProfessorFeatureGrid(
+                    navController = navController
+                )
             }
         }
     }
 }
 
 @Composable
-fun ProfessorFeatureGrid() {
+fun ProfessorFeatureGrid(
+    navController: NavController
+)
+{
     val features = listOf(
-        FeatureItem("Attendance", Icons.Default.Groups) { /* Navigate to Attendance */ },
+        FeatureItem("Attendance", Icons.Default.Groups,{navController.navigate("ProfessorAttendanceScreen")}),
         FeatureItem("Projects", Icons.Default.Lightbulb) { /* Navigate to Results */ },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
