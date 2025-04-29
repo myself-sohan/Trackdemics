@@ -20,11 +20,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.trackdemics.screens.attendance.model.StudentCourseAttendance
+import androidx.navigation.NavController
+import com.example.trackdemics.screens.attendance.model.StudentCourse
 import com.example.trackdemics.ui.theme.onSurfaceLight
 
 @Composable
-fun StudentAttendanceCard(course: StudentCourseAttendance) {
+fun StudentAttendanceCard(
+    course: StudentCourse,
+    navController: NavController
+)
+{
     Card(
         modifier = Modifier.Companion.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -47,7 +52,7 @@ fun StudentAttendanceCard(course: StudentCourseAttendance) {
         {
             Column(modifier = Modifier.Companion.padding(16.dp)) {
                 Text(
-                    text = course.subject,
+                    text = course.name,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Companion.Bold,
                     color = Color.Companion.White
