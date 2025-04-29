@@ -13,13 +13,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,23 +31,64 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.trackdemics.repository.AppFirestoreService
 import com.example.trackdemics.screens.attendance.components.AddCourseCard
 import com.example.trackdemics.screens.attendance.components.AddCourseForm
 import com.example.trackdemics.screens.attendance.components.ProfessorAttendanceCard
-import com.example.trackdemics.screens.attendance.components.StudentAttendanceCard
 import com.example.trackdemics.screens.attendance.model.Course
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.screens.attendance.model.SemesterCourses
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun ProfessorAttendanceScreen(
     navController: NavController
-)
-{
+) {
+    val firestoreService = remember { AppFirestoreService }
+    val auth = remember { FirebaseAuth.getInstance() }
+    val coroutineScope = rememberCoroutineScope()
+
     val openDialog = remember { mutableStateOf(false) }
-    // ✅ Maintain dynamic list of courses
     val professorCourses = remember { mutableStateListOf<ProfessorCourse>() }
+    val loading = remember { mutableStateOf(true) }
+
+    // Professor UID state
+    val professorUid = remember { mutableStateOf<String?>(null) }
+
+    // Fetch UID + courses once
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            try {
+                auth.currentUser?.email?.let { email ->
+                    val professorSnapshot = FirebaseFirestore.getInstance()
+                        .collection("professors")
+                        .whereEqualTo("email", email)
+                        .get()
+                        .await()
+
+                    val doc = professorSnapshot.documents.firstOrNull()
+                    val uid = doc?.id
+                    professorUid.value = uid
+
+                    if (uid != null) {
+                        val courses = firestoreService.getProfessorCourses(uid)
+                        professorCourses.clear()
+                        professorCourses.addAll(courses)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                loading.value = false
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
@@ -55,15 +99,13 @@ fun ProfessorAttendanceScreen(
                 isActionScreen = true
             )
         }
-    )
-    {
+    ) { padding ->
         Column(
             modifier = Modifier
-                .padding(it)
+                .padding(padding)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
-        )
-        {
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,65 +119,89 @@ fun ProfessorAttendanceScreen(
                         )
                     ),
                 contentAlignment = Alignment.Center
-            )
-            {
+            ) {
                 AddCourseCard {
                     openDialog.value = true
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
-            if(openDialog.value)
-                AddCourseForm(
-                    openDialog = openDialog
-                )
-                {course, semester, branch ->
-                    professorCourses.add(
-                        ProfessorCourse(
-                            courseName = course.name,
-                            courseCode = course.code,
-                            branch = branch,
-                            semester = semester,
-                        )
-                    )
-                }
-            if (professorCourses.isNotEmpty())
-            {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(professorCourses.size) { index ->
-                        ProfessorAttendanceCard(
-                            course = professorCourses[index],
-                            navController = navController
-                        )
+
+            if (openDialog.value) {
+                AddCourseForm(openDialog = openDialog) { course, semester, branch ->
+                    coroutineScope.launch {
+                        try {
+                            professorUid.value?.let { uid ->
+                                firestoreService.addCourseToProfessor(
+                                    professorUid = uid,
+                                    course = ProfessorCourse(
+                                        courseName = course.name,
+                                        courseCode = course.code,
+                                        semester = semester,
+                                        branch = branch
+                                    )
+                                )
+                                // Refresh courses
+                                val updatedCourses = firestoreService.getProfessorCourses(uid)
+                                professorCourses.clear()
+                                professorCourses.addAll(updatedCourses)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                 }
-            } else {
-                Card(
-                    modifier = Modifier
-                        .fillMaxHeight(0.1f)
-                        .fillMaxWidth(0.5f),
-                    shape = MaterialTheme.shapes.medium,
-                    elevation = CardDefaults.cardElevation(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            when {
+                loading.value -> {
+                    CircularProgressIndicator()
+                }
+
+                professorCourses.isNotEmpty() -> {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(professorCourses.size) { index ->
+                            ProfessorAttendanceCard(
+                                course = professorCourses[index],
+                                navController = navController,
+                                coroutineScope = coroutineScope
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxHeight(0.1f)
+                            .fillMaxWidth(0.5f),
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = CardDefaults.cardElevation(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
-                        Text(
-                            text = "No Courses Found",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "No Courses Found",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
 
 // Create the complete course list
 val courseData = listOf(
@@ -199,21 +265,21 @@ val courseData = listOf(
         semester = 6,
         branch = "CSE",
         courses = listOf(
-            Course("CS 302", "Software Engineering"),
-            Course("CS 304", "Compiler Design"),
-            Course("CS 312", "Computer Graphics"),
-            Course("CS 314", "Shell Programming"),
-            Course("CS 316", "Augmented and Virtual Reality"),
-            Course("CS 318", "Information Theory and Coding"),
-            Course("CS 320", "Machine Learning"),
-            Course("CS 322", "Cryptography and Network Security"),
-            Course("CS 324", "Data Analysis and Visualization"),
-            Course("CS 326", "Multimedia"),
-            Course("CS 328", "System Software"),
-            Course("CS 352", "Software Engineering Lab"),
-            Course("CS 354", "Compiler Design Lab"),
-            Course("CS 372", "Introduction to Machine Learning"),
-            Course("HS 392", "Corporate Communication")
+            Course("CS302", "Software Engineering"),
+            Course("CS304", "Compiler Design"),
+            Course("CS312", "Computer Graphics"),
+            Course("CS314", "Shell Programming"),
+            Course("CS316", "Augmented and Virtual Reality"),
+            Course("CS318", "Information Theory and Coding"),
+            Course("CS320", "Machine Learning"),
+            Course("CS322", "Cryptography and Network Security"),
+            Course("CS324", "Data Analysis and Visualization"),
+            Course("CS326", "Multimedia"),
+            Course("CS328", "System Software"),
+            Course("CS352", "Software Engineering Lab"),
+            Course("CS354", "Compiler Design Lab"),
+            Course("CS372", "Introduction to Machine Learning"),
+            Course("HS392", "Corporate Communication")
         )
     ),
     SemesterCourses(

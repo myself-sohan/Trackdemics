@@ -27,11 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.trackdemics.screens.attendance.courseData
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
 import com.example.trackdemics.screens.signup.SignUpViewModel
+import com.example.trackdemics.utils.populateCoursesToFirestore
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 
 @Composable
@@ -95,7 +97,7 @@ fun ProfessorFeatureGrid(
 {
     val features = listOf(
         FeatureItem("Attendance", Icons.Default.Groups,{navController.navigate("ProfessorAttendanceScreen")}),
-        FeatureItem("Projects", Icons.Default.Lightbulb) { /* Navigate to Results */ },
+        FeatureItem("Projects", Icons.Default.Lightbulb) {  },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
         FeatureItem("Assignment", Icons.AutoMirrored.Filled.Assignment) { /* Navigate to Events */ },

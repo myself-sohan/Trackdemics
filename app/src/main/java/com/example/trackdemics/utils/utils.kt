@@ -1,6 +1,8 @@
 package com.example.trackdemics.utils
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.widget.ImageView
 import androidx.compose.foundation.layout.Box
@@ -10,8 +12,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
 import com.bumptech.glide.Glide
 import com.example.trackdemics.R
+import com.example.trackdemics.screens.attendance.model.SemesterCourses
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MultipartBody
@@ -22,14 +33,34 @@ import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 
-fun uploadImageToCloudinary(fileUri: Uri, context: Context, onSuccess: (String) -> Unit, onError: (Exception) -> Unit) {
+fun generateQrCodeBitmap(content: String, size: Int = 512): Bitmap {
+    val writer = QRCodeWriter()
+    val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size)
+    val bmp = createBitmap(size, size, Bitmap.Config.RGB_565)
+
+    for (x in 0 until size) {
+        for (y in 0 until size) {
+            bmp[x, y] = if (bitMatrix[x, y]) Color.BLACK else Color.WHITE
+        }
+    }
+    return bmp
+}
+
+
+fun uploadImageToCloudinary(
+    fileUri: Uri,
+    context: Context,
+    onSuccess: (String) -> Unit,
+    onError: (Exception) -> Unit
+) {
     val cloudName = "cloud-image-ashad"
     val uploadPreset = "Student PFPs"
 
     val requestBody = MultipartBody.Builder()
         .setType(MultipartBody.FORM)
         .addFormDataPart("upload_preset", uploadPreset)
-        .addFormDataPart("file", "profile.jpg",
+        .addFormDataPart(
+            "file", "profile.jpg",
             context.contentResolver.openInputStream(fileUri)?.use { inputStream ->
                 inputStream.readBytes().toRequestBody()
             } ?: throw Exception("File not found")
@@ -94,5 +125,31 @@ fun LoadImageWithGlide(
         }
     }
 }
+
+fun populateCoursesToFirestore(courseData: List<SemesterCourses>) {
+    val db = FirebaseFirestore.getInstance()
+    val coursesCollection = db.collection("courses")
+
+    CoroutineScope(Dispatchers.IO).launch {
+        courseData.forEach { semesterCourses ->
+            semesterCourses.courses.forEach { course ->
+                val courseMap = mapOf(
+                    "code" to course.code,
+                    "name" to course.name,
+                    "branch" to semesterCourses.branch,
+                    "semester" to semesterCourses.semester.toString(),
+                    "enrolled_students" to emptyList<String>()
+                )
+
+                coursesCollection
+                    .document(course.code.trim().replace(" ", "")) // custom doc ID (optional)
+                    .set(courseMap)
+                    .addOnSuccessListener { println("Added ${course.name}") }
+                    .addOnFailureListener { e -> println("Failed: ${e.message}") }
+            }
+        }
+    }
+}
+
 
 
