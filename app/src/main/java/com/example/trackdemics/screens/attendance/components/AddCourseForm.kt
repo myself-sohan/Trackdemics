@@ -188,7 +188,8 @@ fun AddCourseForm(
                     openDialog.value = false
                 },
                 enabled = selectedCourse.value != null
-            ) {
+            )
+            {
                 Text("Add")
             }
         }
