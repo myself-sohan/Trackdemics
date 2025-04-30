@@ -48,6 +48,7 @@ dependencies {
     //QR Code
     implementation ("com.google.zxing:core:3.5.1")
     implementation ("androidx.core:core-ktx:1.16.0")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 
 
     // Import the Firebase BoM
