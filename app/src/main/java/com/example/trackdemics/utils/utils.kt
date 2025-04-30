@@ -17,8 +17,15 @@ import androidx.core.graphics.set
 import com.bumptech.glide.Glide
 import com.example.trackdemics.R
 import com.example.trackdemics.screens.attendance.model.SemesterCourses
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.zxing.BarcodeFormat
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.LuminanceSource
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.Result
+import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +53,22 @@ fun generateQrCodeBitmap(content: String, size: Int = 512): Bitmap {
     return bmp
 }
 
+fun decodeQrFromBitmap(bitmap: Bitmap): String? {
+    val width = bitmap.width
+    val height = bitmap.height
+    val pixels = IntArray(width * height)
+    bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+    val source: LuminanceSource = RGBLuminanceSource(width, height, pixels)
+    val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+
+    return try {
+        val result: Result = QRCodeReader().decode(binaryBitmap)
+        result.text
+    } catch (e: Exception) {
+        null
+    }
+}
 
 fun uploadImageToCloudinary(
     fileUri: Uri,
@@ -126,6 +149,21 @@ fun LoadImageWithGlide(
     }
 }
 
+fun incrementClassesTaken(courseCode: String) {
+    val db = FirebaseFirestore.getInstance()
+
+    db.collection("courses")
+        .document(courseCode)
+        .update("classes_taken", FieldValue.increment(1))
+        .addOnSuccessListener {
+            println("Incremented classes_taken for $courseCode")
+        }
+        .addOnFailureListener {
+            println("Failed to increment: ${it.message}")
+        }
+}
+
+
 fun populateCoursesToFirestore(courseData: List<SemesterCourses>) {
     val db = FirebaseFirestore.getInstance()
     val coursesCollection = db.collection("courses")
@@ -148,6 +186,33 @@ fun populateCoursesToFirestore(courseData: List<SemesterCourses>) {
                     .addOnFailureListener { e -> println("Failed: ${e.message}") }
             }
         }
+    }
+}
+
+fun cleanUpCoursesCollection() {
+    val db = FirebaseFirestore.getInstance()
+    val coursesRef = db.collection("courses")
+
+    coursesRef.get().addOnSuccessListener { querySnapshot ->
+        for (doc in querySnapshot.documents) {
+            val docRef = doc.reference
+
+            // Prepare field updates
+            val updates = mapOf(
+                "enrolled_students" to FieldValue.delete(),
+                "classes_taken" to 0
+            )
+
+            docRef.update(updates)
+                .addOnSuccessListener {
+                    println("Updated course: ${doc.id}")
+                }
+                .addOnFailureListener {
+                    println("Failed to update ${doc.id}: ${it.message}")
+                }
+        }
+    }.addOnFailureListener {
+        println("Failed to fetch courses: ${it.message}")
     }
 }
 

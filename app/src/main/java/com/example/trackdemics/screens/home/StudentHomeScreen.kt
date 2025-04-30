@@ -1,6 +1,6 @@
 package com.example.trackdemics.screens.home
 
-import androidx.compose.foundation.Image
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,13 +18,10 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,16 +31,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
+import com.example.trackdemics.screens.home.components.QrCodeDialog
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
-import com.example.trackdemics.utils.generateQrCodeBitmap
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -93,14 +89,32 @@ fun StudentHomeScreen(
                     }
 
                     if (snapshot != null) {
-                        val activeQr = snapshot.documents.firstOrNull { doc ->
-                            val courseCode = doc.getString("course_code")
-                            courseCode in enrolledCourses
-                        }
+                        val activeQr = snapshot.documents
+                            .filter { it.getString("course_code") in enrolledCourses }
+                            .maxByOrNull { it.getLong("generated_at") ?: 0 }
+
 
                         if (activeQr != null) {
-                            qrContent = activeQr.getString("qr_content")
-                            showQrDialog = true
+                            val qrContentValue =
+                                activeQr.getString("qr_content") ?: return@addSnapshotListener
+                            val userId = FirebaseAuth.getInstance().currentUser?.uid
+                                ?: return@addSnapshotListener
+
+                            // Check if student already scanned this QR
+                            FirebaseFirestore.getInstance()
+                                .collection("attendance_record")
+                                .whereEqualTo("studentId", userId)
+                                .whereEqualTo("scannedQrContent", qrContentValue)
+                                .get()
+                                .addOnSuccessListener { snapshot ->
+                                    if (snapshot.isEmpty) {
+                                        qrContent = qrContentValue
+                                        showQrDialog = true
+                                    } else {
+                                        qrContent = null
+                                        showQrDialog = false
+                                    }
+                                }
                         } else {
                             qrContent = null
                             showQrDialog = false
@@ -109,24 +123,19 @@ fun StudentHomeScreen(
                 }
         }
     }
-
+    val context = LocalContext.current
     // QR Dialog
     if (showQrDialog && qrContent != null) {
-        AlertDialog(
-            onDismissRequest = { showQrDialog = false },
-            title = { Text("Scan to Mark Attendance") },
-            text = {
-                val qrBitmap = generateQrCodeBitmap(qrContent!!)
-                Image(bitmap = qrBitmap.asImageBitmap(), contentDescription = "QR Code")
-            },
-            confirmButton = {
-                TextButton(onClick = { showQrDialog = false }) {
-                    Text("Close")
-                }
-            },
-            containerColor = Color.White
+        QrCodeDialog(
+            content = qrContent!!,
+            onDismiss = { showQrDialog = false },
+            onScanSuccess = {
+                showQrDialog = false
+                Toast.makeText(context, "Scan Successful", Toast.LENGTH_SHORT).show()
+            }
         )
     }
+
 
     // Main UI
     ModalNavigationDrawer(

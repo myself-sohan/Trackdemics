@@ -41,7 +41,6 @@ import com.example.trackdemics.screens.attendance.model.SemesterCourses
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 

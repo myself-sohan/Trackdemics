@@ -54,36 +54,42 @@ fun ProfileSection(
     var profileImageUrl by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            coroutineScope.launch {
-                try {
-                    uploadImageToCloudinary(it, context,
-                        onSuccess = { url ->
-                            coroutineScope.launch {
-                                val userEmail = auth.currentUser?.email?.trim()?.lowercase()
-                                if (userEmail != null) {
-                                    val snapshot = firestore.collection("students")
-                                        .whereEqualTo("email", userEmail)
-                                        .get()
-                                        .await()
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                coroutineScope.launch {
+                    try {
+                        uploadImageToCloudinary(
+                            it, context,
+                            onSuccess = { url ->
+                                coroutineScope.launch {
+                                    val userEmail = auth.currentUser?.email?.trim()?.lowercase()
+                                    if (userEmail != null) {
+                                        val snapshot = firestore.collection("students")
+                                            .whereEqualTo("email", userEmail)
+                                            .get()
+                                            .await()
 
-                                    val doc = snapshot.documents.firstOrNull()
-                                    doc?.reference?.update("profile_pic_url", url)?.await()
+                                        val doc = snapshot.documents.firstOrNull()
+                                        doc?.reference?.update("profile_pic_url", url)?.await()
+                                    }
                                 }
+                                profileImageUrl = url
+                            },
+                            onError = { error ->
+                                Toast.makeText(
+                                    context,
+                                    "Upload failed: ${error.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                            profileImageUrl = url
-                        },
-                        onError = { error ->
-                            Toast.makeText(context, "Upload failed: ${error.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        )
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-    }
 
     LaunchedEffect(Unit) {
         auth.currentUser?.email?.let { email ->
@@ -124,7 +130,11 @@ fun ProfileSection(
                     .clickable {
                         launcher.launch("image/*")
                     }
-                    .border(3.dp, MaterialTheme.colorScheme.primary, CircleShape) // 🎨 Circular border
+                    .border(
+                        3.dp,
+                        MaterialTheme.colorScheme.primary,
+                        CircleShape
+                    ) // 🎨 Circular border
             )
 
 

@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.attendance.components
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +32,7 @@ import androidx.navigation.NavController
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.screens.home.components.QrCodeDialog
 import com.example.trackdemics.ui.theme.onSurfaceLight
+import com.example.trackdemics.utils.incrementClassesTaken
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,6 +43,7 @@ fun ProfessorAttendanceCard(
     course: ProfessorCourse,
     coroutineScope: CoroutineScope
 ) {
+    val context = LocalContext.current
     var showQrDialog = remember { mutableStateOf(false) }
     var showDialog = remember { mutableStateOf(false) }
     Card(
@@ -80,6 +84,17 @@ fun ProfessorAttendanceCard(
                         FirebaseFirestore.getInstance()
                             .collection("qr_codes")
                             .add(qrData)
+                            .addOnSuccessListener { documentReference ->
+                                Toast.makeText(
+                                    context,
+                                    "QR Code generated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        // After saving QR code
+                        incrementClassesTaken(course.courseCode)
+                        showDialog.value = false
+
                     }
                 },
                 onDeleteCourse = {
@@ -90,7 +105,11 @@ fun ProfessorAttendanceCard(
         if (showQrDialog.value) {
             QrCodeDialog(
                 "TEST",
-                onDismiss = { showQrDialog.value = false }
+                onDismiss = { showQrDialog.value = false },
+                onScanSuccess = {
+                    showQrDialog.value = false
+                    Toast.makeText(context, "QR Scanned Successfully", Toast.LENGTH_SHORT).show()
+                }
             )
         }
         Box(
