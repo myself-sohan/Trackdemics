@@ -32,7 +32,7 @@ object AppFirestoreService {
                 mapOf(
                     "name" to course.courseName,
                     "code" to course.courseCode,
-                    "branch" to course.branch,
+                    //"branch" to course.branch,
                     "semester" to course.semester,
                     "enrolled_students" to emptyList<String>()
                 )
@@ -68,7 +68,7 @@ object AppFirestoreService {
                 ProfessorCourse(
                     courseName = name,
                     courseCode = code,
-                    branch = branch,
+                    //branch = branch,
                     semester = semester
                 )
             } else null

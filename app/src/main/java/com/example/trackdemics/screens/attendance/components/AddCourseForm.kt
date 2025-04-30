@@ -34,7 +34,7 @@ fun getCoursesForSemester(semester: Int, branch: String): List<Course> {
 fun AddCourseForm(
     openDialog: MutableState<Boolean> = remember { mutableStateOf(false) },
     isStudent: Boolean = false,
-    onAddCourse: (Course, String , String) -> Unit = { _, _, _ -> }
+    onAddCourse: (Course, String ) -> Unit = { _, _ -> }
 )
 {
     var selectedBranch = remember { mutableStateOf("") }
@@ -184,7 +184,7 @@ fun AddCourseForm(
         confirmButton = {
             Button(
                 onClick = {
-                    onAddCourse(selectedCourse.value!!, selectedBranch.value, selectedSemester.value.toString())
+                    onAddCourse(selectedCourse.value!!,  selectedSemester.value.toString())
                     openDialog.value = false
                 },
                 enabled = selectedCourse.value != null

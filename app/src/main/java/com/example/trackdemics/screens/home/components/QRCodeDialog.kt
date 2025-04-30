@@ -28,9 +28,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.trackdemics.R
 import com.example.trackdemics.utils.decodeQrFromBitmap
 import com.example.trackdemics.utils.generateQrCodeBitmap
 import com.google.firebase.auth.FirebaseAuth
@@ -84,7 +90,8 @@ fun QrCodeDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Image(
                     bitmap = bitmap.asImageBitmap(),
@@ -94,23 +101,39 @@ fun QrCodeDialog(
                         .scale(pulse.value)
                         .padding(8.dp)
                 )
+                //Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        append("Course: ")
+                        withStyle(
+                            style = SpanStyle(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontFamily = FontFamily(Font(R.font.notosans_variablefont))
+                            )
+                        ) {
+                            append(courseCode)
+                        }
+                    },
+                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
+                        fontWeight = FontWeight.Medium
+                    )
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Course Code: $courseCode",
-                    fontSize = 14.sp,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "Time: $timestamp",
+                    text = "$timestamp",
                     fontSize = 13.sp,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily(Font(R.font.notosans_variablefont))
+                    ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
         confirmButton = {
             Button(
+                elevation = ButtonDefaults.buttonElevation(15.dp),
                 onClick = {
                     val decoded = decodeQrFromBitmap(bitmap)
                     if (decoded != null) {

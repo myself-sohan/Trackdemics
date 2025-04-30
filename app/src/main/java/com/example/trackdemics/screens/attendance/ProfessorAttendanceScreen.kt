@@ -127,7 +127,7 @@ fun ProfessorAttendanceScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (openDialog.value) {
-                AddCourseForm(openDialog = openDialog) { course, semester, branch ->
+                AddCourseForm(openDialog = openDialog) { course, semester ->
                     coroutineScope.launch {
                         try {
                             professorUid.value?.let { uid ->
@@ -137,7 +137,6 @@ fun ProfessorAttendanceScreen(
                                         courseName = course.name,
                                         courseCode = course.code,
                                         semester = semester,
-                                        branch = branch
                                     )
                                 )
                                 // Refresh courses
