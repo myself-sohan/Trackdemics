@@ -100,7 +100,7 @@ fun StudentAttendanceScreen(
                 AddCourseForm(
                     openDialog = openDialog,
                     isStudent = true
-                ) { course, semester, branch ->
+                ) { course, semester ->
                     coroutineScope.launch {
                         // 1. Update Firestore
                         auth.currentUser?.email?.let { email ->
