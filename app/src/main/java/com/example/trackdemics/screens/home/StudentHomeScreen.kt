@@ -80,7 +80,6 @@ fun StudentHomeScreen(
         }
     }
 
-    // Live listen to QR codes
     LaunchedEffect(enrolledCourses) {
         if (enrolledCourses.isNotEmpty()) {
             val now = System.currentTimeMillis()

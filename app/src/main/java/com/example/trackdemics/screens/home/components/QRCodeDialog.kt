@@ -14,7 +14,7 @@ fun QrCodeDialog(content: String, onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Scan to Check-In") },
+        title = { Text("Scan to mark attendance!") },
         text = {
             Image(
                 bitmap = bitmap.asImageBitmap(),
