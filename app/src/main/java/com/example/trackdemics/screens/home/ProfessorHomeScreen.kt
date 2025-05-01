@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
@@ -106,7 +107,7 @@ fun ProfessorHomeScreen(
             ) {
                 ProfileSection(
                     modifier = Modifier,
-                    "Welcome, ${firstName ?: "Professor"} 👋"
+                    "Welcome, Dr. ${firstName ?: "Professor"} 👋"
                 )
 
                 ProfessorFeatureGrid(
@@ -123,11 +124,9 @@ fun ProfessorFeatureGrid(
 ) {
     val features = listOf(
         FeatureItem(
-            "Attendance",
-            Icons.Default.Groups,
-            { navController.navigate("ProfessorAttendanceScreen") }),
+            "Attendance", Icons.Default.Groups) { navController.navigate("ProfessorAttendanceScreen") },
         FeatureItem("Projects", Icons.Default.Lightbulb) { },
-        FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
+        FeatureItem("College Routine", Icons.Default.Schedule) { navController.navigate(TrackdemicsScreens.RoutineScreen.name) },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
         FeatureItem(
             "Assignment",

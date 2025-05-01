@@ -14,6 +14,7 @@ import com.example.trackdemics.screens.home.ProfessorHomeScreen
 import com.example.trackdemics.screens.home.StudentHomeScreen
 import com.example.trackdemics.screens.login.LoginScreen
 import com.example.trackdemics.screens.role.RoleScreen
+import com.example.trackdemics.screens.routine.RoutineScreen
 import com.example.trackdemics.screens.signup.SignUpScreen
 import com.example.trackdemics.screens.signup.SignUpViewModel
 import com.example.trackdemics.screens.splash.SplashScreen
@@ -26,6 +27,10 @@ fun TrackdemicsNavigation() {
         startDestination = TrackdemicsScreens.SplashScreen.name
     )
     {
+        composable(TrackdemicsScreens.RoutineScreen.name)
+        {
+            RoutineScreen(navController = navController)
+        }
         composable(TrackdemicsScreens.SplashScreen.name)
         {
             SplashScreen(navController = navController)
