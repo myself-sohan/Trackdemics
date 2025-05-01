@@ -204,6 +204,36 @@ fun ProfessorAttendanceScreen(
 
 val courseData = listOf(
     SemesterCourses(
+        semester = 1,
+        branch = "CSE",
+        courses = listOf(
+            Course("MA 101", "Differential Calculus and Linear Algebra"),
+            Course("ME 101", "Engineering Mechanics"),
+            Course("CY 101", "Chemistry"),
+            Course("CE 101", "Engineering Drawing"),
+            Course("EC 101", "Basic Electronics Engineering"),
+            Course("HS 101", "English Language Skills"),
+            Course("HS 151", "English Language Skills Lab"),
+            Course("CY 151", "Chemistry Lab"),
+            Course("EC 151", "Basic Electronics Lab")
+        )
+    ),
+    SemesterCourses(
+        semester = 2,
+        branch = "CSE",
+        courses = listOf(
+            Course("CS 102", "Introduction to Computing"),
+            Course("CS 152", "Computing Lab"),
+            Course("MA 102", "Integral Calculus and Complex Variables"),
+            Course("EE 101", "Basic Electrical Engineering"),
+            Course("PH 101", "Physics"),
+            Course("CY 102", "Environmental Science"),
+            Course("ME 152", "Workshop Practice"),
+            Course("EE 151", "Basic Electrical Lab"),
+            Course("PH 151", "Physics Lab")
+        )
+    ),
+    SemesterCourses(
         semester = 3,
         branch = "CSE",
         courses = listOf(
@@ -314,6 +344,138 @@ val courseData = listOf(
             Course("CS 428", "Internet of Things"),
             Course("CS 430", "Human Computer Interaction"),
             Course("HS 492", "Entrepreneurship")
+        )
+    ),
+    SemesterCourses(
+        semester = 1,
+        branch = "CE",
+        courses = listOf(
+            Course("CE 101", "ENGINEERING DRAWING"),
+            Course("MA 101", "Differential Calculus and Linear Algebra"),
+            Course("ME 101", "Engineering Mechanics"),
+            Course("CY 101", "Chemistry"),
+            Course("EC 101", "Basic Electronics Engineering"),
+            Course("HS 101", "English Language Skills"),
+            Course("HS 151", "English Language Skills Lab"),
+            Course("CY 151", "Chemistry Lab"),
+            Course("EC 151", "Basic Electronics Lab")
+        )
+    ),
+    SemesterCourses(
+        semester = 2,
+        branch = "CE",
+        courses = listOf(
+            Course("MA 102", "Integral Calculus and Complex Variables"),
+            Course("EE 101", "Basic Electrical Engineering"),
+            Course("PH 101", "Physics"),
+            Course("CY 102", "Environmental Science"),
+            Course("CS 102", "Introduction to Computing"),
+            Course("ME 152", "Workshop Practice"),
+            Course("EE 151", "Basic Electrical Lab"),
+            Course("PH 151", "Physics Lab"),
+            Course("CS 152", "Computing Lab")
+        )
+    ),
+    SemesterCourses(
+        semester = 3,
+        branch = "CE",
+        courses = listOf(
+            Course("MA 201", "INTEGRAL TRANSFORMS AND PDES"),
+            Course("CE 201", "SOLID MECHANICS"),
+            Course("CE 203", "SURVEYING"),
+            Course("CE 205", "CIVIL ENGINEERING MATERIALS"),
+            Course("ME 291", "SAFETY ENGINEERING"),
+            Course("CE 251", "SOLID MECHANICS LAB"),
+            Course("CE 253", "SURVEYING LAB"),
+            Course("CE 255", "CIVIL ENGINEERING MATERIALS LAB")
+        )
+    ),
+    SemesterCourses(
+        semester = 4,
+        branch = "CE",
+        courses = listOf(
+            Course("CE 202", "ENVIRONMENTAL ENGINEERING – I"),
+            Course("CE 204", "FLUID MECHANICS"),
+            Course("CE 206", "STRUCTURAL ANALYSIS – I"),
+            Course("CE 212", "CONCRETE TECHNOLOGY"),
+            Course("CE 214", "ADVANCE SURVEYING TECHNIQUES"),
+            Course("CE 216", "EARTHQUAKE ENGINEERING"),
+            Course("CE 218", "BUILDING MATERIAL AND CONSTRUCTION"),
+            Course("CE 220", "ENVIRONMENTAL IMPACT ASSESSMENT"),
+            Course("CE 222", "REMOTE SENSING AND GIS"),
+            Course("CE 272", "BASIC CIVIL ENGINEERING"),
+            Course("CE 252", "ENVIRONMENTAL ENGINEERING – I LAB"),
+            Course("CE 254", "FLUID MECHANICS LAB"),
+            Course("CE 256", "STRUCTURAL ANALYSIS – I LAB")
+        )
+    ),
+    SemesterCourses(
+        semester = 5,
+        branch = "CE",
+        courses = listOf(
+            Course("CE 301", "GEOTECHNICAL ENGINEERING-I"),
+            Course("CE 303", "TRANSPORTATION ENGINEERING-I"),
+            Course("CE 305", "HYDROLOGY & WATER RESOURCES ENGINEERING"),
+            Course("CE 311", "ENVIRONMENTAL ENGINEERING – II"),
+            Course("CE 313", "GROUND IMPROVEMENT TECHNIQUE"),
+            Course("CE 319", "COMPOSITE MATERIALS AND STRUCTURES"),
+            Course("CE 315", "STRUCTURAL ANALYSIS- II"),
+            Course("CE 317", "COMPUTATIONAL METHOD IN ENGINEERING"),
+            Course("CE 321", "MATRIX METHOD OF STRUCTURAL ANALYSIS"),
+            Course("CE 371", "SOLID WASTE MANAGEMENT"),
+            Course("CE 351", "GEOTECHNICAL ENGINEERING LAB – I"),
+            Course("CE 353", "TRANSPORTATION ENGINEERING LAB – I"),
+            Course("CE 355", "HYDROLOGY & WATER RESOURCES ENGINEERING LAB")
+        )
+    ),
+    SemesterCourses(
+        semester = 6,
+        branch = "CE",
+        courses = listOf(
+            Course("CE 302", "HYDRAULICS & HYDRAULIC STRUCTURES"),
+            Course("CE 304", "GEOTECHNICAL ENGINEERING-II"),
+            Course("CE 312", "REINFORCED CONCRETE DESIGN"),
+            Course("CE 314", "DESIGN OF FOUNDATION AND RETAINING STRUCTURE"),
+            Course("CE 316", "PAVEMENT DESIGN"),
+            Course("CE 318", "FLUID DYNAMICS AND FLUID MACHINES"),
+            Course("CE 320", "CONTINUUM MECHANICS"),
+            Course("CE 322", "BRIDGE ENGINEERING"),
+            Course("CE 372", "INTRODUCTION TO FINITE ELEMENT METHOD"),
+            Course("HS 392", "CORPORATE COMMUNICATION"),
+            Course("CE 352", "HYDRAULICS & HYDRAULIC STRUCTURES LAB"),
+            Course("CE 354", "GEOTECHNICAL ENGINEERING-II LAB"),
+            Course("CE 382", "MINOR PROJECT")
+        )
+    ),
+    SemesterCourses(
+        semester = 7,
+        branch = "CE",
+        courses = listOf(
+            Course("CE 401", "PROJECT – I"),
+            Course("CE 411", "TRANSPORTATION ENGINEERING II"),
+            Course("CE 413", "MODEL OF AIR AND WATER QUALITY"),
+            Course("CE 415", "GROUND WATER HYDROLOGY"),
+            Course("CE 417", "DESIGN OF STEEL STRUCTURES"),
+            Course("CE 419", "DYNAMICS OF SOIL AND FOUNDATION"),
+            Course("CE 421", "RIVER ENGINEERING"),
+            Course("CE 471", "ENGINEERING GEOLOGY"),
+            Course("CE 491", "DISASTER MANAGEMENT"),
+            Course("CE 451", "TRAFFIC ENGINEERING (LAB)"),
+            Course("CE 481", "INTERNSHIP")
+        )
+    ),
+    SemesterCourses(
+        semester = 8,
+        branch = "CE",
+        courses = listOf(
+            Course("CE 402", "PROJECT – II"),
+            Course("CE 412", "PRE STRESSED CONCRETE AND INDUSTRIAL STRUCTURES"),
+            Course("CE 414", "INDUSTRIAL POLLUTION PREVENTION"),
+            Course("CE 416", "ESTIMATION, COSTING & VALUATION"),
+            Course("CE 418", "DYNAMICS OF STRUCTURE"),
+            Course("CE 420", "TRAFFIC ENGINEERING"),
+            Course("CE 422", "IRRIGATION ENGINEERING"),
+            Course("HS 492", "ENTREPRENEURSHIP")
         )
     )
 )
