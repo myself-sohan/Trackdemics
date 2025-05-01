@@ -53,7 +53,6 @@ fun QrCodeDialog(
     onScanFailure: () -> Unit = {}
 ) {
     val bitmap = generateQrCodeBitmap(content)
-    // QR Animation
     val infiniteTransition = rememberInfiniteTransition()
     val pulse = infiniteTransition.animateFloat(
         initialValue = 0.95f,
@@ -64,27 +63,28 @@ fun QrCodeDialog(
         )
     )
 
-    // Dummy course code and timestamp
-    val courseCode = "CSE101"
-    val timestamp = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date())
+    val parts = content.split("_")
+    val courseCode = parts.getOrNull(0)?.replace(" ", "") ?: "Unknown"
+    val rawTimestamp = parts.getOrNull(1)?.toLongOrNull()
+    val formattedTimestamp = rawTimestamp?.let {
+        SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date(it))
+    } ?: "Invalid timestamp"
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
-            )
-            {
+            ) {
                 Text(
-                    text = "Scan for attendance\uD83D\uDE4B\u200D♂\uFE0F\uD83D\uDE4B\u200D♀\uFE0F",
+                    text = "Scan for attendance 🙋‍♂️🙋‍♀️",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-                },
+        },
         text = {
             Column(
                 modifier = Modifier
@@ -101,32 +101,26 @@ fun QrCodeDialog(
                         .scale(pulse.value)
                         .padding(8.dp)
                 )
-                //Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = buildAnnotatedString {
                         append("Course: ")
                         withStyle(
-                            style = SpanStyle(
+                            SpanStyle(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontFamily = FontFamily(Font(R.font.notosans_variablefont))
                             )
-                        ) {
-                            append(courseCode)
-                        }
+                        ) { append(courseCode) }
                     },
-                    fontSize = 14.sp,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
-                        fontWeight = FontWeight.Medium
-                    )
+                    fontSize = 14.sp
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
-                    text = "$timestamp",
+                    text = formattedTimestamp,
                     fontSize = 13.sp,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily(Font(R.font.notosans_variablefont))
-                    ),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -139,15 +133,14 @@ fun QrCodeDialog(
                     if (decoded != null) {
                         val parts = decoded.split("_")
                         if (parts.size == 2) {
-                            val courseCode = parts[0].replace(" ", "")
-                            val timestamp = parts[1]
+                            val scannedCode = parts[0].replace(" ", "")
                             val auth = FirebaseAuth.getInstance()
                             val firestore = FirebaseFirestore.getInstance()
                             val user = auth.currentUser
 
                             user?.let { currentUser ->
                                 val attendanceEntry = mapOf(
-                                    "courseCode" to courseCode,
+                                    "courseCode" to scannedCode,
                                     "studentId" to currentUser.uid,
                                     "timestamp" to System.currentTimeMillis(),
                                     "scannedQrContent" to decoded
@@ -155,27 +148,17 @@ fun QrCodeDialog(
 
                                 firestore.collection("attendance_record")
                                     .add(attendanceEntry)
-                                    .addOnSuccessListener {
-                                        onScanSuccess(courseCode)
-                                    }
+                                    .addOnSuccessListener { onScanSuccess(scannedCode) }
                                     .addOnFailureListener {
                                         Log.e("QrScan", "Failed to mark attendance", it)
                                         onScanFailure()
                                     }
                             } ?: onScanFailure()
-                        } else {
-                            onScanFailure()
-                        }
-                    } else {
-                        onScanFailure()
-                    }
+                        } else onScanFailure()
+                    } else onScanFailure()
                 }
-            )
-            {
-                Text(
-                    text = "Scan QR",
-                    fontSize = 16.sp
-                )
+            ) {
+                Text(text = "Scan QR", fontSize = 16.sp)
             }
         },
         shape = RoundedCornerShape(20.dp),
