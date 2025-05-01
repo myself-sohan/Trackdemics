@@ -163,8 +163,10 @@ fun ProfessorAttendanceScreen(
                         items(professorCourses.size) { index ->
                             ProfessorAttendanceCard(
                                 course = professorCourses[index],
-                                navController = navController,
-                                coroutineScope = coroutineScope
+                                coroutineScope = coroutineScope,
+                                onCourseDeleted = { deletedCode ->
+                                    professorCourses.removeAll { it.courseCode == deletedCode }
+                                }
                             )
                         }
                     }
@@ -200,8 +202,6 @@ fun ProfessorAttendanceScreen(
     }
 }
 
-
-// Create the complete course list
 val courseData = listOf(
     SemesterCourses(
         semester = 1,

@@ -4,7 +4,7 @@ package com.example.trackdemics.screens.attendance.model
 data class StudentCourse(
     val name: String,
     val code: String,
-    val attended: Int,
-    val total: Int,
-    val sem: String
+    val branch: String,
+    val classesTaken: Int,
+    val semester: String
 )
