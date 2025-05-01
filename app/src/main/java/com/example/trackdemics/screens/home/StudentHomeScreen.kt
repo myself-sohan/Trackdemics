@@ -28,7 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,7 +51,6 @@ fun StudentHomeScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val auth = remember { FirebaseAuth.getInstance() }
     val firestore = remember { FirebaseFirestore.getInstance() }
-    val coroutineScope = rememberCoroutineScope()
 
     var firstName by remember { mutableStateOf<String?>(null) }
     var enrolledCourses by remember { mutableStateOf<List<String>>(emptyList()) }

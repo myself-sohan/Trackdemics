@@ -47,8 +47,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.repository.AppFirestoreService
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.ui.theme.onSurfaceLight
 import com.example.trackdemics.utils.incrementClassesTaken
@@ -58,13 +58,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ProfessorAttendanceCard(
-    navController: NavController,
     course: ProfessorCourse,
-    coroutineScope: CoroutineScope
-)
-{
+    coroutineScope: CoroutineScope,
+    onCourseDeleted: (String) -> Unit
+) {
     val context = LocalContext.current
-    //var showQrDialog = remember { mutableStateOf(false) }
     var showDialog = remember { mutableStateOf(false) }
     var showDeleteDialog = remember { mutableStateOf(false) }
     Card(
@@ -124,36 +122,28 @@ fun ProfessorAttendanceCard(
                 }
             )
         }
-//        if (showQrDialog.value) {
-//            QrCodeDialog(
-//                "TEST",
-//                onDismiss = { showQrDialog.value = false },
-//                onScanSuccess = {
-//                    showQrDialog.value = false
-//                    Toast.makeText(context, "QR Scanned Successfully", Toast.LENGTH_SHORT).show()
-//                }
-//            )
-//        }
         if (showDeleteDialog.value) {
             ConfirmDeleteDialog(
                 courseCode = course.courseCode,
                 onDismissRequest = { showDeleteDialog.value = false },
                 onConfirmDelete = {
-                    // your actual delete logic here
-                }
-            )
+                    coroutineScope.launch {
+                        val success =
+                            AppFirestoreService.removeCourseFromProfessor(course.courseCode)
+                        if (success) {
+                            onCourseDeleted(course.courseCode)
+                            showDeleteDialog.value = false
+                        }
+                        Toast.makeText(
+                            context,
+                            "Course ${course.courseCode} deleted successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
         }
         Box(
             modifier = Modifier.Companion
-//                .background(
-//                    Brush.Companion.horizontalGradient(
-//                        listOf(
-//                            MaterialTheme.colorScheme.outline,
-//                            MaterialTheme.colorScheme.outlineVariant,
-//                            //MaterialTheme.colorScheme.outline,
-//                        )
-//                    )
-//                )
         )
         {
             Column(modifier = Modifier.Companion.padding(16.dp)) {
@@ -289,7 +279,6 @@ fun ActionDialog(
 }
 
 
-
 @Composable
 fun DialogOption(
     icon: ImageVector,
@@ -317,7 +306,7 @@ fun DialogOption(
             text = text,
             style = MaterialTheme.typography.bodyLarge.copy(color = textColor),
             modifier = Modifier
-                .padding(top=5.dp)
+                .padding(top = 5.dp)
         )
     }
 }

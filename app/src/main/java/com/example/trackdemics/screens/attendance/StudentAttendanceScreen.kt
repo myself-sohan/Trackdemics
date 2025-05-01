@@ -127,7 +127,10 @@ fun StudentAttendanceScreen(
                     items(courses.size) { index ->
                         StudentAttendanceCard(
                             course = courses[index],
-                            navController = navController
+                            coroutineScope,
+                            onCourseDeleted = { deletedCode ->
+                                courses.removeAll { it.code == deletedCode }
+                            }
                         )
                     }
                 }
