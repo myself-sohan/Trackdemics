@@ -23,26 +23,53 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.trackdemics.screens.attendance.courseData
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
 import com.example.trackdemics.screens.signup.SignUpViewModel
-import com.example.trackdemics.utils.populateCoursesToFirestore
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun ProfessorHomeScreen(
     signupViewModel: SignUpViewModel = hiltViewModel(),
     navController: NavController,
-)
-{
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val auth = remember { FirebaseAuth.getInstance() }
+    val firestore = remember { FirebaseFirestore.getInstance() }
+    val user = auth.currentUser
+    var firstName by remember { mutableStateOf<String?>(null) }
+    var department by remember { mutableStateOf<String?>(null) }
+    var designation by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        user?.email?.let { email ->
+            val normalizedEmail = email.trim().lowercase()
+
+            val professorSnapshot = firestore.collection("professors")
+                .whereEqualTo("email", normalizedEmail)
+                .get()
+                .await()
+
+            val professorDoc = professorSnapshot.documents.firstOrNull()
+            firstName = professorDoc?.getString("first_name") ?: "Professor"
+            department = professorDoc?.getString("department") ?: "Department"
+            designation = professorDoc?.getString("designation") ?: "Designation"
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -79,7 +106,7 @@ fun ProfessorHomeScreen(
             ) {
                 ProfileSection(
                     modifier = Modifier,
-                    label = "Dr.Professor"
+                    "Welcome, ${firstName ?: "Professor"} 👋"
                 )
 
                 ProfessorFeatureGrid(
@@ -93,14 +120,19 @@ fun ProfessorHomeScreen(
 @Composable
 fun ProfessorFeatureGrid(
     navController: NavController
-)
-{
+) {
     val features = listOf(
-        FeatureItem("Attendance", Icons.Default.Groups,{navController.navigate("ProfessorAttendanceScreen")}),
-        FeatureItem("Projects", Icons.Default.Lightbulb) {  },
+        FeatureItem(
+            "Attendance",
+            Icons.Default.Groups,
+            { navController.navigate("ProfessorAttendanceScreen") }),
+        FeatureItem("Projects", Icons.Default.Lightbulb) { },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
-        FeatureItem("Assignment", Icons.AutoMirrored.Filled.Assignment) { /* Navigate to Events */ },
+        FeatureItem(
+            "Assignment",
+            Icons.AutoMirrored.Filled.Assignment
+        ) { /* Navigate to Events */ },
         FeatureItem("Courses", Icons.AutoMirrored.Filled.MenuBook) { /* Navigate to Settings */ }
     )
 

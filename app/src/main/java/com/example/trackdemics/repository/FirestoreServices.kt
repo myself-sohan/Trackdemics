@@ -74,8 +74,9 @@ object AppFirestoreService {
             } else null
         }
     }
+
     suspend fun loadStudentCourses(courses: MutableList<StudentCourse>) {
-        courses.clear() // important: reset list
+        courses.clear()
 
         val auth = FirebaseAuth.getInstance()
         val firestore = FirebaseFirestore.getInstance()
@@ -87,7 +88,8 @@ object AppFirestoreService {
                 .await()
 
             val studentDoc = studentSnapshot.documents.firstOrNull()
-            val enrolledCourses = studentDoc?.get("enrolled_courses") as? List<String> ?: emptyList()
+            val enrolledCourses =
+                studentDoc?.get("enrolled_courses") as? List<String> ?: emptyList()
 
             if (enrolledCourses.isNotEmpty()) {
                 val coursesSnapshot = firestore.collection("courses")
@@ -104,14 +106,56 @@ object AppFirestoreService {
                         StudentCourse(
                             name = name,
                             code = code,
-                            sem = semester,
-                            total = 0,   // TODO: replace with real total if needed
-                            attended = 0
+                            semester = semester,
+                            branch = branch,
+                            classesTaken = 0
                         )
                     )
                 }
             }
         }
+    }
+
+    suspend fun removeCourseFromStudent(courseCode: String): Boolean {
+        val auth = FirebaseAuth.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
+
+        val currentUserEmail = auth.currentUser?.email?.trim()?.lowercase() ?: return false
+
+        val studentSnapshot = firestore.collection("students")
+            .whereEqualTo("email", currentUserEmail)
+            .get()
+            .await()
+
+        val studentDoc = studentSnapshot.documents.firstOrNull() ?: return false
+
+        studentDoc.reference.update(
+            "enrolled_courses",
+            com.google.firebase.firestore.FieldValue.arrayRemove(courseCode)
+        ).await()
+
+        return true
+    }
+
+    suspend fun removeCourseFromProfessor(courseCode: String): Boolean {
+        val auth = FirebaseAuth.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
+
+        val currentUserEmail = auth.currentUser?.email?.trim()?.lowercase() ?: return false
+
+        val professorSnapshot = firestore.collection("professors")
+            .whereEqualTo("email", currentUserEmail)
+            .get()
+            .await()
+
+        val professorDoc = professorSnapshot.documents.firstOrNull() ?: return false
+
+        professorDoc.reference.update(
+            "handled_courses",
+            com.google.firebase.firestore.FieldValue.arrayRemove(courseCode)
+        ).await()
+
+        return true
     }
 }
 
