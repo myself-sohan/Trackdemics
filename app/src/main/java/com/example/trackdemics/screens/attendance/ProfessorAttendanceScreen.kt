@@ -47,7 +47,8 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun ProfessorAttendanceScreen(
     navController: NavController
-) {
+)
+{
     val firestoreService = remember { AppFirestoreService }
     val auth = remember { FirebaseAuth.getInstance() }
     val coroutineScope = rememberCoroutineScope()
