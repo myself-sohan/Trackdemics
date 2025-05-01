@@ -15,6 +15,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -75,18 +76,15 @@ fun RoleDropDown(
         onDismissRequest = { expanded.value = false },
         properties = PopupProperties(focusable = true), // Ensures dropdown behaves like a menu
         offset = DpOffset(x = 120.dp, y = (220).dp), // Moves dropdown right below the button
+        containerColor = MaterialTheme.colorScheme.primary,
         modifier = Modifier
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Red.copy(0.5f),
-                        Color.White,
-                        Color.Yellow.copy(0.5f),
-                        Color.White,
-                        Color.Green.copy(0.5f)
-                    )
-                )
-            )
+//            .background(
+//                brush = Brush.horizontalGradient(
+//                    colors = listOf(
+//                        MaterialTheme.colorScheme.primary
+//                    )
+//                )
+//            )
             .fillMaxWidth(0.4f)
     )
     {
@@ -99,7 +97,7 @@ fun RoleDropDown(
                     Icon(
                         imageVector = Icons.Default.Stream,
                         contentDescription = null,
-                        tint = Color.Black
+                        tint = MaterialTheme.colorScheme.surface
                     )
                 },
                 text = {
@@ -110,7 +108,7 @@ fun RoleDropDown(
                             fontFamily = FontFamily(
                                 Font(R.font.abril_fatface_regular)
                             )     ,
-                            color = Color(0,0,128)
+                            color = MaterialTheme.colorScheme.surface
                         ),
                     )
                 },
