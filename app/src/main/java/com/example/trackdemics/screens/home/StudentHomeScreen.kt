@@ -167,6 +167,7 @@ fun StudentHomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 ProfileSection(
+                    "students",
                     modifier = Modifier,
                     label = "Welcome, ${firstName ?: "Student"} 👋"
                 )
@@ -182,9 +183,16 @@ fun StudentFeatureGrid(
     navController: NavController
 ) {
     val features = listOf(
-        FeatureItem("Attendance", Icons.Default.Groups) { navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name) },
+        FeatureItem(
+            "Attendance",
+            Icons.Default.Groups
+        ) { navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name) },
         FeatureItem("Results", Icons.Default.Grade) { },
-        FeatureItem("College Routine", Icons.Default.Schedule) { navController.navigate(TrackdemicsScreens.RoutineScreen.name) },
+        FeatureItem("College Routine", Icons.Default.Schedule) {
+            navController.navigate(
+                TrackdemicsScreens.RoutineScreen.name
+            )
+        },
         FeatureItem("Assignment", Icons.AutoMirrored.Filled.Assignment) { },
         FeatureItem("Events", Icons.Default.Event) { },
         FeatureItem("Courses", Icons.AutoMirrored.Filled.MenuBook) { }
