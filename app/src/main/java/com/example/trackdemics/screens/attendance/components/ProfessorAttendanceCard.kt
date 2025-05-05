@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -47,7 +48,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.repository.AppFirestoreService
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.ui.theme.onSurfaceLight
@@ -56,10 +59,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ProfessorAttendanceCard(
+    navController: NavController,
     course: ProfessorCourse,
     coroutineScope: CoroutineScope,
     onCourseDeleted: (String) -> Unit
-) {
+)
+{
     val context = LocalContext.current
     var showDialog = remember { mutableStateOf(false) }
     var showDeleteDialog = remember { mutableStateOf(false) }
@@ -85,7 +90,7 @@ fun ProfessorAttendanceCard(
                     showDialog.value = false
                 },
                 onGenerateQr = {
-                    //
+                    navController.navigate("CourseAttendanceScreen")
                 },
                 onDeleteCourse = {
                     showDialog.value = false
@@ -177,7 +182,8 @@ fun ActionDialog(
             visibleState = visibleState,
             enter = slideInVertically { it } + fadeIn(),
             exit = slideOutVertically { it } + fadeOut()
-        ) {
+        )
+        {
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.colorScheme.surface,
@@ -185,7 +191,8 @@ fun ActionDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp)
-            ) {
+            )
+            {
                 Column(modifier = Modifier.padding(24.dp)) {
                     // Title
                     Text(
@@ -199,8 +206,8 @@ fun ActionDialog(
 
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         DialogOption(
-                            icon = Icons.Default.QrCode,
-                            text = "Generate QR",
+                            icon = Icons.Default.HowToReg,
+                            text = "Take Attendance",
                             onClick = {
                                 onGenerateQr()
                                 onDismissRequest()
