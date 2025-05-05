@@ -161,6 +161,7 @@ fun ProfessorAttendanceScreen(
                             ProfessorAttendanceCard(
                                 course = professorCourses[index],
                                 coroutineScope = coroutineScope,
+                                navController = navController,
                                 onCourseDeleted = { deletedCode ->
                                     professorCourses.removeAll { it.courseCode == deletedCode }
                                 }

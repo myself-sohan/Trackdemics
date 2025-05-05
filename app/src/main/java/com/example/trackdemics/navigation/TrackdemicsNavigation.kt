@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.trackdemics.screens.attendance.CourseAttendanceScreen
 import com.example.trackdemics.screens.attendance.ProfessorAttendanceScreen
 import com.example.trackdemics.screens.attendance.StudentAttendanceScreen
 import com.example.trackdemics.screens.home.AdminHomeScreen
@@ -27,6 +28,10 @@ fun TrackdemicsNavigation() {
         startDestination = TrackdemicsScreens.SplashScreen.name
     )
     {
+        composable(TrackdemicsScreens.CourseAttendanceScreen.name)
+        {
+            CourseAttendanceScreen(navController = navController)
+        }
         composable(TrackdemicsScreens.RoutineScreen.name)
         {
             RoutineScreen(navController = navController)
