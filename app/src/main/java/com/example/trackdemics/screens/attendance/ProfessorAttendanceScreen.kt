@@ -47,8 +47,7 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun ProfessorAttendanceScreen(
     navController: NavController
-)
-{
+) {
     val firestoreService = remember { AppFirestoreService }
     val auth = remember { FirebaseAuth.getInstance() }
     val coroutineScope = rememberCoroutineScope()
@@ -57,10 +56,8 @@ fun ProfessorAttendanceScreen(
     val professorCourses = remember { mutableStateListOf<ProfessorCourse>() }
     val loading = remember { mutableStateOf(true) }
 
-    // Professor UID state
     val professorUid = remember { mutableStateOf<String?>(null) }
 
-    // Fetch UID + courses once
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
@@ -140,7 +137,6 @@ fun ProfessorAttendanceScreen(
                                         semester = semester,
                                     )
                                 )
-                                // Refresh courses
                                 val updatedCourses = firestoreService.getProfessorCourses(uid)
                                 professorCourses.clear()
                                 professorCourses.addAll(updatedCourses)

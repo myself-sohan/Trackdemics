@@ -45,6 +45,7 @@ import kotlinx.coroutines.tasks.await
 
 @Composable
 fun ProfileSection(
+    collection: String,
     modifier: Modifier = Modifier,
     label: String
 ) {
@@ -65,7 +66,7 @@ fun ProfileSection(
                                 coroutineScope.launch {
                                     val userEmail = auth.currentUser?.email?.trim()?.lowercase()
                                     if (userEmail != null) {
-                                        val snapshot = firestore.collection("students")
+                                        val snapshot = firestore.collection(collection)
                                             .whereEqualTo("email", userEmail)
                                             .get()
                                             .await()
@@ -94,7 +95,7 @@ fun ProfileSection(
     LaunchedEffect(Unit) {
         auth.currentUser?.email?.let { email ->
             val normalizedEmail = email.trim().lowercase()
-            val snapshot = firestore.collection("students")
+            val snapshot = firestore.collection(collection)
                 .whereEqualTo("email", normalizedEmail)
                 .get()
                 .await()
@@ -124,7 +125,7 @@ fun ProfileSection(
                 imageUrl = profileImageUrl ?: "",
                 modifier = Modifier
                     .padding(top = 24.dp, bottom = 16.dp)
-                    .size(120.dp) // 🔥 same width and height
+                    .size(120.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.onPrimary, CircleShape)
                     .clickable {
@@ -134,7 +135,7 @@ fun ProfileSection(
                         3.dp,
                         MaterialTheme.colorScheme.primary,
                         CircleShape
-                    ) // 🎨 Circular border
+                    )
             )
 
 

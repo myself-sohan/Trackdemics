@@ -68,7 +68,6 @@ object AppFirestoreService {
                 ProfessorCourse(
                     courseName = name,
                     courseCode = code,
-                    //branch = branch,
                     semester = semester
                 )
             } else null

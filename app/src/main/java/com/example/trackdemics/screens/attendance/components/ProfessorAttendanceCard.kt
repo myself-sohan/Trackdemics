@@ -51,8 +51,6 @@ import com.example.trackdemics.R
 import com.example.trackdemics.repository.AppFirestoreService
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.ui.theme.onSurfaceLight
-import com.example.trackdemics.utils.incrementClassesTaken
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -87,34 +85,7 @@ fun ProfessorAttendanceCard(
                     showDialog.value = false
                 },
                 onGenerateQr = {
-                    coroutineScope.launch {
-                        val qrContent = "${course.courseCode}_${System.currentTimeMillis()}"
-                        val generatedAt = System.currentTimeMillis()
-                        val expiresAt = generatedAt + (1 * 60 * 60 * 1000) // 1 hour later
-
-                        // Save QR session to Firestore
-                        val qrData = mapOf(
-                            "course_code" to course.courseCode,
-                            "generated_at" to generatedAt,
-                            "expires_at" to expiresAt,
-                            "qr_content" to qrContent
-                        )
-
-                        FirebaseFirestore.getInstance()
-                            .collection("qr_codes")
-                            .add(qrData)
-                            .addOnSuccessListener { documentReference ->
-                                Toast.makeText(
-                                    context,
-                                    "QR Code generated successfully",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        // After saving QR code
-                        incrementClassesTaken(course.courseCode)
-                        showDialog.value = false
-
-                    }
+                    //
                 },
                 onDeleteCourse = {
                     showDialog.value = false

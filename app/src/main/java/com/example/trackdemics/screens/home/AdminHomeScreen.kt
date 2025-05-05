@@ -38,8 +38,7 @@ import com.example.trackdemics.widgets.TrackdemicsAppBar
 fun AdminHomeScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel(),
     navController: NavController,
-)
-{
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
     ModalNavigationDrawer(
@@ -76,6 +75,7 @@ fun AdminHomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 ProfileSection(
+                    "professors",
                     modifier = Modifier,
                     label = "Admin"
                 )
@@ -91,7 +91,10 @@ fun AdminFeatureGrid() {
         FeatureItem("Attendance", Icons.Default.Groups) { /* Navigate to Attendance */ },
         FeatureItem("Results", Icons.Default.Grade) { /* Navigate to Results */ },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
-        FeatureItem("Account Control", Icons.Default.ManageAccounts) { /* Navigate to Reminders */ },
+        FeatureItem(
+            "Account Control",
+            Icons.Default.ManageAccounts
+        ) { /* Navigate to Reminders */ },
         FeatureItem("Events", Icons.Default.EventAvailable) { /* Navigate to Events */ },
         FeatureItem("Courses", Icons.AutoMirrored.Filled.MenuBook) { /* Navigate to Settings */ }
     )

@@ -106,6 +106,7 @@ fun ProfessorHomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 ProfileSection(
+                    "professors",
                     modifier = Modifier,
                     "Welcome, Dr. ${firstName ?: "Professor"} 👋"
                 )

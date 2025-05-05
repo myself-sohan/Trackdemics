@@ -1,6 +1,5 @@
 package com.example.trackdemics.screens.home
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,13 +29,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
-import com.example.trackdemics.screens.home.components.QrCodeDialog
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
 import com.example.trackdemics.widgets.TrackdemicsAppBar
@@ -54,11 +51,8 @@ fun StudentHomeScreen(
 
     var firstName by remember { mutableStateOf<String?>(null) }
     var enrolledCourses by remember { mutableStateOf<List<String>>(emptyList()) }
-    var qrContent by remember { mutableStateOf<String?>(null) }
-    var showQrDialog by remember { mutableStateOf(false) }
     val user = auth.currentUser
 
-    // Fetch user data once
     LaunchedEffect(Unit) {
         user?.email?.let { email ->
             val normalizedEmail = email.trim().lowercase()
@@ -73,67 +67,6 @@ fun StudentHomeScreen(
             enrolledCourses = studentDoc?.get("enrolled_courses") as? List<String> ?: emptyList()
         }
     }
-
-    LaunchedEffect(enrolledCourses) {
-        if (enrolledCourses.isNotEmpty()) {
-            val now = System.currentTimeMillis()
-
-            firestore.collection("qr_codes")
-                .whereGreaterThan("expires_at", now)
-                .addSnapshotListener { snapshot, error ->
-                    if (error != null) {
-                        error.printStackTrace()
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null) {
-                        val activeQr = snapshot.documents
-                            .filter { it.getString("course_code") in enrolledCourses }
-                            .maxByOrNull { it.getLong("generated_at") ?: 0 }
-
-
-                        if (activeQr != null) {
-                            val qrContentValue =
-                                activeQr.getString("qr_content") ?: return@addSnapshotListener
-                            val userId = FirebaseAuth.getInstance().currentUser?.uid
-                                ?: return@addSnapshotListener
-
-                            // Check if student already scanned this QR
-                            FirebaseFirestore.getInstance()
-                                .collection("attendance_record")
-                                .whereEqualTo("studentId", userId)
-                                .whereEqualTo("scannedQrContent", qrContentValue)
-                                .get()
-                                .addOnSuccessListener { snapshot ->
-                                    if (snapshot.isEmpty) {
-                                        qrContent = qrContentValue
-                                        showQrDialog = true
-                                    } else {
-                                        qrContent = null
-                                        showQrDialog = false
-                                    }
-                                }
-                        } else {
-                            qrContent = null
-                            showQrDialog = false
-                        }
-                    }
-                }
-        }
-    }
-    val context = LocalContext.current
-    // QR Dialog
-    if (showQrDialog && qrContent != null) {
-        QrCodeDialog(
-            content = qrContent!!,
-            onDismiss = { showQrDialog = false },
-            onScanSuccess = {
-                showQrDialog = false
-                Toast.makeText(context, "Scan Successful", Toast.LENGTH_SHORT).show()
-            }
-        )
-    }
-
 
     // Main UI
     ModalNavigationDrawer(
@@ -167,6 +100,7 @@ fun StudentHomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 ProfileSection(
+                    "students",
                     modifier = Modifier,
                     label = "Welcome, ${firstName ?: "Student"} 👋"
                 )
@@ -176,15 +110,21 @@ fun StudentHomeScreen(
     }
 }
 
-
 @Composable
 fun StudentFeatureGrid(
     navController: NavController
 ) {
     val features = listOf(
-        FeatureItem("Attendance", Icons.Default.Groups) { navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name) },
+        FeatureItem(
+            "Attendance",
+            Icons.Default.Groups
+        ) { navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name) },
         FeatureItem("Results", Icons.Default.Grade) { },
-        FeatureItem("College Routine", Icons.Default.Schedule) { navController.navigate(TrackdemicsScreens.RoutineScreen.name) },
+        FeatureItem("College Routine", Icons.Default.Schedule) {
+            navController.navigate(
+                TrackdemicsScreens.RoutineScreen.name
+            )
+        },
         FeatureItem("Assignment", Icons.AutoMirrored.Filled.Assignment) { },
         FeatureItem("Events", Icons.Default.Event) { },
         FeatureItem("Courses", Icons.AutoMirrored.Filled.MenuBook) { }

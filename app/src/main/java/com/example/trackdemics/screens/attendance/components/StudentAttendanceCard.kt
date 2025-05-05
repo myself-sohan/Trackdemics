@@ -55,6 +55,7 @@ fun StudentAttendanceCard(
     val total = remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
+
         val studentId = auth.currentUser?.uid ?: return@LaunchedEffect
 
         val attendedSnapshot = firestore.collection("attendance_record")
