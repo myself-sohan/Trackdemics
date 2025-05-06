@@ -44,7 +44,7 @@ fun SplashScreen(
                         .await()
 
                     if (professorSnapshot.documents.isNotEmpty()) {
-                        navController.navigate(TrackdemicsScreens.CourseAttendanceScreen.name) {
+                        navController.navigate(TrackdemicsScreens.StudentListScreen.name) {
                             popUpTo(0) { inclusive = true }
                         }
                         return@LaunchedEffect

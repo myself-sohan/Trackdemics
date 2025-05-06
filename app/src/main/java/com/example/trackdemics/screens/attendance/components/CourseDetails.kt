@@ -31,7 +31,7 @@ import com.example.trackdemics.widgets.LottieFromAssets
 
 @Composable
 fun CourseDetails(
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     code: String,
     totalClass: Int,
     totalStudents: Int,
