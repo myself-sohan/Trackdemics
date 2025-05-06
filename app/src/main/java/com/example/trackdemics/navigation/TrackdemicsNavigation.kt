@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.trackdemics.screens.attendance.CourseAttendanceScreen
 import com.example.trackdemics.screens.attendance.ProfessorAttendanceScreen
 import com.example.trackdemics.screens.attendance.StudentAttendanceScreen
+import com.example.trackdemics.screens.attendance.StudentListScreen
 import com.example.trackdemics.screens.home.AdminHomeScreen
 import com.example.trackdemics.screens.home.ProfessorHomeScreen
 import com.example.trackdemics.screens.home.StudentHomeScreen
@@ -28,6 +29,10 @@ fun TrackdemicsNavigation() {
         startDestination = TrackdemicsScreens.SplashScreen.name
     )
     {
+        composable(TrackdemicsScreens.StudentListScreen.name)
+        {
+            StudentListScreen(navController = navController)
+        }
         composable(TrackdemicsScreens.CourseAttendanceScreen.name)
         {
             CourseAttendanceScreen(navController = navController)
