@@ -12,5 +12,6 @@ enum class TrackdemicsScreens
     StudentAttendanceScreen,
     ProfessorAttendanceScreen,
     CourseAttendanceScreen,
+    StudentListScreen,
     RoutineScreen
 }

@@ -104,7 +104,8 @@ fun ProfessorHomeScreen(
                     .fillMaxSize()
                     .padding(paddingValues),
                 verticalArrangement = Arrangement.Center
-            ) {
+            )
+            {
                 ProfileSection(
                     "professors",
                     modifier = Modifier,
