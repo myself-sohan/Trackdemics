@@ -82,10 +82,11 @@ fun StudentAttendanceCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             if (showDeleteDialog.value) {
-                ConfirmDeleteDialog(
+                ConfirmationDialog(
+                    title = "Delete Course",
                     courseCode = course.code,
                     onDismissRequest = { showDeleteDialog.value = false },
-                    onConfirmDelete = {
+                    onConfirm = {
                         coroutineScope.launch {
                             val success = AppFirestoreService.removeCourseFromStudent(course.code)
                             if (success) {
