@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.HowToReg
-import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -50,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
-import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.repository.AppFirestoreService
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.ui.theme.onSurfaceLight
@@ -99,10 +97,10 @@ fun ProfessorAttendanceCard(
             )
         }
         if (showDeleteDialog.value) {
-            ConfirmDeleteDialog(
+            ConfirmationDialog(
                 courseCode = course.courseCode,
                 onDismissRequest = { showDeleteDialog.value = false },
-                onConfirmDelete = {
+                onConfirm = {
                     coroutineScope.launch {
                         val success =
                             AppFirestoreService.removeCourseFromProfessor(course.courseCode)
