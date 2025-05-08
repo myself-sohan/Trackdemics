@@ -83,6 +83,7 @@ fun ProfessorAttendanceCard(
                 onDismissRequest = { showDialog.value = false },
                 onEditAttendance = {
                     showDialog.value = false
+                    navController.navigate("EditAttendanceScreen")
                 },
                 onDownloadPdf = {
                     showDialog.value = false
