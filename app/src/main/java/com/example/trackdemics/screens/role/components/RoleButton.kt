@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -41,7 +42,11 @@ fun RoleButton(
         )
     )
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally)
+    Column(
+        modifier = Modifier,
+            //.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    )
     {
         Button(
             onClick = onClick,
@@ -60,7 +65,9 @@ fun RoleButton(
                 painter = image, // ✅ use the parameter here
                 contentDescription = label,
                 //tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.Fit
             )
         }
         Text(
