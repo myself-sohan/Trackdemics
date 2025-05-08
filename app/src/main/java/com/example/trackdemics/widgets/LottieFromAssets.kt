@@ -13,18 +13,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.*
+import com.airbnb.lottie.LottieComposition
 
 
 @Composable
-fun LottieFromAssets(modifier: Modifier = Modifier)
+fun LottieFromAssets(
+    modifier: Modifier = Modifier,
+    assetName: String = "hot_streak.json",
+    speed: Float = 1f
+)
 {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("hot_streak.json"))
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset(assetName))
 
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = LottieConstants.IterateForever,
         isPlaying = true,
-        speed = 1.0f
+        speed = speed
     )
 
     Box(
