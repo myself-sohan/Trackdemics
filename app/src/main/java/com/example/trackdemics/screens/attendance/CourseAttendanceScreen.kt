@@ -1,6 +1,8 @@
 package com.example.trackdemics.screens.attendance
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,10 +30,16 @@ fun CourseAttendanceScreen(
     {
         Column(
             modifier = Modifier
-                .padding(it)
+                .fillMaxSize()
+                .padding(it),
+            verticalArrangement = Arrangement.Center
         )
         {
-
+            CourseSection(
+                code = "CSE 302",
+                total_classes = 79,
+                total_students = 30
+            )
         }
     }
 }

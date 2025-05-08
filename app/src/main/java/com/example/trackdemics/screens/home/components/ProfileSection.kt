@@ -48,7 +48,8 @@ fun ProfileSection(
     collection: String,
     modifier: Modifier = Modifier,
     label: String
-) {
+)
+{
     val auth = remember { FirebaseAuth.getInstance() }
     val firestore = remember { FirebaseFirestore.getInstance() }
     val coroutineScope = rememberCoroutineScope()

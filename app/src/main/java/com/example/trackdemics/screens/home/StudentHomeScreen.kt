@@ -98,7 +98,8 @@ fun StudentHomeScreen(
                     .fillMaxSize()
                     .padding(paddingValues),
                 verticalArrangement = Arrangement.Center
-            ) {
+            )
+            {
                 ProfileSection(
                     "students",
                     modifier = Modifier,
