@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.attendance.components
 
+import androidx. compose. ui. graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -32,15 +34,25 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.trackdemics.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConfirmDeleteDialog(
-    courseCode: String,
-    onDismissRequest: () -> Unit,
-    onConfirmDelete: () -> Unit
+@Preview
+fun ConfirmationDialog(
+    courseCode: String? = "322",
+    onDismissRequest: () -> Unit = {},
+    onConfirm: () -> Unit = {},
+    rightButtonLabel: String = "Delete",
+    leftButtonLabel: String = "Cancel",
+    title: String = "Delete Course?",
+    message1: String = "Are you sure you want to delete ",
+    message2: String = "? You can add it again later if needed.",
+    titleIcon: ImageVector = Icons.Default.Warning,
+    rightButtonIcon: ImageVector = Icons.Default.Delete,
+    rightButtonColor: Color = MaterialTheme.colorScheme.error
 )
 {
     BasicAlertDialog(
@@ -62,33 +74,36 @@ fun ConfirmDeleteDialog(
             )
             {
                 Icon(
-                    imageVector = Icons.Default.Warning,
+                    imageVector = titleIcon,
                     contentDescription = "Warning",
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = rightButtonColor,
                     modifier = Modifier.Companion.size(48.dp)
                 )
                 Spacer(modifier = Modifier.Companion.height(16.dp))
                 Text(
-                    text = "Delete Course?",
+                    text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Companion.Bold
                 )
                 Spacer(modifier = Modifier.Companion.height(8.dp))
                 Text(
                     text = buildAnnotatedString {
-                        append("Are you sure you want to delete ")
+                        append(message1)
 
                         // Highlighted Course Name
-                        withStyle(
-                            style = SpanStyle(
-                                fontWeight = FontWeight.Companion.ExtraBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            append("\"$courseCode\"")
+                        if(courseCode!= null)
+                        {
+                            withStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Companion.ExtraBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                append("\"$courseCode\"")
+                            }
                         }
 
-                        append("? You can add it again later if needed.")
+                        append(message2)
                     },
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = FontFamily(Font(R.font.notosans_variablefont))
@@ -111,18 +126,18 @@ fun ConfirmDeleteDialog(
                     )
                     {
                         Text(
-                            text = "Cancel",
+                            text = leftButtonLabel,
                             modifier = Modifier.Companion
                                 .padding(top = 5.dp)
                         )
                     }
                     Button(
                         onClick = {
-                            onConfirmDelete()
+                            onConfirm()
                             onDismissRequest()
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
+                            containerColor = rightButtonColor
                         ),
                         modifier = Modifier.Companion
                             .weight(1.1f)
@@ -130,13 +145,13 @@ fun ConfirmDeleteDialog(
                     )
                     {
                         Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            imageVector = rightButtonIcon,
+                            contentDescription = rightButtonLabel,
                             modifier = Modifier.Companion.size(18.dp)
                         )
                         Spacer(modifier = Modifier.Companion.width(8.dp))
                         Text(
-                            text = "Delete",
+                            text = rightButtonLabel,
                             modifier = Modifier.Companion
                                 .padding(top = 5.dp)
                         )
