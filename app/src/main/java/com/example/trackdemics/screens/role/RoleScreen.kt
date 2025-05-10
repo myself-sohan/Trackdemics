@@ -14,10 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AdminPanelSettings
-import androidx.compose.material.icons.filled.CoPresent
-import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -127,12 +123,12 @@ fun RoleScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 RoleButton(
-                    icon = Icons.Default.School,
+                    image = painterResource(id = R.drawable.student_icon),
                     label = "Student",
-                    onClick = { navController.navigate("SignUpScreen/Student") }
+                    onClick = { navController.navigate("SignUpScreen/Professor") }
                 )
                 RoleButton(
-                    icon = Icons.Default.CoPresent,
+                    image = painterResource(id = R.drawable.professor_icon),
                     label = "Professor",
                     onClick = { navController.navigate("SignUpScreen/Professor") }
                 )
@@ -147,9 +143,9 @@ fun RoleScreen(
             )
             {
                 RoleButton(
-                    icon = Icons.Default.AdminPanelSettings,
+                    image = painterResource(id = R.drawable.admin_icon),
                     label = "Admin",
-                    onClick = { navController.navigate("LoginScreen/Admin") }
+                    onClick = { navController.navigate("SignUpScreen/Professor") }
                 )
             }
         }
