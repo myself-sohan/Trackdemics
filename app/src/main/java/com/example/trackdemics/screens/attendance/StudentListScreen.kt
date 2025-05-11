@@ -258,7 +258,7 @@ fun StudentListScreen(
                             }
 
                             val attendanceRecord = mapOf(
-                                "course_code" to code,
+                                "course_code" to code.replace(" ", ""), // Normalized
                                 "session_date" to sessionDate,
                                 "timestamp" to timestamp,
                                 "taken_by" to auth.currentUser?.uid,
@@ -269,7 +269,7 @@ fun StudentListScreen(
                                 .add(attendanceRecord)
 
                                 .addOnSuccessListener {
-                                    val courseRef = firestore.collection("courses").document(code)
+                                    val courseRef = firestore.collection("courses").document(code.replace(" ", ""))
                                     firestore.runTransaction { transaction ->
                                         val snapshot = transaction.get(courseRef)
                                         val currentCount = snapshot.getLong("classes_taken") ?: 0
@@ -439,8 +439,8 @@ fun AttendanceSection(
                                     Color.Black
                                 else
                                     MaterialTheme.colorScheme.surfaceVariant,
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.Bold
                                 )
                             )
                         }

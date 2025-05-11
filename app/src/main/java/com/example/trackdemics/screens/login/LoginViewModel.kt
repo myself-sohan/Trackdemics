@@ -30,7 +30,7 @@ class LoginViewModel @Inject constructor(
                 val collection = when (role.uppercase()) {
                     "STUDENT" -> "students"
                     "PROFESSOR" -> "professors"
-                    "ADMIN" -> "professors" // If admin logic is same
+                    "ADMIN" -> "admin" // If admin logic is same
                     else -> {
                         _loginState.value = Result.failure(Exception("Invalid role"))
                         return@launch

@@ -201,7 +201,7 @@ fun EmptyAttendanceTrend(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Once you've marked attendance for 7 sessions,\nwe'll show a trend graph here.",
+            text = "Once you've marked attendance for 5 sessions,\nwe'll show a trend graph here.",
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center

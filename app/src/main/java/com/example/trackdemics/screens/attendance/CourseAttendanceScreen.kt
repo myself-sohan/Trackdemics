@@ -70,7 +70,7 @@ fun CourseAttendanceScreen(
             {
                 val graphData = attendanceViewModel.weeklyAttendanceStats.map { it.day to it.percentage }
 
-                if (graphData.size < 7) {
+                if (graphData.size < 5) {
                     EmptyAttendanceTrend(modifier = Modifier.padding(16.dp))
                 } else {
                     AttendanceTrendGraph(

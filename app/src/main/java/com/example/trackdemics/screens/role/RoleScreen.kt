@@ -152,7 +152,7 @@ fun RoleScreen(
                 RoleButton(
                     image = painterResource(id = R.drawable.admin_icon),
                     label = "Admin",
-                    onClick = { navController.navigate("LoginScreen/Admin") }
+                    onClick = { navController.navigate("SignUpScreen/Admin") }
                 )
             }
         }
