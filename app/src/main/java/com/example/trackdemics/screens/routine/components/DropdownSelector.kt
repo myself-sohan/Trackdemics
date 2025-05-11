@@ -27,11 +27,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.trackdemics.R
 
 /**
  * A dropdown selector with an icon prefix and arrow indicator.
@@ -114,8 +117,9 @@ fun DropdownSelector(
                             style = MaterialTheme.typography.titleMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.ExtraBold,
-                                letterSpacing = 0.8.sp,
-                                textAlign = TextAlign.Start
+                                letterSpacing = 0.6.sp,
+                                textAlign = TextAlign.Start,
+                                fontFamily = FontFamily(Font(R.font.notosans_variablefont))
                             )
                         )
                     },
