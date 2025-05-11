@@ -129,7 +129,7 @@ fun ProfessorAttendanceCard(
                     text = course.courseName,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Companion.Bold,
-                    color = Color.Companion.White
+                    color = MaterialTheme.colorScheme.surface
                 )
 
                 Spacer(modifier = Modifier.Companion.height(8.dp))
@@ -139,7 +139,7 @@ fun ProfessorAttendanceCard(
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Companion.ExtraBold,
-                    color = Color.Companion.White
+                    color = MaterialTheme.colorScheme.surface
                 )
 
                 Spacer(modifier = Modifier.Companion.height(12.dp))
@@ -150,7 +150,7 @@ fun ProfessorAttendanceCard(
                 )
                 {
                     Text(
-                        text = "Attended",
+                        text = "No of Enrolled students",
                         fontSize = 14.sp,
                         color = onSurfaceLight.copy(alpha = 0.6f)
                     )
@@ -160,7 +160,7 @@ fun ProfessorAttendanceCard(
                         fontSize = 19.sp,
                         fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
                         fontWeight = FontWeight.Companion.SemiBold,
-                        color = Color.Companion.White
+                        color = MaterialTheme.colorScheme.surface
                     )
                 }
             }
