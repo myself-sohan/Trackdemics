@@ -25,16 +25,44 @@ import com.example.trackdemics.screens.splash.SplashScreen
 @Composable
 fun TrackdemicsNavigation() {
     val navController = rememberNavController()
+
     NavHost(
         navController = navController,
         startDestination = TrackdemicsScreens.ProfessorAttendanceScreen.name
-    )
-    {
-        composable(TrackdemicsScreens.EditAttendanceScreen.name)
-        {
+    ) {
+
+        // Screens without arguments
+        composable(TrackdemicsScreens.EditAttendanceScreen.name) {
             EditAttendanceScreen(navController = navController)
         }
-        val courseAttendanceRoute = "${TrackdemicsScreens.CourseAttendanceScreen.name}/{code}/{name}"
+        composable(TrackdemicsScreens.RoutineScreen.name) {
+            RoutineScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.SplashScreen.name) {
+            SplashScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.ProfessorAttendanceScreen.name) {
+            ProfessorAttendanceScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.StudentHomeScreen.name) {
+            StudentHomeScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.StudentAttendanceScreen.name) {
+            StudentAttendanceScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.AdminHomeScreen.name) {
+            AdminHomeScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.ProfessorHomeScreen.name) {
+            ProfessorHomeScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.RoleScreen.name) {
+            RoleScreen(navController = navController)
+        }
+
+        // Screens with code & name arguments
+        val courseAttendanceRoute =
+            "${TrackdemicsScreens.CourseAttendanceScreen.name}/{code}/{name}"
         composable(
             route = courseAttendanceRoute,
             arguments = listOf(
@@ -44,7 +72,11 @@ fun TrackdemicsNavigation() {
         ) { backStackEntry ->
             val code = backStackEntry.arguments?.getString("code") ?: ""
             val name = backStackEntry.arguments?.getString("name") ?: ""
-            CourseAttendanceScreen(navController = navController, courseCode = code, courseName = name)
+            CourseAttendanceScreen(
+                navController = navController,
+                courseCode = code,
+                courseName = name
+            )
         }
 
         val studentListRoute = "${TrackdemicsScreens.StudentListScreen.name}/{code}/{name}"
@@ -57,52 +89,21 @@ fun TrackdemicsNavigation() {
         ) { backStackEntry ->
             val code = backStackEntry.arguments?.getString("code") ?: ""
             val name = backStackEntry.arguments?.getString("name") ?: ""
-            StudentListScreen(navController = navController, code = code, name = name)
+            StudentListScreen(
+                navController = navController,
+                code = code,
+                name = name
+            )
         }
 
-        composable(TrackdemicsScreens.RoutineScreen.name)
-        {
-            RoutineScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.SplashScreen.name)
-        {
-            SplashScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.ProfessorAttendanceScreen.name)
-        {
-            ProfessorAttendanceScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.StudentHomeScreen.name)
-        {
-            StudentHomeScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.StudentAttendanceScreen.name)
-        {
-            StudentAttendanceScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.AdminHomeScreen.name)
-        {
-            AdminHomeScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.ProfessorHomeScreen.name)
-        {
-            ProfessorHomeScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.RoleScreen.name)
-        {
-            RoleScreen(navController = navController)
-        }
+        // Screens with role argument
         val loginRoute = "${TrackdemicsScreens.LoginScreen.name}/{role}"
         composable(
             route = loginRoute,
             arguments = listOf(
-                navArgument("role")
-                {
-                    type = NavType.StringType
-                }
+                navArgument("role") { type = NavType.StringType }
             )
-        )
-        { backStackEntry ->
+        ) { backStackEntry ->
             val role = backStackEntry.arguments?.getString("role").orEmpty()
             LoginScreen(
                 navController = navController,
@@ -114,13 +115,9 @@ fun TrackdemicsNavigation() {
         composable(
             route = signUpRoute,
             arguments = listOf(
-                navArgument("role")
-                {
-                    type = NavType.StringType
-                }
+                navArgument("role") { type = NavType.StringType }
             )
-        )
-        { backStackEntry ->
+        ) { backStackEntry ->
             val role = backStackEntry.arguments?.getString("role").orEmpty()
             val viewModel = hiltViewModel<SignUpViewModel>()
             SignUpScreen(

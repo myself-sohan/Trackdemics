@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.attendance.components.ConfirmationDialog
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.auth.FirebaseAuth
@@ -201,6 +202,8 @@ fun StudentListScreen(
                     }
                 }
             )
+            val codeEncoded = code.replace(" ", "%20")
+            val nameEncoded = name.replace(" ", "%20")
             val context = LocalContext.current
             ActionButtonsSection(
                 onSubmitClick = {
@@ -210,12 +213,10 @@ fun StudentListScreen(
                         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                     val timestamp = System.currentTimeMillis()
 
-                    val presentRolls = selectedCards.value.map { it.toString().lowercase() }.toSet()
-                    val courseCodeNormalized = code.replace(" ", "").lowercase()
+                    val presentRolls = selectedCards.value.map { it.lowercase() }.toSet()
 
-                    // Only fetch students enrolled in this course
                     firestore.collection("students")
-                        .whereArrayContains("enrolled_courses", courseCodeNormalized)
+                        .whereArrayContains("enrolled_courses", code)
                         .get()
                         .addOnSuccessListener { snapshot ->
                             val studentRecords = snapshot.documents.mapNotNull { doc ->
@@ -244,10 +245,31 @@ fun StudentListScreen(
 
                             firestore.collection("attendance_record")
                                 .add(attendanceRecord)
+
                                 .addOnSuccessListener {
-                                    Toast.makeText(context, "Attendance saved", Toast.LENGTH_SHORT)
-                                        .show()
-                                    navController.navigate("CourseAttendanceScreen")
+                                    val courseRef = firestore.collection("courses").document(code)
+                                    firestore.runTransaction { transaction ->
+                                        val snapshot = transaction.get(courseRef)
+                                        val currentCount = snapshot.getLong("classes_taken") ?: 0
+                                        transaction.update(
+                                            courseRef,
+                                            "classes_taken",
+                                            currentCount + 1
+                                        )
+                                    }.addOnSuccessListener {
+                                        Toast.makeText(
+                                            context,
+                                            "Attendance saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        navController.navigate("${TrackdemicsScreens.CourseAttendanceScreen.name}/$codeEncoded/$nameEncoded")
+                                    }.addOnFailureListener {
+                                        Toast.makeText(
+                                            context,
+                                            "Failed to update classes count",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                                 .addOnFailureListener {
                                     Toast.makeText(
