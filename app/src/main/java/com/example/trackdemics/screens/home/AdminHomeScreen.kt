@@ -77,20 +77,25 @@ fun AdminHomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 ProfileSection(
-                    "professors",
+                    collection = "professors",
                     modifier = Modifier,
-                    label = "Admin"
+                    label = "Hello Admin"
                 )
-                AdminFeatureGrid()
+                AdminFeatureGrid(
+                    navController = navController
+                )
             }
         }
     }
 }
 
 @Composable
-fun AdminFeatureGrid() {
+fun AdminFeatureGrid(
+    navController: NavController
+)
+{
     val features = listOf(
-        FeatureItem("Attendance", Icons.Default.Groups) { /* Navigate to Attendance */ },
+        FeatureItem("Attendance", Icons.Default.Groups) { navController.navigate("AdminAttendanceScreen") },
         FeatureItem("Results", Icons.Default.Grade) { /* Navigate to Results */ },
         FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
         FeatureItem(
