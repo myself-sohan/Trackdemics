@@ -29,7 +29,7 @@ fun TrackdemicsNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = TrackdemicsScreens.AdminHomeScreen.name
+        startDestination = TrackdemicsScreens.SplashScreen.name
     ) {
 
         // Screens without arguments

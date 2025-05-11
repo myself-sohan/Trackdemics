@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.attendance.components
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,51 +56,44 @@ fun StudentAttendanceCard(
     val total = remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
-
-        val studentId = auth.currentUser?.uid ?: return@LaunchedEffect
+        val authEmail = auth.currentUser?.email ?: return@LaunchedEffect
         val normalizedCourseCode = course.code.replace(" ", "")
 
+        val studentSnapshot = firestore.collection("students")
+            .whereEqualTo("email", authEmail)
+            .get()
+            .await()
 
-        // 1. Fetch all attendance records for this course
+        val studentUid = studentSnapshot.documents.firstOrNull()?.id
+            ?: return@LaunchedEffect // fail safely if student not found
+
         val snapshots = firestore.collection("attendance_record")
             .whereEqualTo("course_code", normalizedCourseCode)
             .get()
             .await()
 
-        // 2. Count records where the student is marked present
+        // Step 3: Count how many sessions the student attended
         val attendedCount = snapshots.documents.count { doc ->
             val students = doc["students"] as? List<Map<String, Any>> ?: return@count false
             students.any { entry ->
                 val uid = entry["uid"] as? String
-                val isPresent = entry["present"] as? Boolean ?: false
-                uid == studentId && isPresent
+                val isPresent = entry["present"] as? Boolean == true
+                uid == studentUid && isPresent
             }
-
         }
 
         attended.intValue = attendedCount
 
-        // 3. Total classes taken
+        // Step 4: Get total sessions
         val courseSnapshot = firestore.collection("courses")
-            .document(course.code)
+            .document(normalizedCourseCode)
             .get()
             .await()
 
         total.intValue = courseSnapshot.getLong("classes_taken")?.toInt() ?: 0
 
-        val matchingDocs = snapshots.documents.filter { doc ->
-            val students = doc["students"] as? List<Map<String, Any>> ?: return@filter false
-            students.any { entry ->
-                val uid = entry["uid"] as? String
-                val isPresent = entry["present"] as? Boolean ?: false
-                uid == studentId && isPresent
-            }
-        }
-        println("Found ${matchingDocs.size} sessions attended.")
-
+        Log.d("Attendance", "Found $attendedCount sessions attended by $studentUid.")
     }
-
-
 
 
     Card(
