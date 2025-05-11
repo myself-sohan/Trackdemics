@@ -38,7 +38,7 @@ fun CourseAttendanceScreen(
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                onBackClick = { navController.navigate(TrackdemicsScreens.CourseAttendanceScreen.name) },
+                onBackClick = { navController.navigate(TrackdemicsScreens.ProfessorAttendanceScreen.name) },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
