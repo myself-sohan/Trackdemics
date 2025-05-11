@@ -10,24 +10,35 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.attendance.components.AttendanceTrendGraph
-import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.example.trackdemics.screens.attendance.components.CourseDetails
+import com.example.trackdemics.screens.attendance.components.EmptyAttendanceTrend
 import com.example.trackdemics.screens.attendance.components.TakeAttendanceSection
+import com.example.trackdemics.widgets.TrackdemicsAppBar
 
 @Composable
 fun CourseAttendanceScreen(
-    navController: NavController
-)
-{
+    navController: NavController,
+    courseCode: String,
+    courseName: String,
+    attendanceViewModel: AttendanceViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        attendanceViewModel.fetchCourseStats(courseCode)
+        attendanceViewModel.fetchWeeklyAttendance(courseCode)
+    }
+
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                navController = navController,
+                onBackClick = { navController.navigate(TrackdemicsScreens.CourseAttendanceScreen.name) },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
@@ -45,9 +56,9 @@ fun CourseAttendanceScreen(
         {
             CourseDetails(
                 modifier = Modifier.weight(0.25f),
-                code = "CS 302",
-                totalClass = 44,
-                totalStudents = 26
+                code = courseCode,
+                totalClass = attendanceViewModel.totalClasses,
+                totalStudents = attendanceViewModel.totalStudents
             )
             Spacer(
                 modifier = Modifier.height(16.dp)
@@ -57,17 +68,16 @@ fun CourseAttendanceScreen(
                 color = Color.Transparent
             )
             {
-                val dummyAttendanceData = listOf(
-                    "Thu" to 88,
-                    "Fri" to 80,
-                    "Mon" to 85,
-                    "Tue" to 92,
-                    "Wed" to 46,
-                )
-                AttendanceTrendGraph(
-                    attendanceData = dummyAttendanceData,
-                    modifier = Modifier.padding(16.dp)
-                )
+                val graphData = attendanceViewModel.weeklyAttendanceStats.map { it.day to it.percentage }
+
+                if (graphData.size < 7) {
+                    EmptyAttendanceTrend(modifier = Modifier.padding(16.dp))
+                } else {
+                    AttendanceTrendGraph(
+                        attendanceData = graphData.takeLast(5),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
             Spacer(
                 modifier = Modifier.height(16.dp)
@@ -76,7 +86,9 @@ fun CourseAttendanceScreen(
                 modifier = Modifier.weight(0.3f)
             )
             {
-                navController.navigate("StudentListScreen")
+                val codeEncoded = courseCode.replace(" ", "%20")
+                val nameEncoded = courseName.replace(" ", "%20")
+                navController.navigate("StudentListScreen/$codeEncoded/$nameEncoded")
             }
         }
     }

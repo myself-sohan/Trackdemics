@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Sd
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
@@ -15,7 +13,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,7 +27,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.trackdemics.R
 import kotlinx.coroutines.launch
 
@@ -39,14 +35,13 @@ import kotlinx.coroutines.launch
 fun TrackdemicsAppBar(
     modifier: Modifier = Modifier,
     title: String = "Trackdemics",
-    navController: NavController,
-    titleContainerColor: Color = MaterialTheme.colorScheme.onPrimaryContainer   ,
+    onBackClick: () -> Unit,
+    titleContainerColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     titleTextColor: Color = MaterialTheme.colorScheme.background,
     isEntryScreen: Boolean = true,
     isActionScreen: Boolean = false,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-)
-{
+) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val logoSize = screenWidth * 0.16f // Dynamically setting logo size as 12% of screen width
     val coroutineScope = rememberCoroutineScope()
@@ -73,17 +68,15 @@ fun TrackdemicsAppBar(
             }
         },
         navigationIcon = {
-            if (!isEntryScreen)
-            {
+            if (!isEntryScreen) {
                 IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
                     Icon(Icons.Default.Menu, contentDescription = "Menu")
                 }
             }
-            if(isActionScreen)
-            {
+            if (isActionScreen) {
                 IconButton(
                     onClick = {
-                        navController.popBackStack()
+                        onBackClick()
                     },
                 )
                 {
@@ -95,7 +88,7 @@ fun TrackdemicsAppBar(
             }
         },
         actions = {
-             IconButton(
+            IconButton(
                 onClick = { /* Add navigation functionality if needed */ },
                 modifier = Modifier
                     .size(logoSize)

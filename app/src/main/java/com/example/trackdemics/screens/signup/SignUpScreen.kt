@@ -69,7 +69,8 @@ fun SignUpScreen(
                     viewModel.clearSignUpState()
 
                     Log.d("SIGNUP_FAIL", "Sign up error: ${error.message}")
-                    Toast.makeText(context, error.message ?: "Sign up failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, error.message ?: "Sign up failed", Toast.LENGTH_LONG)
+                        .show()
                 }
             )
         }
@@ -77,7 +78,11 @@ fun SignUpScreen(
 
     Scaffold(
         topBar = {
-            TrackdemicsAppBar(navController = navController)
+            TrackdemicsAppBar(
+                onBackClick = {
+                    navController.navigate(TrackdemicsScreens.RoleScreen.name)
+                }
+            )
         }
     ) { padding ->
         Surface(

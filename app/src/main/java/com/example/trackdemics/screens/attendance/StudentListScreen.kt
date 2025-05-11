@@ -57,22 +57,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.attendance.components.ConfirmationDialog
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun StudentListScreen(
     navController: NavController,
-    name: String = "Cryptography and Network Security ",
-    code: String = "CS 322",
+    code: String,
+    name: String,
 ) {
+    val showBackDialog = remember { mutableStateOf(false) }
+    if (showBackDialog.value) {
+        ConfirmationDialog(
+            courseCode = code,
+            onDismissRequest = { showBackDialog.value = false },
+            onConfirm = {
+                showBackDialog.value = false
+                navController.popBackStack() // Or navigate to a safer screen
+            },
+            rightButtonLabel = "Exit",
+            leftButtonLabel = "Stay",
+            title = "Leave Attendance Session?",
+            message1 = "Leaving now will discard the ongoing attendance session for ",
+            message2 = ". Do you want to continue?",
+            titleIcon = Icons.Default.Warning,
+            rightButtonIcon = Icons.Default.Restore,
+            rightButtonColor = MaterialTheme.colorScheme.error
+        )
+    }
+
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                navController = navController,
+                onBackClick = {
+                    showBackDialog.value = true
+                },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
@@ -81,22 +109,24 @@ fun StudentListScreen(
         }
     ) { paddingValues ->
 
-        val selectedCards = remember { mutableStateOf(setOf<Int>()) }
+        val selectedCards = remember { mutableStateOf(setOf<String>()) }
         val showSubmitDialog = remember { mutableStateOf(false) }
         val showResetDialog = remember { mutableStateOf(false) }
         val context = LocalContext.current
-        if(showSubmitDialog.value)
-        {
+        if (showSubmitDialog.value) {
             ConfirmationDialog(
                 courseCode = code,
                 onDismissRequest = { showSubmitDialog.value = false },
                 onConfirm = {
                     showSubmitDialog.value = false
                     navController.navigate("CourseAttendanceScreen")
-                    // ⬇️ Your submit logic here:
+
                     println("Submitting data: ${selectedCards.value}")
-                    Toast.makeText(context, "Attendance Report Submitted Successfully", Toast.LENGTH_SHORT).show()
-                    // You can pass it to a ViewModel function, Firestore, etc.
+                    Toast.makeText(
+                        context,
+                        "Attendance Report Submitted Successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 },
                 rightButtonLabel = "Submit",
                 leftButtonLabel = "Cancel",
@@ -108,8 +138,7 @@ fun StudentListScreen(
                 rightButtonColor = MaterialTheme.colorScheme.secondary
             )
         }
-        if(showResetDialog.value)
-        {
+        if (showResetDialog.value) {
             if (showResetDialog.value) {
                 ConfirmationDialog(
                     courseCode = null,
@@ -121,7 +150,11 @@ fun StudentListScreen(
                         selectedCards.value = emptySet()
 
                         // Optional: Show a Toast
-                        Toast.makeText(context, "Attendance reset. Proceed Again.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Attendance reset. Proceed Again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     },
                     rightButtonLabel = "Reset",
                     leftButtonLabel = "Cancel",
@@ -159,28 +192,122 @@ fun StudentListScreen(
                 formattedDate = formattedDate,
                 formattedTime = formattedTime
             )
-            // --- Grid of Student Cards (1–40) ---
-            val students = (1..37).toList()
+
+            val firestore = FirebaseFirestore.getInstance()
+            val enrolledStudents =
+                remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) } // Pair<UID, RollNumber>
+
+            LaunchedEffect(code) {
+                firestore.collection("students")
+                    .whereArrayContains("enrolled_courses", code.replace(" ", ""))
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        val studentList = snapshot.documents.mapNotNull { doc ->
+                            val email = doc.getString("email") ?: return@mapNotNull null
+                            val uid = doc.id
+                            val roll = email.substringBefore("@")
+                            uid to roll
+                        }
+                        enrolledStudents.value = studentList
+                    }
+            }
+
 
             AttendanceSection(
-                students = students,
+                students = enrolledStudents.value.map { it.second },
                 selectedCards = selectedCards,
-                onCardClick = { student ->
-                    selectedCards.value = if (selectedCards.value.contains(student)) {
-                        selectedCards.value - student // Deselect
+                onCardClick = { roll ->
+                    selectedCards.value = if (selectedCards.value.contains(roll)) {
+                        selectedCards.value - roll // Deselect
                     } else {
-                        selectedCards.value + student // Select
+                        selectedCards.value + roll // Select
                     }
                 }
             )
-
+            val codeEncoded = code.replace(" ", "%20")
+            val nameEncoded = name.replace(" ", "%20")
+            val context = LocalContext.current
             ActionButtonsSection(
                 onSubmitClick = {
-                    val selectedRollNumbers = selectedCards.value.toList()
-                    // TODO: Pass selectedRollNumbers to the next screen or upload to Firestore
-                    println("Selected students: $selectedRollNumbers") // Replace this with your logic
-                    showSubmitDialog.value = true
+                    val firestore = FirebaseFirestore.getInstance()
+                    val auth = FirebaseAuth.getInstance()
+                    val sessionDate =
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    val timestamp = System.currentTimeMillis()
 
+                    val presentRolls = selectedCards.value.map { it.lowercase() }.toSet()
+
+                    firestore.collection("students")
+                        .whereArrayContains("enrolled_courses", code)
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            val studentRecords = snapshot.documents.mapNotNull { doc ->
+                                val email = doc.getString("email") ?: return@mapNotNull null
+                                val uid = doc.id
+                                val rollNumber = email.substringBefore("@").lowercase()
+                                val fullName =
+                                    "${doc.getString("first_name") ?: ""} ${doc.getString("last_name") ?: ""}".trim()
+
+                                mapOf(
+                                    "uid" to uid,
+                                    "rollNumber" to rollNumber,
+                                    "fullName" to fullName,
+                                    "email" to email,
+                                    "present" to (rollNumber in presentRolls)
+                                )
+                            }
+
+                            val attendanceRecord = mapOf(
+                                "course_code" to code,
+                                "session_date" to sessionDate,
+                                "timestamp" to timestamp,
+                                "taken_by" to auth.currentUser?.uid,
+                                "students" to studentRecords
+                            )
+
+                            firestore.collection("attendance_record")
+                                .add(attendanceRecord)
+
+                                .addOnSuccessListener {
+                                    val courseRef = firestore.collection("courses").document(code)
+                                    firestore.runTransaction { transaction ->
+                                        val snapshot = transaction.get(courseRef)
+                                        val currentCount = snapshot.getLong("classes_taken") ?: 0
+                                        transaction.update(
+                                            courseRef,
+                                            "classes_taken",
+                                            currentCount + 1
+                                        )
+                                    }.addOnSuccessListener {
+                                        Toast.makeText(
+                                            context,
+                                            "Attendance saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        navController.navigate("${TrackdemicsScreens.CourseAttendanceScreen.name}/$codeEncoded/$nameEncoded")
+                                    }.addOnFailureListener {
+                                        Toast.makeText(
+                                            context,
+                                            "Failed to update classes count",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to save attendance",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                context,
+                                "Failed to fetch student data",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                 },
                 onResetClick = {
                     showResetDialog.value = true
@@ -191,6 +318,7 @@ fun StudentListScreen(
         }
     }
 }
+
 @Composable
 fun ActionButtonsSection(
     onSubmitClick: () -> Unit,
@@ -268,9 +396,9 @@ fun ActionButtonsSection(
 
 @Composable
 fun AttendanceSection(
-    students: List<Int>,
-    selectedCards: MutableState<Set<Int>>,
-    onCardClick: (Int) -> Unit
+    students: List<String>,
+    selectedCards: MutableState<Set<String>>,
+    onCardClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -306,7 +434,7 @@ fun AttendanceSection(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             Text(
-                                text = "$student",
+                                text = student.uppercase(),
                                 color = if (isSelected)
                                     Color.Black
                                 else
@@ -334,8 +462,7 @@ fun AttendanceSection(
 fun DateTimeSection(
     formattedDate: String,
     formattedTime: String
-)
-{
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -401,8 +528,7 @@ fun DateTimeSection(
 fun CourseDetails(
     name: String,
     code: String
-)
-{
+) {
     // --- Gradient Header with Course Code and Name ---
     Box(
         modifier = Modifier

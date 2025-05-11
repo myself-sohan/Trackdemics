@@ -88,9 +88,12 @@ fun ProfessorAttendanceCard(
                 onDownloadPdf = {
                     showDialog.value = false
                 },
-                onGenerateQr = {
-                    navController.navigate("CourseAttendanceScreen")
-                },
+                onTakeAttendance = {
+                    val codeEncoded = course.courseCode.replace(" ", "%20")
+                    val nameEncoded = course.courseName.replace(" ", "%20")
+                    navController.navigate("CourseAttendanceScreen/$codeEncoded/$nameEncoded")
+                }
+                ,
                 onDeleteCourse = {
                     showDialog.value = false
                     showDeleteDialog.value = true
@@ -171,7 +174,7 @@ fun ActionDialog(
     onDismissRequest: () -> Unit,
     onEditAttendance: () -> Unit,
     onDownloadPdf: () -> Unit,
-    onGenerateQr: () -> Unit,
+    onTakeAttendance: () -> Unit,
     onDeleteCourse: () -> Unit
 ) {
     val visibleState = remember { MutableTransitionState(false).apply { targetState = true } }
@@ -208,7 +211,7 @@ fun ActionDialog(
                             icon = Icons.Default.HowToReg,
                             text = "Take Attendance",
                             onClick = {
-                                onGenerateQr()
+                                onTakeAttendance()
                                 onDismissRequest()
                             }
                         )
