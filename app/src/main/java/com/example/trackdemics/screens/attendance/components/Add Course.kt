@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -27,22 +28,26 @@ import com.example.trackdemics.ui.theme.surfaceContainerLowLight
 @SuppressLint("ReturnFromAwaitPointerEventScope")
 @Composable
 fun AddCourseCard(
-    onClick:  () -> Unit = {}
+    label: String = "Add Course",
+    selectedOption: String?,
+    modifier: Modifier = Modifier
+        .height(55.dp)
+        .fillMaxWidth(0.45f),
+    imageVector: ImageVector = Icons.Default.Add,
+    onClick:  () -> Unit = {},
 )
 {
     val interactionSource = remember { MutableInteractionSource() }
     var isPressed by remember { mutableStateOf(false) }
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f, // shrink a bit on tap
+        targetValue = if (isPressed) 0.8f else 1f, // shrink a bit on tap
         label = "ButtonScale"
     )
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .scale(scale)
-            .fillMaxWidth(0.45f)
-            .height(55.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null, // Remove extra default ripple
@@ -70,7 +75,7 @@ fun AddCourseCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Add Course",
+                text = selectedOption?: label,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = onBackgroundLight,
@@ -80,8 +85,8 @@ fun AddCourseCard(
             )
 
             Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Icon",
+                imageVector = imageVector,
+                contentDescription = selectedOption?: label,
                 tint = onBackgroundLight
             )
         }

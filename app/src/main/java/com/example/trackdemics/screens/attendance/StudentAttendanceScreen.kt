@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -93,7 +94,10 @@ fun StudentAttendanceScreen(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                AddCourseCard {
+                AddCourseCard(
+                    selectedOption = null
+                )
+                {
                     openDialog.value = true
                 }
             }
@@ -146,27 +150,34 @@ fun StudentAttendanceScreen(
 
 @Composable
 fun EmptyState() {
-    Card(
+    Box(
         modifier = Modifier
-            .fillMaxHeight(0.1f)
-            .fillMaxWidth(0.5f),
-        shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    )
+    {
+        Card(
+            modifier = Modifier
+                .fillMaxHeight(0.1f)
+                .fillMaxWidth(0.5f),
+            shape = MaterialTheme.shapes.medium,
+            elevation = CardDefaults.cardElevation(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
-            Text(
-                text = "No Courses Found",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "No Courses Found",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

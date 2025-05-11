@@ -1,6 +1,6 @@
 package com.example.trackdemics.screens.attendance.components
 
-import android.widget.Toast
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -34,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -44,18 +41,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
-import com.example.trackdemics.repository.AppFirestoreService
-import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.ui.theme.onSurfaceLight
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
-fun ProfessorAttendanceCard(
+fun AdminAttendanceCard(
     navController: NavController,
-    course: ProfessorCourse,
+    course: Map<String, Any>,
     coroutineScope: CoroutineScope,
-    onCourseDeleted: (String) -> Unit
 )
 {
     val context = LocalContext.current
@@ -74,7 +67,7 @@ fun ProfessorAttendanceCard(
     )
     {
         if (showDialog.value) {
-            ProfessorActionDialog(
+            AdminActionDialog(
                 onDismissRequest = { showDialog.value = false },
                 onEditAttendance = {
                     showDialog.value = false
@@ -83,37 +76,8 @@ fun ProfessorAttendanceCard(
                 onDownloadPdf = {
                     showDialog.value = false
                 },
-                onTakeAttendance = {
-                    val codeEncoded = course.courseCode.replace(" ", "%20")
-                    val nameEncoded = course.courseName.replace(" ", "%20")
-                    navController.navigate("CourseAttendanceScreen/$codeEncoded/$nameEncoded")
-                }
-                ,
-                onDeleteCourse = {
-                    showDialog.value = false
-                    showDeleteDialog.value = true
-                }
+
             )
-        }
-        if (showDeleteDialog.value) {
-            ConfirmationDialog(
-                courseCode = course.courseCode,
-                onDismissRequest = { showDeleteDialog.value = false },
-                onConfirm = {
-                    coroutineScope.launch {
-                        val success =
-                            AppFirestoreService.removeCourseFromProfessor(course.courseCode)
-                        if (success) {
-                            onCourseDeleted(course.courseCode)
-                            showDeleteDialog.value = false
-                        }
-                        Toast.makeText(
-                            context,
-                            "Course ${course.courseCode} deleted successfully!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                })
         }
         Box(
             modifier = Modifier.Companion
@@ -121,7 +85,7 @@ fun ProfessorAttendanceCard(
         {
             Column(modifier = Modifier.Companion.padding(16.dp)) {
                 Text(
-                    text = course.courseName,
+                    text = course["name"].toString(),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Companion.Bold,
                     color = MaterialTheme.colorScheme.surface
@@ -130,7 +94,7 @@ fun ProfessorAttendanceCard(
                 Spacer(modifier = Modifier.Companion.height(8.dp))
 
                 Text(
-                    text = course.courseCode,
+                    text = course["code"].toString(),
                     fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Companion.ExtraBold,
@@ -144,14 +108,9 @@ fun ProfessorAttendanceCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 )
                 {
-                    Text(
-                        text = "No of Enrolled students",
-                        fontSize = 14.sp,
-                        color = onSurfaceLight.copy(alpha = 0.6f)
-                    )
 
                     Text(
-                        text = "Sem ${course.semester}",
+                        text = "Location: ${course["location"] ?: "TBA"}",
                         fontSize = 19.sp,
                         fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
                         fontWeight = FontWeight.Companion.SemiBold,
@@ -165,12 +124,10 @@ fun ProfessorAttendanceCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfessorActionDialog(
+fun AdminActionDialog(
     onDismissRequest: () -> Unit,
     onEditAttendance: () -> Unit,
     onDownloadPdf: () -> Unit,
-    onTakeAttendance: () -> Unit,
-    onDeleteCourse: () -> Unit
 ) {
     val visibleState = remember { MutableTransitionState(false).apply { targetState = true } }
 
@@ -203,14 +160,6 @@ fun ProfessorActionDialog(
 
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         DialogOption(
-                            icon = Icons.Default.HowToReg,
-                            text = "Take Attendance",
-                            onClick = {
-                                onTakeAttendance()
-                                onDismissRequest()
-                            }
-                        )
-                        DialogOption(
                             icon = Icons.Default.Edit,
                             text = "Edit Attendance",
                             onClick = {
@@ -223,16 +172,6 @@ fun ProfessorActionDialog(
                             text = "Download PDF",
                             onClick = {
                                 onDownloadPdf()
-                                onDismissRequest()
-                            }
-                        )
-                        DialogOption(
-                            icon = Icons.Default.Delete,
-                            text = "Delete Course",
-                            iconTint = Color.Red,
-                            textColor = Color.Red,
-                            onClick = {
-                                onDeleteCourse()
                                 onDismissRequest()
                             }
                         )
