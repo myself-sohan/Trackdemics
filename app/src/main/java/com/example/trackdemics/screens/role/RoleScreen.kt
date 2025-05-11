@@ -99,14 +99,14 @@ fun RoleScreen(
                 )
 
                 // Adjust this based on exact hand position visually
-                Image(
-                    painter = painterResource(id = R.drawable.appicon), // Replace with your uploaded image
-                    contentDescription = "Overlay icon",
-                    modifier = Modifier
-                        .size(44.dp) // Slightly enlarged
-                        .align(Alignment.TopEnd)
-                        .offset(x = (-200).dp, y = 135.dp) // Closer to the raised hand
-                )
+//                Image(
+//                    painter = painterResource(id = R.drawable.appicon), // Replace with your uploaded image
+//                    contentDescription = "Overlay icon",
+//                    modifier = Modifier
+//                        .size(44.dp) // Slightly enlarged
+//                        .align(Alignment.TopEnd)
+//                        .offset(x = (-200).dp, y = 135.dp) // Closer to the raised hand
+//                )
                 // Choose your role section - moved up
                 Text(
                     text = "Choose your Role \uD83D\uDC65",
@@ -132,12 +132,12 @@ fun RoleScreen(
                 RoleButton(
                     image = painterResource(id = R.drawable.student_icon),
                     label = "Student",
-                    onClick = { navController.navigate("SignUpScreen/Student") }
+                    onClick = { navController.navigate("SignUpScreen/STUDENT") }
                 )
                 RoleButton(
                     image = painterResource(id = R.drawable.professor_icon),
                     label = "Professor",
-                    onClick = { navController.navigate("SignUpScreen/Professor") }
+                    onClick = { navController.navigate("SignUpScreen/PROFESSOR") }
                 )
             }
 
@@ -152,7 +152,7 @@ fun RoleScreen(
                 RoleButton(
                     image = painterResource(id = R.drawable.admin_icon),
                     label = "Admin",
-                    onClick = { navController.navigate("SignUpScreen/Admin") }
+                    onClick = { navController.navigate("LoginScreen/ADMIN") }
                 )
             }
         }
