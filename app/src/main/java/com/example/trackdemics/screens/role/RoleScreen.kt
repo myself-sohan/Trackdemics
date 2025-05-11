@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.role
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -32,15 +34,20 @@ import com.example.trackdemics.R
 import com.example.trackdemics.screens.role.components.RoleButton
 import com.example.trackdemics.widgets.LottieFromAssets
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+
 @Composable
 fun RoleScreen(
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val activity = context as? Activity
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
                 title = "Trackdemics",
-                navController = navController,
+                onBackClick = {
+                    activity?.moveTaskToBack(true)
+                },
                 isEntryScreen = true
             )
         }
@@ -108,7 +115,7 @@ fun RoleScreen(
                         fontWeight = FontWeight.ExtraBold
                     ),
                     modifier = Modifier
-                        .padding( bottom = 8.dp)
+                        .padding(bottom = 8.dp)
                         .offset(x = (0).dp, y = 335.dp)
                 )
             }

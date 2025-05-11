@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.home
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -55,6 +57,8 @@ fun ProfessorHomeScreen(
     var firstName by remember { mutableStateOf<String?>(null) }
     var department by remember { mutableStateOf<String?>(null) }
     var designation by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val activity = context as? Activity
 
     LaunchedEffect(Unit) {
         user?.email?.let { email ->
@@ -90,7 +94,9 @@ fun ProfessorHomeScreen(
         Scaffold(
             topBar = {
                 TrackdemicsAppBar(
-                    navController = navController,
+                    onBackClick = {
+                        activity?.moveTaskToBack(true)
+                    },
                     drawerState = drawerState,
                     isEntryScreen = false,
                     titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -126,9 +132,14 @@ fun ProfessorFeatureGrid(
 ) {
     val features = listOf(
         FeatureItem(
-            "Attendance", Icons.Default.Groups) { navController.navigate("ProfessorAttendanceScreen") },
+            "Attendance", Icons.Default.Groups
+        ) { navController.navigate("ProfessorAttendanceScreen") },
         FeatureItem("Projects", Icons.Default.Lightbulb) { },
-        FeatureItem("College Routine", Icons.Default.Schedule) { navController.navigate(TrackdemicsScreens.RoutineScreen.name) },
+        FeatureItem("College Routine", Icons.Default.Schedule) {
+            navController.navigate(
+                TrackdemicsScreens.RoutineScreen.name
+            )
+        },
         FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
         FeatureItem(
             "Assignment",

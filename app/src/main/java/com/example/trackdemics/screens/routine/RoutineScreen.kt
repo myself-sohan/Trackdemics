@@ -28,7 +28,7 @@ fun RoutineScreen(
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                navController = navController,
+                onBackClick = {navController.popBackStack()},
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,

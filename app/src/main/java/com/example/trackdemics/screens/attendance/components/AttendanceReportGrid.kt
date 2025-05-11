@@ -34,12 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.trackdemics.R
-import com.example.trackdemics.screens.attendance.AttendanceEntry
+import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
 
 @Composable
 fun AttendanceReportGrid(
-    attendanceState: SnapshotStateList<AttendanceEntry>,
-    onToggleAttendance: (AttendanceEntry) -> Unit
+    attendanceState: SnapshotStateList<FirestoreAttendanceEntry>,
+    onToggleAttendance: (FirestoreAttendanceEntry) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 100.dp),
@@ -79,7 +79,7 @@ fun AttendanceReportGrid(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
-                        text = entry.student.rollNumber,
+                        text = entry.rollNumber,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Companion.ExtraBold,
                         fontFamily = FontFamily(Font(R.font.notosans_variablefont)),

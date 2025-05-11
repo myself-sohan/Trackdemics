@@ -59,7 +59,9 @@ fun AdminHomeScreen(
         Scaffold(
             topBar = {
                 TrackdemicsAppBar(
-                    navController = navController,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
                     drawerState = drawerState,
                     isEntryScreen = false,
                     titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,

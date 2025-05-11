@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.repository.AppFirestoreService.loadStudentCourses
 import com.example.trackdemics.screens.attendance.components.AddCourseCard
 import com.example.trackdemics.screens.attendance.components.AddCourseForm
@@ -62,7 +63,9 @@ fun StudentAttendanceScreen(
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                navController = navController,
+                onBackClick = {
+                    navController.navigate(TrackdemicsScreens.StudentHomeScreen.name)
+                },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
