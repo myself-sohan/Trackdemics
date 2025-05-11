@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.attendance.components.ConfirmationDialog
 import com.example.trackdemics.screens.attendance.components.DatePickerField
 import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
@@ -127,7 +128,7 @@ fun EditAttendanceScreen(
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                navController = navController,
+                onBackClick = {navController.navigate(TrackdemicsScreens.CourseAttendanceScreen.name)},
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
@@ -186,14 +187,11 @@ fun EditAttendanceScreen(
                     onDismissRequest = { showEditDialog.value = false },
                     onConfirm = {
                         showEditDialog.value = false
-                        // ⬇️ Your submit logic here:
-                        //println("Submitting data: ${selectedCards.value}")
                         Toast.makeText(
                             context,
-                            "Attendance Report Editted Successfully",
+                            "Attendance Report Edited Successfully",
                             Toast.LENGTH_SHORT
                         ).show()
-                        // You can pass it to a ViewModel function, Firestore, etc.
                     },
                     rightButtonLabel = "Edit",
                     leftButtonLabel = "Cancel",

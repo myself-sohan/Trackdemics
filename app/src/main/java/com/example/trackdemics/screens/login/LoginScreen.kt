@@ -19,8 +19,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -32,10 +34,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.login.components.LoginForm
-import com.example.trackdemics.widgets.WelcomeText
 import com.example.trackdemics.widgets.TrackdemicsAppBar
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.example.trackdemics.widgets.WelcomeText
 
 @Composable
 fun LoginScreen(
@@ -53,22 +53,25 @@ fun LoginScreen(
             viewModel.clearLoginState()
             result.fold(
                 onSuccess = {
-                    when(role.uppercase()) {
+                    when (role.uppercase()) {
                         "STUDENT" -> navController.navigate(TrackdemicsScreens.StudentHomeScreen.name)
                         "PROFESSOR" -> navController.navigate(TrackdemicsScreens.ProfessorHomeScreen.name)
                         "ADMIN" -> navController.navigate(TrackdemicsScreens.AdminHomeScreen.name)
                     }
                 },
                 onFailure = { error ->
-                    Toast.makeText(context, error.message ?: "Login failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, error.message ?: "Login failed", Toast.LENGTH_LONG)
+                        .show()
                 }
             )
         }
     }
-
+    
     Scaffold(
         topBar = {
-            TrackdemicsAppBar(navController = navController)
+            TrackdemicsAppBar(onBackClick = {
+                navController.navigate(TrackdemicsScreens.RoleScreen.name)
+            })
         }
     ) {
         Surface(
@@ -107,8 +110,8 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val text = if(role == "ADMIN") "Go Back" else "Sign Up"
-                        val message = if(role == "ADMIN") "Not an admin?" else "New User?"
+                        val text = if (role == "ADMIN") "Go Back" else "Sign Up"
+                        val message = if (role == "ADMIN") "Not an admin?" else "New User?"
 
                         Text(text = message)
                         Text(

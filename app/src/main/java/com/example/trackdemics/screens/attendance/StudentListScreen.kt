@@ -75,10 +75,32 @@ fun StudentListScreen(
     code: String,
     name: String,
 ) {
+    val showBackDialog = remember { mutableStateOf(false) }
+    if (showBackDialog.value) {
+        ConfirmationDialog(
+            courseCode = code,
+            onDismissRequest = { showBackDialog.value = false },
+            onConfirm = {
+                showBackDialog.value = false
+                navController.popBackStack() // Or navigate to a safer screen
+            },
+            rightButtonLabel = "Exit",
+            leftButtonLabel = "Stay",
+            title = "Leave Attendance Session?",
+            message1 = "Leaving now will discard the ongoing attendance session for ",
+            message2 = ". Do you want to continue?",
+            titleIcon = Icons.Default.Warning,
+            rightButtonIcon = Icons.Default.Restore,
+            rightButtonColor = MaterialTheme.colorScheme.error
+        )
+    }
+
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                navController = navController,
+                onBackClick = {
+                    showBackDialog.value = true
+                },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,

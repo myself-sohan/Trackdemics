@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.attendance.components.AttendanceTrendGraph
 import com.example.trackdemics.screens.attendance.components.CourseDetails
 import com.example.trackdemics.screens.attendance.components.EmptyAttendanceTrend
@@ -37,7 +38,7 @@ fun CourseAttendanceScreen(
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                navController = navController,
+                onBackClick = { navController.navigate(TrackdemicsScreens.CourseAttendanceScreen.name) },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
@@ -73,7 +74,7 @@ fun CourseAttendanceScreen(
                     EmptyAttendanceTrend(modifier = Modifier.padding(16.dp))
                 } else {
                     AttendanceTrendGraph(
-                        attendanceData = graphData,
+                        attendanceData = graphData.takeLast(5),
                         modifier = Modifier.padding(16.dp)
                     )
                 }

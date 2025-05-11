@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.home
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
@@ -52,6 +54,9 @@ fun StudentHomeScreen(
     var firstName by remember { mutableStateOf<String?>(null) }
     var enrolledCourses by remember { mutableStateOf<List<String>>(emptyList()) }
     val user = auth.currentUser
+
+    val context = LocalContext.current
+    val activity = context as? Activity
 
     LaunchedEffect(Unit) {
         user?.email?.let { email ->
@@ -85,7 +90,9 @@ fun StudentHomeScreen(
         Scaffold(
             topBar = {
                 TrackdemicsAppBar(
-                    navController = navController,
+                    onBackClick = {
+                        activity?.moveTaskToBack(true)
+                    },
                     drawerState = drawerState,
                     isEntryScreen = false,
                     titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
