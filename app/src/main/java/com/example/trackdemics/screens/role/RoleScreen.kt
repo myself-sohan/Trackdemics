@@ -132,7 +132,7 @@ fun RoleScreen(
                 RoleButton(
                     image = painterResource(id = R.drawable.student_icon),
                     label = "Student",
-                    onClick = { navController.navigate("SignUpScreen/Professor") }
+                    onClick = { navController.navigate("SignUpScreen/Student") }
                 )
                 RoleButton(
                     image = painterResource(id = R.drawable.professor_icon),
@@ -152,7 +152,7 @@ fun RoleScreen(
                 RoleButton(
                     image = painterResource(id = R.drawable.admin_icon),
                     label = "Admin",
-                    onClick = { navController.navigate("SignUpScreen/Professor") }
+                    onClick = { navController.navigate("SignUpScreen/Admin") }
                 )
             }
         }

@@ -40,6 +40,10 @@ import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
 import com.example.trackdemics.screens.signup.SignUpViewModel
+import com.example.trackdemics.utils.bulkDeleteDummyStudents
+import com.example.trackdemics.utils.deleteAllAttendanceRecords
+import com.example.trackdemics.utils.insertDummyStudentsToFirestore
+import com.example.trackdemics.utils.resetAllCourseClassCounts
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -140,7 +144,9 @@ fun ProfessorFeatureGrid(
                 TrackdemicsScreens.RoutineScreen.name
             )
         },
-        FeatureItem("Reminders", Icons.Default.Notifications) { /* Navigate to Reminders */ },
+        FeatureItem("Reminders", Icons.Default.Notifications) {
+
+        },
         FeatureItem(
             "Assignment",
             Icons.AutoMirrored.Filled.Assignment
