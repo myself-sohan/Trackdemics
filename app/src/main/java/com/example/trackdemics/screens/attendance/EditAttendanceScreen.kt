@@ -2,7 +2,6 @@ package com.example.trackdemics.screens.attendance
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,19 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.TaskAlt
-import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -44,13 +37,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -61,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.screens.attendance.components.AttendanceReportGrid
 import com.example.trackdemics.screens.attendance.components.ConfirmationDialog
 import com.example.trackdemics.screens.attendance.components.DatePickerField
 import com.example.trackdemics.widgets.TrackdemicsAppBar
@@ -486,103 +477,3 @@ fun EditAttendanceScreen(
 data class Student(val rollNumber: String, val name: String)
 data class AttendanceEntry(val student: Student, val isPresent: Boolean)
 data class AttendanceRecord(val date: String, val timestamp: String, val attendance: List<AttendanceEntry>)
-@Composable
-fun AttendanceReportGrid(
-    attendanceState: SnapshotStateList<AttendanceEntry>,
-    onToggleAttendance: (AttendanceEntry) -> Unit
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 100.dp),
-        modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(attendanceState.size) { index ->
-            val entry = attendanceState[index]
-
-//            val pulseAnim = rememberInfiniteTransition(label = "pulse")
-//            val scale by pulseAnim.animateFloat(
-//                initialValue = 0.9f,
-//                targetValue = 1.1f,
-//                animationSpec = infiniteRepeatable(
-//                    animation = tween(durationMillis = 800, easing = LinearEasing),
-//                    repeatMode = RepeatMode.Reverse
-//                ), label = "scale"
-//            )
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable {
-                        onToggleAttendance(entry)
-                    },
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = entry.student.rollNumber,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "85%",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .padding(start = 3.dp),
-                        fontFamily = FontFamily(Font(R.font.lobster_regular)),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(11.dp)
-                    )
-                    {
-                        Box(
-                            modifier = Modifier
-                                .size(12.dp)
-                                .background(
-                                    if (entry.isPresent) Color(0xFF4CAF50) else Color(0xFFF44336),
-                                    shape = CircleShape
-                                )
-                        )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        )
-                        {
-                            Text(
-                                text = if (entry.isPresent) "Present" else "Absent",
-                                color = if (entry.isPresent) Color(0xFF4CAF50) else Color(0xFFF44336),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Icon(
-                                imageVector = Icons.Default.TouchApp,
-                                contentDescription = "Tap to toggle",
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
