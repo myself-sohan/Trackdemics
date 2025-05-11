@@ -49,6 +49,19 @@ fun SplashScreen(
                         }
                         return@LaunchedEffect
                     }
+
+                    // Else, check admin
+                    val adminSnapshot = firestore.collection("admin")
+                        .whereEqualTo("email", email)
+                        .get()
+                        .await()
+
+                    if (adminSnapshot.documents.isNotEmpty()) {
+                        navController.navigate(TrackdemicsScreens.AdminHomeScreen.name) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                        return@LaunchedEffect
+                    }
                 }
 
                 // If email not found in students or professors → force login
