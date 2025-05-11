@@ -11,7 +11,7 @@ class RoutineViewModel : ViewModel() {
     var selectedSemester by mutableIntStateOf(6)
     var selectedDay by mutableStateOf("Monday")
 
-    val availableBranches = listOf("CSE", "ECE", "ME", "CE", "EEE")
+    val availableBranches = listOf("CSE", "CE", "ECE", "ME", "EEE")
     val availableSemesters = listOf("Sem 2", "Sem 4", "Sem 6", "Sem 8")
 
     /**
