@@ -111,7 +111,7 @@ fun StudentAttendanceCard(
                     text = course.name,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.surface
                 )
                 IconButton(onClick = { showDeleteDialog.value = true })
                 {
@@ -130,7 +130,7 @@ fun StudentAttendanceCard(
                 fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
                 fontSize = 19.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.surface
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -140,7 +140,7 @@ fun StudentAttendanceCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Attended",
+                    text = "Professor Name",
                     fontSize = 14.sp,
                     color = onSurfaceLight.copy(alpha = 0.6f)
                 )
@@ -148,7 +148,7 @@ fun StudentAttendanceCard(
                     text = "${attended.intValue}/${total.intValue}",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.surface
                 )
             }
         }

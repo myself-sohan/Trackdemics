@@ -8,11 +8,11 @@ import com.example.trackdemics.data.AllCourseData
 class RoutineViewModel : ViewModel() {
 
     var selectedBranch by mutableStateOf("CSE")
-    var selectedSemester by mutableStateOf(6)
+    var selectedSemester by mutableIntStateOf(6)
     var selectedDay by mutableStateOf("Monday")
 
     val availableBranches = listOf("CSE", "ECE", "ME", "CE", "EEE")
-    val availableSemesters = (1..8).toList()
+    val availableSemesters = listOf("Sem 2", "Sem 4", "Sem 6", "Sem 8")
 
     /**
      * 1. Find the matching SemesterCourses
