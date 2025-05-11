@@ -15,15 +15,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackdemics.screens.attendance.components.AttendanceTrendGraph
-import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.example.trackdemics.screens.attendance.components.CourseDetails
 import com.example.trackdemics.screens.attendance.components.TakeAttendanceSection
+import com.example.trackdemics.widgets.TrackdemicsAppBar
 
 @Composable
 fun CourseAttendanceScreen(
-    navController: NavController
-)
-{
+    navController: NavController,
+    courseCode: String,
+    courseName: String
+) {
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
@@ -45,7 +46,7 @@ fun CourseAttendanceScreen(
         {
             CourseDetails(
                 modifier = Modifier.weight(0.25f),
-                code = "CS 302",
+                code = courseCode,
                 totalClass = 44,
                 totalStudents = 26
             )
@@ -76,7 +77,9 @@ fun CourseAttendanceScreen(
                 modifier = Modifier.weight(0.3f)
             )
             {
-                navController.navigate("StudentListScreen")
+                val codeEncoded = courseCode.replace(" ", "%20")
+                val nameEncoded = courseName.replace(" ", "%20")
+                navController.navigate("StudentListScreen/$codeEncoded/$nameEncoded")
             }
         }
     }

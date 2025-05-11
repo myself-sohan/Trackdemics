@@ -27,21 +27,39 @@ fun TrackdemicsNavigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = TrackdemicsScreens.RoleScreen.name
+        startDestination = TrackdemicsScreens.ProfessorAttendanceScreen.name
     )
     {
         composable(TrackdemicsScreens.EditAttendanceScreen.name)
         {
             EditAttendanceScreen(navController = navController)
         }
-        composable(TrackdemicsScreens.StudentListScreen.name)
-        {
-            StudentListScreen(navController = navController)
+        val courseAttendanceRoute = "${TrackdemicsScreens.CourseAttendanceScreen.name}/{code}/{name}"
+        composable(
+            route = courseAttendanceRoute,
+            arguments = listOf(
+                navArgument("code") { type = NavType.StringType },
+                navArgument("name") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val code = backStackEntry.arguments?.getString("code") ?: ""
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            CourseAttendanceScreen(navController = navController, courseCode = code, courseName = name)
         }
-        composable(TrackdemicsScreens.CourseAttendanceScreen.name)
-        {
-            CourseAttendanceScreen(navController = navController)
+
+        val studentListRoute = "${TrackdemicsScreens.StudentListScreen.name}/{code}/{name}"
+        composable(
+            route = studentListRoute,
+            arguments = listOf(
+                navArgument("code") { type = NavType.StringType },
+                navArgument("name") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val code = backStackEntry.arguments?.getString("code") ?: ""
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            StudentListScreen(navController = navController, code = code, name = name)
         }
+
         composable(TrackdemicsScreens.RoutineScreen.name)
         {
             RoutineScreen(navController = navController)
