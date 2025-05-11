@@ -256,7 +256,6 @@ fun StudentListScreen(
                                     "present" to (rollNumber in presentRolls)
                                 )
                             }
-
                             val attendanceRecord = mapOf(
                                 "course_code" to code.replace(" ", ""), // Normalized
                                 "session_date" to sessionDate,
