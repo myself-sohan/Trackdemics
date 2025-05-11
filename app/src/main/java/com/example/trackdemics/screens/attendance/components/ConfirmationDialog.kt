@@ -82,7 +82,7 @@ fun ConfirmationDialog(
                 Spacer(modifier = Modifier.Companion.height(16.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Companion.Bold
                 )
                 Spacer(modifier = Modifier.Companion.height(8.dp))

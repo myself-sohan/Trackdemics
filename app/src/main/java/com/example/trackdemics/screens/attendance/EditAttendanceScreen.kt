@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.R
-import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.attendance.components.ConfirmationDialog
 import com.example.trackdemics.screens.attendance.components.DatePickerField
 import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
@@ -128,7 +127,7 @@ fun EditAttendanceScreen(
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                onBackClick = {navController.navigate(TrackdemicsScreens.CourseAttendanceScreen.name)},
+                onBackClick = { navController.popBackStack() },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
