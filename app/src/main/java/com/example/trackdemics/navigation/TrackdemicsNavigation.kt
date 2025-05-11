@@ -28,7 +28,7 @@ fun TrackdemicsNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = TrackdemicsScreens.RoutineScreen.name
+        startDestination = TrackdemicsScreens.SplashScreen.name
     ) {
 
         // Screens without arguments

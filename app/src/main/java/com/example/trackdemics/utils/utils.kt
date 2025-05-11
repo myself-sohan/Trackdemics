@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
+import android.util.Log
 import android.widget.ImageView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.CircularProgressIndicator
@@ -16,6 +17,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import com.bumptech.glide.Glide
 import com.example.trackdemics.R
+import com.example.trackdemics.data.AllCourseData
 import com.example.trackdemics.screens.attendance.model.SemesterCourses
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -215,6 +217,161 @@ fun cleanUpCoursesCollection() {
         println("Failed to fetch courses: ${it.message}")
     }
 }
+
+fun uploadCourseScheduleToFirestore() {
+    val firestore = FirebaseFirestore.getInstance()
+
+    AllCourseData.allSemesters.forEach { semesterCourses ->
+        val courseList = semesterCourses.courses.map { course ->
+            mapOf(
+                "code" to course.code,
+                "name" to course.name,
+                "location" to course.location,
+                "schedule" to mapOf(
+                    "monday" to course.schedule.monday?.let {
+                        mapOf("startTime" to it.startTime, "endTime" to it.endTime)
+                    },
+                    "tuesday" to course.schedule.tuesday?.let {
+                        mapOf("startTime" to it.startTime, "endTime" to it.endTime)
+                    },
+                    "wednesday" to course.schedule.wednesday?.let {
+                        mapOf("startTime" to it.startTime, "endTime" to it.endTime)
+                    },
+                    "thursday" to course.schedule.thursday?.let {
+                        mapOf("startTime" to it.startTime, "endTime" to it.endTime)
+                    },
+                    "friday" to course.schedule.friday?.let {
+                        mapOf("startTime" to it.startTime, "endTime" to it.endTime)
+                    }
+                )
+            )
+        }
+
+        val data = mapOf(
+            "semester" to semesterCourses.semester,
+            "branch" to semesterCourses.branch,
+            "courses" to courseList
+        )
+
+        firestore.collection("routine_data")
+            .add(data)
+            .addOnSuccessListener {
+                println("✅ Uploaded: ${semesterCourses.branch} Sem ${semesterCourses.semester}")
+            }
+            .addOnFailureListener { e ->
+                println("❌ Failed to upload ${semesterCourses.branch} Sem ${semesterCourses.semester}: ${e.localizedMessage}")
+            }
+    }
+}
+
+fun insertDummyStudentsToFirestore(count: Int = 10) {
+    val firestore = FirebaseFirestore.getInstance()
+    val firstNames = listOf(
+        "Aditya", "Sneha", "Harshit", "Lavanya", "Pranav",
+        "Tanya", "Yash", "Ira", "Rahul", "Kritika"
+    )
+
+    val lastNames = listOf(
+        "Chatterjee", "Kumar", "Bhat", "Joshi", "Mukherjee",
+        "Kapoor", "Iyer", "Tripathi", "Ghosh", "Kulkarni"
+    )
+
+    repeat(count) { index ->
+        val firstName = firstNames.random()
+        val lastName = lastNames.random()
+        val rollSuffix = (150 + index).toString()
+        val email = "b22cs$rollSuffix@nitm.ac.in"
+
+        val studentData = mapOf(
+            "first_name" to firstName,
+            "last_name" to lastName,
+            "email" to email,
+            "semester" to "Semester 6",
+            "registered" to true,
+            "profile_pic_url" to "",
+            "enrolled_courses" to listOf("CS302", "CS304")
+        )
+
+        firestore.collection("students")
+            .add(studentData)
+            .addOnSuccessListener {
+                println("✅ Dummy student $email added")
+            }
+            .addOnFailureListener { e ->
+                println("❌ Failed to add student $email: ${e.localizedMessage}")
+            }
+    }
+}
+
+fun bulkDeleteDummyStudents() {
+    val firestore = FirebaseFirestore.getInstance()
+    firestore.collection("students")
+        .whereGreaterThanOrEqualTo("email", "b22cs40@nitm.ac.in")
+        .whereLessThanOrEqualTo("email", "b22cs65@nitm.ac.in")
+        .get()
+        .addOnSuccessListener { snapshot ->
+            val batch = firestore.batch()
+            snapshot.documents.forEach { doc ->
+                batch.delete(doc.reference)
+            }
+            batch.commit()
+                .addOnSuccessListener {
+                    Log.d("Cleanup", "Dummy students deleted.")
+                }
+                .addOnFailureListener {
+                    Log.e("Cleanup", "Error: $it")
+                }
+        }
+}
+
+fun deleteAllAttendanceRecords() {
+    val firestore = FirebaseFirestore.getInstance()
+    firestore.collection("attendance_record")
+        .get()
+        .addOnSuccessListener { snapshot ->
+            val batch = firestore.batch()
+            snapshot.documents.forEach { doc ->
+                batch.delete(doc.reference)
+            }
+            batch.commit()
+                .addOnSuccessListener {
+                    Log.d("Cleanup", "All attendance records deleted.")
+                }
+                .addOnFailureListener {
+                    Log.e("Cleanup", "Batch delete failed: $it")
+                }
+        }
+        .addOnFailureListener {
+            Log.e("Cleanup", "Failed to fetch attendance records: $it")
+        }
+}
+
+fun resetAllCourseClassCounts() {
+    val firestore = FirebaseFirestore.getInstance()
+    firestore.collection("courses")
+        .get()
+        .addOnSuccessListener { snapshot ->
+            val batch = firestore.batch()
+
+            snapshot.documents.forEach { doc ->
+                val docRef = doc.reference
+                batch.update(docRef, "classes_taken", 0)
+            }
+
+            batch.commit()
+                .addOnSuccessListener {
+                    Log.d("CourseReset", "Successfully reset classes_taken to 0 for all courses.")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("CourseReset", "Error during batch reset: ", e)
+                }
+        }
+        .addOnFailureListener { e ->
+            Log.e("CourseReset", "Failed to fetch course documents: ", e)
+        }
+}
+
+
 
 
 
