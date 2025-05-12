@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.attendance
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +34,8 @@ fun CourseAttendanceScreen(
     LaunchedEffect(Unit) {
         attendanceViewModel.fetchCourseStats(courseCode)
         attendanceViewModel.fetchWeeklyAttendance(courseCode)
+        Log.d("WeeklyAttendanceStats ", "${attendanceViewModel.weeklyAttendanceStats}")
+
     }
 
     Scaffold(

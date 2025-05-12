@@ -72,9 +72,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun EditAttendanceScreen(
-    navController: NavController
+    navController: NavController,
+    courseCode: String,
+    courseName: String
 ) {
-    var selectedDate by remember { mutableStateOf("01/04/2025") }
+    var selectedDate by remember { mutableStateOf("10/05/2025") }
     var expanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -91,6 +93,7 @@ fun EditAttendanceScreen(
 
     LaunchedEffect(Unit) {
         firestore.collection("attendance_record")
+            .whereEqualTo("course_code", courseCode) // Only fetch for this course
             .get()
             .addOnSuccessListener { snapshot ->
                 val grouped = snapshot.documents.groupBy { it.getString("session_date") ?: "" }
@@ -267,7 +270,7 @@ fun EditAttendanceScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "📘 CSE 301",
+                                text = courseCode,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
