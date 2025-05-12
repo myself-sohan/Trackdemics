@@ -102,7 +102,8 @@ fun LoginScreen(
                     )
             )
             {
-                Column(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.fillMaxSize())
+                {
 
                     // Top Greeting Text
                     Row(
@@ -135,7 +136,8 @@ fun LoginScreen(
                                 .padding(24.dp)
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                        )
+                        {
 
                             Spacer(modifier = Modifier.height(24.dp))
 
