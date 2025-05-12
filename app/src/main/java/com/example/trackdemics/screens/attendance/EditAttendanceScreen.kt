@@ -1,9 +1,9 @@
 package com.example.trackdemics.screens.attendance
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,18 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,9 +45,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -61,8 +54,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.screens.attendance.components.AttendanceReportGrid
 import com.example.trackdemics.screens.attendance.components.ConfirmationDialog
 import com.example.trackdemics.screens.attendance.components.DatePickerField
 import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
@@ -77,7 +72,8 @@ import java.util.Locale
 fun EditAttendanceScreen(
     navController: NavController,
     courseCode: String,
-    courseName: String
+    courseName: String,
+    viewModel: AttendanceViewModel = hiltViewModel()
 ) {
     var selectedDate by remember { mutableStateOf("2025-05-10") }
     var expanded by remember { mutableStateOf(false) }
@@ -93,6 +89,7 @@ fun EditAttendanceScreen(
     val selectedTimestamp = remember { mutableStateOf<String?>(null) }
     val attendanceState =
         remember { mutableStateOf<SnapshotStateList<FirestoreAttendanceEntry>>(mutableStateListOf()) }
+    val selectedDocId = remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(courseCode) {
         firestore.collection("attendance_record")
@@ -146,12 +143,44 @@ fun EditAttendanceScreen(
                 }
             }
     }
+    LaunchedEffect(selectedDate, selectedTimestamp.value, attendanceRecords.value) {
+        val docs = attendanceRecords.value[selectedDate]
+        val timestamp = selectedTimestamp.value
+
+        val allDocuments = firestore.collection("attendance_record")
+            .whereEqualTo("course_code", courseCode.replace(" ", ""))
+            .whereEqualTo("session_date", selectedDate)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val matchingDoc = snapshot.documents.firstOrNull {
+                    it.getLong("timestamp")?.toString() == timestamp
+                }
+                selectedDocId.value = matchingDoc?.id
+                Log.d("Attendance", "Selected Doc ID: ${selectedDocId.value}")
+            }
+            .addOnFailureListener {
+                selectedDocId.value = null
+                Log.e("Attendance", "Failed to find matching document for edit", it)
+            }
+    }
+
     LaunchedEffect(selectedDate, selectedTimestamp.value) {
         selectedTimestamp.value?.let { ts ->
             val entryList = attendanceRecords.value[selectedDate]
                 ?.firstOrNull { it.first == ts }
                 ?.second
-            attendanceState.value = entryList?.toMutableStateList() ?: mutableStateListOf()
+
+            if (entryList != null) {
+                val updatedList = viewModel.calculateAttendancePercentagesForStudents(
+                    firestore = firestore,
+                    courseCode = courseCode,
+                    students = entryList
+                )
+
+                attendanceState.value = updatedList.toMutableStateList()
+            } else {
+                attendanceState.value = mutableStateListOf()
+            }
         }
     }
 
@@ -159,7 +188,6 @@ fun EditAttendanceScreen(
     val recordsForSelectedDate = attendanceRecords.value[selectedDate]
     val hasAttendance = !recordsForSelectedDate.isNullOrEmpty()
     val timestamps = recordsForSelectedDate?.map { it.first } ?: emptyList()
-
 
 
     val originalState = remember(attendanceState) { attendanceState.value.map { it.copy() } }
@@ -221,9 +249,21 @@ fun EditAttendanceScreen(
                     onDismissRequest = { showEditDialog.value = false },
                     onConfirm = {
                         showEditDialog.value = false
-                        Toast.makeText(
+                        selectedDocId.value?.let { docId ->
+                            viewModel.updateAttendanceInFirestore(
+                                documentId = docId,
+                                updatedEntries = attendanceState.value,
+                                onComplete = { success ->
+                                    Toast.makeText(
+                                        context,
+                                        if (success) "Attendance Report Edited Successfully" else "Update failed!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            )
+                        } ?: Toast.makeText(
                             context,
-                            "Attendance Report Edited Successfully",
+                            "Error: No session selected",
                             Toast.LENGTH_SHORT
                         ).show()
                     },
@@ -304,12 +344,24 @@ fun EditAttendanceScreen(
                             selectedDate = selectedDate,
                             onDateSelected = { rawDate ->
                                 try {
-                                    val parsedDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(rawDate)
-                                    val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(parsedDate!!)
+                                    val parsedDate =
+                                        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(
+                                            rawDate
+                                        )
+                                    val formattedDate =
+                                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
+                                            parsedDate!!
+                                        )
                                     selectedDate = formattedDate
-                                    selectedTimestamp.value = attendanceRecords.value[formattedDate]?.firstOrNull()?.first
+                                    selectedTimestamp.value =
+                                        attendanceRecords.value[formattedDate]?.firstOrNull()?.first
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Invalid date selected", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Invalid date selected",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    print("$e")
                                 }
                             }
 
@@ -439,7 +491,8 @@ fun EditAttendanceScreen(
                             attendanceState = attendanceState.value,
                             onToggleAttendance = { entry ->
                                 val index = attendanceState.value.indexOf(entry)
-                                attendanceState.value[index] = entry.copy(isPresent = !entry.isPresent)
+                                attendanceState.value[index] =
+                                    entry.copy(isPresent = !entry.isPresent)
                             }
                         )
                     }
@@ -454,6 +507,7 @@ fun EditAttendanceScreen(
                         Spacer(modifier = Modifier.weight(0.25f))
                         Button(
                             onClick = { showEditDialog.value = true },
+                            enabled = selectedDocId.value != null,
                             elevation = ButtonDefaults.buttonElevation(10.dp),
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
@@ -488,97 +542,6 @@ fun EditAttendanceScreen(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AttendanceReportGrid(
-    attendanceState: SnapshotStateList<FirestoreAttendanceEntry>,
-    onToggleAttendance: (FirestoreAttendanceEntry) -> Unit
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 100.dp),
-        modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(attendanceState.size) { index ->
-            val entry = attendanceState[index]
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable {
-                        onToggleAttendance(entry)
-                    },
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = entry.rollNumber,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "85%",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .padding(start = 3.dp),
-                        fontFamily = FontFamily(Font(R.font.lobster_regular)),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(11.dp)
-                    )
-                    {
-                        Box(
-                            modifier = Modifier
-                                .size(12.dp)
-                                .background(
-                                    if (entry.isPresent) Color(0xFF4CAF50) else Color(0xFFF44336),
-                                    shape = CircleShape
-                                )
-                        )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        )
-                        {
-                            Text(
-                                text = if (entry.isPresent) "Present" else "Absent",
-                                color = if (entry.isPresent) Color(0xFF4CAF50) else Color(0xFFF44336),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Icon(
-                                imageVector = Icons.Default.TouchApp,
-                                contentDescription = "Tap to toggle",
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
                 }
             }
         }

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.trackdemics.R
 import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
+import java.util.Locale
 
 @Composable
 fun AttendanceReportGrid(
@@ -43,7 +44,7 @@ fun AttendanceReportGrid(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 100.dp),
-        modifier = Modifier.Companion
+        modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -51,18 +52,8 @@ fun AttendanceReportGrid(
         items(attendanceState.size) { index ->
             val entry = attendanceState[index]
 
-//            val pulseAnim = rememberInfiniteTransition(label = "pulse")
-//            val scale by pulseAnim.animateFloat(
-//                initialValue = 0.9f,
-//                targetValue = 1.1f,
-//                animationSpec = infiniteRepeatable(
-//                    animation = tween(durationMillis = 800, easing = LinearEasing),
-//                    repeatMode = RepeatMode.Reverse
-//                ), label = "scale"
-//            )
-
             Card(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
@@ -74,36 +65,36 @@ fun AttendanceReportGrid(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
-                        text = entry.rollNumber,
+                        text = entry.run { rollNumber.capitalize(Locale.ROOT) },
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Companion.ExtraBold,
+                        fontWeight = FontWeight.ExtraBold,
                         fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                     )
-                    Spacer(modifier = Modifier.Companion.height(2.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "85%",
-                        fontWeight = FontWeight.Companion.ExtraBold,
+                        text = if (entry.attendancePercentage >= 0) "${entry.attendancePercentage}%" else "--",
+                        fontWeight = FontWeight.ExtraBold,
                         fontSize = 22.sp,
-                        modifier = Modifier.Companion
+                        modifier = Modifier
                             .padding(start = 3.dp),
                         fontFamily = FontFamily(Font(R.font.lobster_regular)),
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.Companion.height(2.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
 
                     Row(
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(11.dp)
                     )
                     {
                         Box(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .size(12.dp)
                                 .background(
                                     if (entry.isPresent) Color(0xFF4CAF50) else Color(0xFFF44336),
@@ -112,7 +103,7 @@ fun AttendanceReportGrid(
                         )
 
                         Row(
-                            verticalAlignment = Alignment.Companion.CenterVertically,
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         )
                         {
@@ -120,14 +111,14 @@ fun AttendanceReportGrid(
                                 text = if (entry.isPresent) "Present" else "Absent",
                                 color = if (entry.isPresent) Color(0xFF4CAF50) else Color(0xFFF44336),
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.Companion.Bold
+                                fontWeight = FontWeight.Bold
                             )
 
                             Icon(
                                 imageVector = Icons.Default.TouchApp,
                                 contentDescription = "Tap to toggle",
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                modifier = Modifier.Companion.size(28.dp)
+                                modifier = Modifier.size(28.dp)
                             )
                         }
                     }

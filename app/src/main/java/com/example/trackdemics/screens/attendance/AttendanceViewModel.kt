@@ -1,12 +1,15 @@
 package com.example.trackdemics.screens.attendance
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.tasks.await
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.util.Locale
@@ -87,5 +90,73 @@ class AttendanceViewModel @Inject constructor(
                 weeklyAttendanceStats = recentStats
             }
     }
+    fun updateAttendanceInFirestore(
+        documentId: String,  // This should be the Firestore doc ID like "6YXRQplexs1jPolov9BN"
+        updatedEntries: List<FirestoreAttendanceEntry>,
+        onComplete: (Boolean) -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val docRef = db.collection("attendance_record").document(documentId)
+
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+            val students = snapshot.get("students") as? List<Map<String, Any>> ?: emptyList()
+
+            val updatedStudents = students.map { student ->
+                val roll = student["rollNumber"] as? String
+                val matchingEntry = updatedEntries.find { it.rollNumber == roll }
+
+                if (matchingEntry != null) {
+                    student.toMutableMap().apply {
+                        this["present"] = matchingEntry.isPresent
+                    }
+                } else student
+            }
+
+            transaction.update(docRef, "students", updatedStudents)
+        }.addOnSuccessListener {
+            onComplete(true)
+        }.addOnFailureListener { e ->
+            Log.e("Firestore", "Failed to update attendance", e)
+            onComplete(false)
+        }
+    }
+    suspend fun calculateAttendancePercentagesForStudents(
+        firestore: FirebaseFirestore,
+        courseCode: String,
+        students: List<FirestoreAttendanceEntry>
+    ): List<FirestoreAttendanceEntry> {
+        val normalizedCourseCode = courseCode.replace(" ", "")
+
+        // Fetch all attendance records for this course
+        val attendanceDocs = firestore.collection("attendance_record")
+            .whereEqualTo("course_code", normalizedCourseCode)
+            .get()
+            .await()
+
+        // Fetch total number of classes
+        val courseDoc = firestore.collection("courses")
+            .document(normalizedCourseCode)
+            .get()
+            .await()
+
+        val totalClasses = courseDoc.getLong("classes_taken")?.toInt() ?: 0
+        if (totalClasses == 0) return students  // avoid division by zero
+
+        // Count attendance for each student by rollNumber
+        return students.map { student ->
+            val attendedCount = attendanceDocs.documents.count { doc ->
+                val studentList = doc["students"] as? List<Map<String, Any>> ?: return@count false
+                studentList.any {
+                    it["rollNumber"] == student.rollNumber && (it["present"] as? Boolean == true)
+                }
+            }
+
+            student.copy(
+                attendancePercentage = (attendedCount * 100 / totalClasses)
+            )
+        }
+    }
+
 
 }
