@@ -68,6 +68,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import androidx.activity.compose.BackHandler
+
 
 @Composable
 fun StudentListScreen(
@@ -76,6 +78,10 @@ fun StudentListScreen(
     name: String,
 ) {
     val showBackDialog = remember { mutableStateOf(false) }
+    BackHandler(enabled = true) {
+        showBackDialog.value = true
+    }
+
     if (showBackDialog.value) {
         ConfirmationDialog(
             courseCode = code,

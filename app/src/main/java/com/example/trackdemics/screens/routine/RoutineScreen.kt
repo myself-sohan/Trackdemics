@@ -2,22 +2,37 @@ package com.example.trackdemics.screens.routine
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Class
 import androidx.compose.material.icons.filled.DomainAdd
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,20 +43,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.trackdemics.R
 import com.example.trackdemics.screens.routine.components.DropdownSelector
 import com.example.trackdemics.widgets.TrackdemicsAppBar
-import com.example.trackdemics.R
+
 @Composable
 fun RoutineScreen(
     navController: NavController,
     viewModel: RoutineViewModel = viewModel()
 ) {
-    val days = listOf("Monday","Tuesday","Wednesday","Thursday","Friday")
+    val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
 
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                onBackClick = {navController.popBackStack()},
+                onBackClick = { navController.popBackStack() },
                 isEntryScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
@@ -84,7 +100,7 @@ fun RoutineScreen(
                         label = "Branch",
                         options = viewModel.availableBranches,
                         selectedOption = viewModel.selectedBranch,
-                        onOptionSelected = { viewModel.selectedBranch = it },
+                        onOptionSelected = { viewModel.onBranchChanged(it) },
                         modifier = Modifier
                             .weight(1f)
                     )
@@ -97,13 +113,9 @@ fun RoutineScreen(
                         // display exactly "Sem 6" or "Sem ${selectedSemester}"
                         selectedOption = "Sem ${viewModel.selectedSemester}",
                         onOptionSelected = { semLabel ->
-                            // semLabel == "Sem 4" for example
-                            val semNumber = semLabel
-                                .removePrefix("Sem ")
-                                .trim()
-                                .toIntOrNull()
-                                ?: viewModel.selectedSemester
-                            viewModel.selectedSemester = semNumber
+                            val sem = semLabel.removePrefix("Sem ").toIntOrNull()
+                                ?: return@DropdownSelector
+                            viewModel.onSemesterChanged(sem)
                         },
                         modifier = Modifier
                             .weight(1f)
@@ -174,8 +186,7 @@ fun RoutineScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
-                    }
-                    else {
+                    } else {
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(25.dp),
                             contentPadding = PaddingValues(16.dp),

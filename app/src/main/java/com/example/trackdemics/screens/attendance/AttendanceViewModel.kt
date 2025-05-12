@@ -53,36 +53,39 @@ class AttendanceViewModel @Inject constructor(
         private set
 
     fun fetchWeeklyAttendance(courseCode: String) {
-        val now = LocalDate.now()
-        val startOfWeek = now.with(DayOfWeek.MONDAY)
-
         firestore.collection("attendance_record")
             .whereEqualTo("course_code", courseCode)
             .get()
             .addOnSuccessListener { result ->
-                val filtered = result.documents.filter {
-                    val sessionDateStr = it.getString("session_date")
-                    val sessionDate = LocalDate.parse(sessionDateStr)
-                    !sessionDate.isBefore(startOfWeek) && !sessionDate.isAfter(now)
-                }
+                val parsedStats = result.documents.mapNotNull { doc ->
+                    val sessionDateStr = doc.getString("session_date") ?: return@mapNotNull null
+                    val sessionDate = try {
+                        LocalDate.parse(sessionDateStr)
+                    } catch (e: Exception) {
+                        return@mapNotNull null
+                    }
 
-                val dayStats = filtered.mapNotNull { doc ->
-                    val sessionDate =
-                        LocalDate.parse(doc.getString("session_date"))
-                    val students =
-                        doc.get("students") as? List<Map<String, Any>> ?: return@mapNotNull null
-
+                    val students = doc.get("students") as? List<Map<String, Any>> ?: return@mapNotNull null
                     val total = students.size
                     val present = students.count { (it["present"] as? Boolean) == true }
 
-                    val dayName = sessionDate.dayOfWeek.name.take(3).capitalize(Locale.ROOT) // e.g. MON → Mon
+                    val dayName = sessionDate.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+
                     AttendanceDayStat(
                         day = dayName,
                         percentage = if (total > 0) (present * 100 / total) else 0
-                    )
-                }.sortedBy { it.day }
+                    ) to sessionDate
+                }
 
-                weeklyAttendanceStats = dayStats
+                // Sort by date descending, then pick last 5 (oldest to newest for graph)
+                val recentStats = parsedStats
+                    .sortedByDescending { it.second }
+                    .take(5)
+                    .sortedBy { it.second } // Chronological order
+                    .map { it.first }
+
+                weeklyAttendanceStats = recentStats
             }
     }
+
 }
