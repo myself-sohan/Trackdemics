@@ -122,11 +122,11 @@ fun SignUpScreen(
                     )
                     {
                         WelcomeText(
-                            greet = "Welcome",
+                            greet = "Let's Start",
                             role = role
                         )
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(15.dp))
 
                     // Bottom Card Section
                     Surface(
@@ -143,7 +143,7 @@ fun SignUpScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         )
                         {
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(15.dp))
 
                             // Signup form
                             SignUpForm(
@@ -155,7 +155,7 @@ fun SignUpScreen(
                                 },
                                 navController = navController
                             )
-                            Spacer(modifier = Modifier.height(40.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()

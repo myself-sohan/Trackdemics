@@ -7,6 +7,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -34,12 +35,16 @@ fun WelcomeText(
         showRole = true // Show role text only after greeting finishes typing
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    )
+    {
 
         Text(
             text = greetChars.joinToString(""),
             style = MaterialTheme.typography.headlineMedium.copy(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.background,
                 fontWeight = FontWeight.Bold
             )
         )
@@ -54,7 +59,7 @@ fun WelcomeText(
             Text(
                 text = role.lowercase().replaceFirstChar { it.uppercase() },
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.background,
                     fontWeight = FontWeight.SemiBold
                 )
             )

@@ -64,6 +64,8 @@ fun LoginForm(
     )
     {
         EmailInput(
+            modifier = Modifier
+                .height(70.dp),
             emailState = email,
             enabled = !loading,
             onAction = KeyboardActions {
@@ -72,7 +74,9 @@ fun LoginForm(
         )
         Spacer(modifier = Modifier.height(30.dp))
         PasswordInput(
-            modifier = Modifier.focusRequester(passwordFocusRequest),
+            modifier = Modifier
+                .focusRequester(passwordFocusRequest)
+                .height(70.dp),
             passwordState = password,
             enabled = !loading,
             passwordVisibility = passwordVisibility,
