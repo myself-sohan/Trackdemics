@@ -136,6 +136,7 @@ fun AddCourseForm(
                             )
                         },
                         readOnly = true,
+                        //enabled = false ,
                         trailingIcon = {
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,

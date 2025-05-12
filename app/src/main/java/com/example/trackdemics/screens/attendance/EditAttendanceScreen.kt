@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,6 +47,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -61,6 +63,7 @@ import com.example.trackdemics.screens.attendance.components.AttendanceReportGri
 import com.example.trackdemics.screens.attendance.components.ConfirmationDialog
 import com.example.trackdemics.screens.attendance.components.DatePickerField
 import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
+import com.example.trackdemics.widgets.LottieFromAssets
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -531,17 +534,44 @@ fun EditAttendanceScreen(
                         }
                         Spacer(modifier = Modifier.weight(0.25f))
                     }
-                } else {
-                    Text(
-                        text = "No attendance data available for the selected date.",
+                }
+                else {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     )
+                    {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxHeight(0.45f)
+                                .fillMaxWidth(0.85f),
+                            shape = MaterialTheme.shapes.medium,
+                            elevation = CardDefaults.cardElevation(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            )
+                            {
+                                LottieFromAssets(
+                                    assetName = "no_data.json",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                )
+//                                Text(
+//                                    text = "No Attendance data available for the selected Date",
+//                                    fontSize = 18.sp,
+//                                    fontWeight = FontWeight.Bold,
+//                                    color = MaterialTheme.colorScheme.error,
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    textAlign = TextAlign.Center
+//                                )
+                            }
+                        }
+                    }
                 }
             }
         }

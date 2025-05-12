@@ -37,6 +37,7 @@ import com.example.trackdemics.screens.attendance.components.AddCourseCard
 import com.example.trackdemics.screens.attendance.components.AddCourseForm
 import com.example.trackdemics.screens.attendance.components.StudentAttendanceCard
 import com.example.trackdemics.screens.attendance.model.StudentCourse
+import com.example.trackdemics.widgets.LottieFromAssets
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -158,8 +159,8 @@ fun EmptyState() {
     {
         Card(
             modifier = Modifier
-                .fillMaxHeight(0.1f)
-                .fillMaxWidth(0.5f),
+                .fillMaxHeight(0.45f)
+                .fillMaxWidth(0.85f),
             shape = MaterialTheme.shapes.medium,
             elevation = CardDefaults.cardElevation(24.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -169,14 +170,19 @@ fun EmptyState() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "No Courses Found",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                LottieFromAssets(
+                    assetName = "no_data.json",
+                    modifier = Modifier
+                        .fillMaxSize()
                 )
+//                Text(
+//                    text = "No Courses Found",
+//                    fontSize = 18.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    color = MaterialTheme.colorScheme.error,
+//                    modifier = Modifier.fillMaxWidth(),
+//                    textAlign = TextAlign.Center
+//                )
             }
         }
     }
