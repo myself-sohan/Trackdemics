@@ -78,7 +78,7 @@ fun ProfessorAttendanceCard(
                 onDismissRequest = { showDialog.value = false },
                 onEditAttendance = {
                     showDialog.value = false
-                    navController.navigate("EditAttendanceScreen")
+                    navController.navigate("EditAttendanceScreen/${course.courseCode}/${course.courseName}")
                 },
                 onDownloadPdf = {
                     showDialog.value = false

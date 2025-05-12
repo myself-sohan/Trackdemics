@@ -29,15 +29,12 @@ fun TrackdemicsNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = TrackdemicsScreens.RoleScreen.name
+        startDestination = TrackdemicsScreens.SplashScreen.name
     ) {
 
         // Screens without arguments
         composable(TrackdemicsScreens.AdminAttendanceScreen.name) {
             AdminAttendanceScreen(navController = navController)
-        }
-        composable(TrackdemicsScreens.EditAttendanceScreen.name) {
-            EditAttendanceScreen(navController = navController)
         }
         composable(TrackdemicsScreens.RoutineScreen.name) {
             RoutineScreen(navController = navController)
@@ -97,6 +94,22 @@ fun TrackdemicsNavigation() {
                 navController = navController,
                 code = code,
                 name = name
+            )
+        }
+        val editAttendanceRoute = "${TrackdemicsScreens.EditAttendanceScreen.name}/{code}/{name}"
+        composable(
+            route = editAttendanceRoute,
+            arguments = listOf(
+                navArgument("code") { type = NavType.StringType },
+                navArgument("name") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val code = backStackEntry.arguments?.getString("code") ?: ""
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            EditAttendanceScreen(
+                navController = navController,
+                courseCode = code,
+                courseName = name
             )
         }
 

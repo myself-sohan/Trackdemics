@@ -1,10 +1,10 @@
 package com.example.trackdemics.screens.attendance
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import com.example.trackdemics.R
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,14 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,6 +46,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.trackdemics.R
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.attendance.components.AddCourseCard
 import com.example.trackdemics.screens.attendance.components.AdminAttendanceCard
@@ -59,10 +57,9 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun AdminAttendanceScreen(
     navController: NavController
-)
-{
+) {
     val firestore = FirebaseFirestore.getInstance()
-    val branches = listOf("CSE", "CE")
+    val branches = listOf("CE", "CSE", "ECE", "EE", "ME")
     val semesters = (1..8).map { it.toString() }
 
     var selectedBranch by remember { mutableStateOf<String?>(null) }
@@ -109,7 +106,8 @@ fun AdminAttendanceScreen(
             {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(22.dp))
+                    horizontalArrangement = Arrangement.spacedBy(22.dp)
+                )
                 {
                     Box(
                         modifier = Modifier
@@ -123,11 +121,11 @@ fun AdminAttendanceScreen(
                             onOptionSelected = { selectedBranch = it }
                         )
                     }
-                     Box(
-                         modifier = Modifier
-                             .weight(1f)
-                     )
-                     {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                    {
                         DropDownSelector(
                             label = "Semester",
                             options = semesters,
@@ -142,6 +140,11 @@ fun AdminAttendanceScreen(
             if (!selectedBranch.isNullOrBlank() && !selectedSemester.isNullOrBlank()) {
                 LaunchedEffect(selectedBranch, selectedSemester) {
                     isLoading = true
+                    Log.d(
+                        "Querying for branch=$selectedBranch",
+                        "semester=${selectedSemester?.toIntOrNull()}"
+                    )
+
                     val snapshot = firestore.collection("courses")
                         .whereEqualTo("branch", selectedBranch)
                         .whereEqualTo("semester", selectedSemester)
@@ -150,10 +153,11 @@ fun AdminAttendanceScreen(
 
                     courseList = snapshot.documents.mapNotNull { it.data }
                     isLoading = false
+                    Log.d("Admin Course List", "Fetched documents: ${snapshot.documents.size}")
+
                 }
                 when {
-                    isLoading ->
-                    {
+                    isLoading -> {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -163,8 +167,8 @@ fun AdminAttendanceScreen(
                             CircularProgressIndicator()
                         }
                     }
-                    courseList.isEmpty() ->
-                    {
+
+                    courseList.isEmpty() -> {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -198,8 +202,7 @@ fun AdminAttendanceScreen(
                         }
                     }
 
-                    else ->
-                    {
+                    else -> {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp))
                         {
                             items(courseList)
@@ -217,14 +220,14 @@ fun AdminAttendanceScreen(
         }
     }
 }
+
 @Composable
 fun DropDownSelector(
     label: String,
     options: List<String>,
     selectedOption: String?,
     onOptionSelected: (String) -> Unit
-)
-{
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(
@@ -250,10 +253,10 @@ fun DropDownSelector(
             onDismissRequest = { expanded = false },
             shadowElevation = 90.dp,
             containerColor = MaterialTheme.colorScheme.onSurface,
-            offset = DpOffset(25.dp,-25.dp)
+            offset = DpOffset(25.dp, -25.dp)
         )
         {
-            options.forEach{ option ->
+            options.forEach { option ->
                 DropdownMenuItem(
                     leadingIcon = {
                         Icon(

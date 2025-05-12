@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.home.components.FeatureCard
 import com.example.trackdemics.screens.home.components.ProfileSection
 import com.example.trackdemics.screens.home.components.SideNavigationPanel
@@ -92,12 +93,20 @@ fun AdminHomeScreen(
 @Composable
 fun AdminFeatureGrid(
     navController: NavController
-)
-{
+) {
     val features = listOf(
-        FeatureItem("Attendance", Icons.Default.Groups) { navController.navigate("AdminAttendanceScreen") },
+        FeatureItem(
+            "Attendance",
+            Icons.Default.Groups
+        ) {
+            navController.navigate("AdminAttendanceScreen")
+        },
         FeatureItem("Results", Icons.Default.Grade) { /* Navigate to Results */ },
-        FeatureItem("College Routine", Icons.Default.Schedule) { /* Navigate to Routine */ },
+        FeatureItem("College Routine", Icons.Default.Schedule) {
+            navController.navigate(
+                TrackdemicsScreens.RoutineScreen.name
+            )
+        },
         FeatureItem(
             "Account Control",
             Icons.Default.ManageAccounts
