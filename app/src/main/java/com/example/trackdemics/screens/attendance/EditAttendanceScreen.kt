@@ -267,7 +267,7 @@ fun EditAttendanceScreen(
                             Toast.LENGTH_SHORT
                         ).show()
                     },
-                    rightButtonLabel = "Edit",
+                    rightButtonLabel = "Save",
                     leftButtonLabel = "Cancel",
                     title = "Save Changes?",
                     message1 = "Are you sure you want to edit attendance?",
