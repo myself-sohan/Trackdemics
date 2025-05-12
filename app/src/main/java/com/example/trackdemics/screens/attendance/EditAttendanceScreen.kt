@@ -79,7 +79,7 @@ fun EditAttendanceScreen(
     courseCode: String,
     courseName: String
 ) {
-    var selectedDate by remember { mutableStateOf("10/05/2025") }
+    var selectedDate by remember { mutableStateOf("2025-05-10") }
     var expanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -94,44 +94,48 @@ fun EditAttendanceScreen(
     val attendanceState =
         remember { mutableStateOf<SnapshotStateList<FirestoreAttendanceEntry>>(mutableStateListOf()) }
 
-    LaunchedEffect(selectedDate, selectedTimestamp.value) {
-        selectedTimestamp.value?.let { ts ->
-            val entryList = attendanceRecords.value[selectedDate]
-                ?.firstOrNull { it.first == ts }
-                ?.second
-            attendanceState.value = entryList?.toMutableStateList() ?: mutableStateListOf()
-        }
-    }
-
     LaunchedEffect(courseCode) {
         firestore.collection("attendance_record")
             .whereEqualTo("course_code", courseCode.replace(" ", ""))
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val grouped = snapshot.documents.groupBy { it.getString("session_date") ?: "" }
-                    .mapValues { (_, docs) ->
-                        docs.mapNotNull { doc ->
-                            val timestamp =
-                                doc.getLong("timestamp")?.toString() ?: return@mapNotNull null
-                            val students = (doc["students"] as? List<Map<String, Any>>)?.map {
-                                FirestoreAttendanceEntry(
-                                    uid = it["uid"] as String,
-                                    rollNumber = it["rollNumber"] as String,
-                                    fullName = it["fullName"] as String,
-                                    email = it["email"] as String,
-                                    isPresent = it["present"] as Boolean
-                                )
-                            } ?: emptyList()
-                            timestamp to students
-                        }
-                    }
-                attendanceRecords.value = grouped
-                availableDates.value = grouped.keys.sorted()
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Toast.makeText(context, "Failed to load attendance", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
 
-                if (availableDates.value.isNotEmpty()) {
-                    selectedDate = availableDates.value.first()
-                    timestampsForDate.value = grouped[selectedDate]?.map { it.first } ?: emptyList()
-                    selectedTimestamp.value = timestampsForDate.value.firstOrNull()
+                if (snapshot != null && !snapshot.isEmpty) {
+                    val grouped = snapshot.documents.groupBy { it.getString("session_date") ?: "" }
+                        .mapValues { (_, docs) ->
+                            docs.mapNotNull { doc ->
+                                val timestamp =
+                                    doc.getLong("timestamp")?.toString() ?: return@mapNotNull null
+                                val students = (doc["students"] as? List<Map<String, Any>>)?.map {
+                                    FirestoreAttendanceEntry(
+                                        uid = it["uid"] as String,
+                                        rollNumber = it["rollNumber"] as String,
+                                        fullName = it["fullName"] as String,
+                                        email = it["email"] as String,
+                                        isPresent = it["present"] as Boolean
+                                    )
+                                } ?: emptyList()
+                                timestamp to students
+                            }
+                        }
+
+                    attendanceRecords.value = grouped
+                    availableDates.value = grouped.keys.sorted()
+
+                    // Auto-select new data if available
+                    if (grouped.containsKey(selectedDate)) {
+                        timestampsForDate.value =
+                            grouped[selectedDate]?.map { it.first } ?: emptyList()
+                        selectedTimestamp.value = timestampsForDate.value.firstOrNull()
+                    } else if (grouped.isNotEmpty()) {
+                        selectedDate = grouped.keys.first()
+                        timestampsForDate.value =
+                            grouped[selectedDate]?.map { it.first } ?: emptyList()
+                        selectedTimestamp.value = timestampsForDate.value.firstOrNull()
+                    }
 
                     selectedTimestamp.value?.let { ts ->
                         val entryList =
@@ -141,14 +145,21 @@ fun EditAttendanceScreen(
                     }
                 }
             }
-            .addOnFailureListener {
-                Toast.makeText(context, "Failed to load attendance", Toast.LENGTH_SHORT).show()
-            }
+    }
+    LaunchedEffect(selectedDate, selectedTimestamp.value) {
+        selectedTimestamp.value?.let { ts ->
+            val entryList = attendanceRecords.value[selectedDate]
+                ?.firstOrNull { it.first == ts }
+                ?.second
+            attendanceState.value = entryList?.toMutableStateList() ?: mutableStateListOf()
+        }
     }
 
-    val timestamps = remember(selectedDate, attendanceRecords.value) {
-        attendanceRecords.value[selectedDate]?.map { it.first } ?: emptyList()
-    }
+
+    val recordsForSelectedDate = attendanceRecords.value[selectedDate]
+    val hasAttendance = !recordsForSelectedDate.isNullOrEmpty()
+    val timestamps = recordsForSelectedDate?.map { it.first } ?: emptyList()
+
 
 
     val originalState = remember(attendanceState) { attendanceState.value.map { it.copy() } }
@@ -291,18 +302,23 @@ fun EditAttendanceScreen(
                     Box(modifier = Modifier.weight(3f), contentAlignment = Alignment.CenterEnd) {
                         DatePickerField(
                             selectedDate = selectedDate,
-                            onDateSelected = { date ->
-                                selectedDate = date
-                                selectedTimestamp.value =
-                                    attendanceRecords.value[date]?.firstOrNull()?.first
+                            onDateSelected = { rawDate ->
+                                try {
+                                    val parsedDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(rawDate)
+                                    val formattedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(parsedDate!!)
+                                    selectedDate = formattedDate
+                                    selectedTimestamp.value = attendanceRecords.value[formattedDate]?.firstOrNull()?.first
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Invalid date selected", Toast.LENGTH_SHORT).show()
+                                }
                             }
 
                         )
+
                     }
                 }
 
-                // Timestamp Dropdown
-                if (timestamps.isNotEmpty()) {
+                if (timestamps.size > 1) {
                     Spacer(modifier = Modifier.height(1.dp))
                     Box(
                         modifier = Modifier.fillMaxWidth(),
@@ -407,6 +423,60 @@ fun EditAttendanceScreen(
                             }
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Attendance Grid
+                if (hasAttendance) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
+                        AttendanceReportGrid(
+                            attendanceState = attendanceState.value,
+                            onToggleAttendance = { entry ->
+                                val index = attendanceState.value.indexOf(entry)
+                                attendanceState.value[index] = entry.copy(isPresent = !entry.isPresent)
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Edit & Restore Buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Spacer(modifier = Modifier.weight(0.25f))
+                        Button(
+                            onClick = { showEditDialog.value = true },
+                            elevation = ButtonDefaults.buttonElevation(10.dp),
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onSurface,
+                                contentColor = MaterialTheme.colorScheme.primaryContainer
+                            )
+                        ) {
+                            Text("Edit", fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.weight(0.25f))
+                        Button(
+                            onClick = { showRestoreDialog.value = true },
+                            elevation = ButtonDefaults.buttonElevation(10.dp),
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onSurface,
+                                contentColor = MaterialTheme.colorScheme.primaryContainer
+                            )
+                        ) {
+                            Text("Restore", fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.weight(0.25f))
+                    }
                 } else {
                     Text(
                         text = "No attendance data available for the selected date.",
@@ -418,59 +488,6 @@ fun EditAttendanceScreen(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     )
-                }
-
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Attendance Grid
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                ) {
-                    AttendanceReportGrid(
-                        attendanceState = attendanceState.value,
-                        onToggleAttendance = { entry ->
-                            val index = attendanceState.value.indexOf(entry)
-                            attendanceState.value[index] = entry.copy(isPresent = !entry.isPresent)
-                        }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Edit & Restore Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Spacer(modifier = Modifier.weight(0.25f))
-                    Button(
-                        onClick = { showEditDialog.value = true },
-                        elevation = ButtonDefaults.buttonElevation(10.dp),
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface,
-                            contentColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ) {
-                        Text("Edit", fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.weight(0.25f))
-                    Button(
-                        onClick = { showRestoreDialog.value = true },
-                        elevation = ButtonDefaults.buttonElevation(10.dp),
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface,
-                            contentColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ) {
-                        Text("Restore", fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.weight(0.25f))
                 }
             }
         }
