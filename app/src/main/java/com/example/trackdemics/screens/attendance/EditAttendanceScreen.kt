@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,6 +81,7 @@ fun EditAttendanceScreen(
 ) {
     var selectedDate by remember { mutableStateOf("2025-05-10") }
     var expanded by remember { mutableStateOf(false) }
+    val reloadTrigger = remember { mutableIntStateOf(0) }
 
     val context = LocalContext.current
     val firestore = FirebaseFirestore.getInstance()
@@ -94,7 +96,7 @@ fun EditAttendanceScreen(
         remember { mutableStateOf<SnapshotStateList<FirestoreAttendanceEntry>>(mutableStateListOf()) }
     val selectedDocId = remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(courseCode) {
+    LaunchedEffect(courseCode, reloadTrigger.intValue) {
         firestore.collection("attendance_record")
             .whereEqualTo("course_code", courseCode.replace(" ", ""))
             .addSnapshotListener { snapshot, error ->
@@ -146,7 +148,12 @@ fun EditAttendanceScreen(
                 }
             }
     }
-    LaunchedEffect(selectedDate, selectedTimestamp.value, attendanceRecords.value) {
+    LaunchedEffect(
+        selectedDate,
+        selectedTimestamp.value,
+        attendanceRecords.value,
+        reloadTrigger.intValue
+    ) {
         val docs = attendanceRecords.value[selectedDate]
         val timestamp = selectedTimestamp.value
 
@@ -167,7 +174,7 @@ fun EditAttendanceScreen(
             }
     }
 
-    LaunchedEffect(selectedDate, selectedTimestamp.value) {
+    LaunchedEffect(selectedDate, selectedTimestamp.value, reloadTrigger.intValue) {
         selectedTimestamp.value?.let { ts ->
             val entryList = attendanceRecords.value[selectedDate]
                 ?.firstOrNull { it.first == ts }
@@ -192,8 +199,6 @@ fun EditAttendanceScreen(
     val hasAttendance = !recordsForSelectedDate.isNullOrEmpty()
     val timestamps = recordsForSelectedDate?.map { it.first } ?: emptyList()
 
-
-    val originalState = remember(attendanceState) { attendanceState.value.map { it.copy() } }
     val showEditDialog = remember { mutableStateOf(false) }
     val showRestoreDialog = remember { mutableStateOf(false) }
 
@@ -228,12 +233,13 @@ fun EditAttendanceScreen(
                     onDismissRequest = { showRestoreDialog.value = false },
                     onConfirm = {
                         showRestoreDialog.value = false
-                        attendanceState.value = originalState.toMutableStateList()
+                        reloadTrigger.intValue++
                         Toast.makeText(
                             context,
                             "Attendance restored to Original.",
                             Toast.LENGTH_SHORT
                         ).show()
+
                     },
                     rightButtonLabel = "Reset",
                     leftButtonLabel = "Cancel",
@@ -262,6 +268,8 @@ fun EditAttendanceScreen(
                                         if (success) "Attendance Report Edited Successfully" else "Update failed!",
                                         Toast.LENGTH_SHORT
                                     ).show()
+                                    reloadTrigger.intValue++
+                                    navController.popBackStack()
                                 }
                             )
                         } ?: Toast.makeText(
@@ -269,6 +277,7 @@ fun EditAttendanceScreen(
                             "Error: No session selected",
                             Toast.LENGTH_SHORT
                         ).show()
+
                     },
                     rightButtonLabel = "Save",
                     leftButtonLabel = "Cancel",
@@ -492,10 +501,12 @@ fun EditAttendanceScreen(
                     ) {
                         AttendanceReportGrid(
                             attendanceState = attendanceState.value,
-                            onToggleAttendance = { entry ->
-                                val index = attendanceState.value.indexOf(entry)
-                                attendanceState.value[index] =
-                                    entry.copy(isPresent = !entry.isPresent)
+                            onToggleAttendance = { updatedEntry ->
+                                attendanceState.value = attendanceState.value.map { entry ->
+                                    if (entry.uid == updatedEntry.uid) {
+                                        entry.copy(isPresent = !entry.isPresent)
+                                    } else entry
+                                }.toMutableStateList()
                             }
                         )
                     }
@@ -534,8 +545,7 @@ fun EditAttendanceScreen(
                         }
                         Spacer(modifier = Modifier.weight(0.25f))
                     }
-                }
-                else {
+                } else {
                     Box(
                         modifier = Modifier
                             .fillMaxSize(),
