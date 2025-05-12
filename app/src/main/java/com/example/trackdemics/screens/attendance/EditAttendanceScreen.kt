@@ -68,6 +68,9 @@ import com.example.trackdemics.screens.attendance.components.DatePickerField
 import com.example.trackdemics.screens.attendance.model.FirestoreAttendanceEntry
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -91,9 +94,18 @@ fun EditAttendanceScreen(
     val attendanceState =
         remember { mutableStateOf<SnapshotStateList<FirestoreAttendanceEntry>>(mutableStateListOf()) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(selectedDate, selectedTimestamp.value) {
+        selectedTimestamp.value?.let { ts ->
+            val entryList = attendanceRecords.value[selectedDate]
+                ?.firstOrNull { it.first == ts }
+                ?.second
+            attendanceState.value = entryList?.toMutableStateList() ?: mutableStateListOf()
+        }
+    }
+
+    LaunchedEffect(courseCode) {
         firestore.collection("attendance_record")
-            .whereEqualTo("course_code", courseCode) // Only fetch for this course
+            .whereEqualTo("course_code", courseCode.replace(" ", ""))
             .get()
             .addOnSuccessListener { snapshot ->
                 val grouped = snapshot.documents.groupBy { it.getString("session_date") ?: "" }
@@ -113,20 +125,36 @@ fun EditAttendanceScreen(
                             timestamp to students
                         }
                     }
-
                 attendanceRecords.value = grouped
                 availableDates.value = grouped.keys.sorted()
+
+                if (availableDates.value.isNotEmpty()) {
+                    selectedDate = availableDates.value.first()
+                    timestampsForDate.value = grouped[selectedDate]?.map { it.first } ?: emptyList()
+                    selectedTimestamp.value = timestampsForDate.value.firstOrNull()
+
+                    selectedTimestamp.value?.let { ts ->
+                        val entryList =
+                            grouped[selectedDate]?.firstOrNull { it.first == ts }?.second
+                        attendanceState.value =
+                            entryList?.toMutableStateList() ?: mutableStateListOf()
+                    }
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to load attendance", Toast.LENGTH_SHORT).show()
             }
     }
 
+    val timestamps = remember(selectedDate, attendanceRecords.value) {
+        attendanceRecords.value[selectedDate]?.map { it.first } ?: emptyList()
+    }
 
-    val timestamps = attendanceRecords.value[selectedDate]?.map { it.first } ?: emptyList()
+
     val originalState = remember(attendanceState) { attendanceState.value.map { it.copy() } }
     val showEditDialog = remember { mutableStateOf(false) }
     val showRestoreDialog = remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
@@ -137,8 +165,7 @@ fun EditAttendanceScreen(
                 isActionScreen = true
             )
         }
-    )
-    { padding ->
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -151,38 +178,32 @@ fun EditAttendanceScreen(
                         )
                     )
                 )
-        )
-        {
+        ) {
+            // Confirmation Dialogs
             if (showRestoreDialog.value) {
-                if (showRestoreDialog.value) {
-                    ConfirmationDialog(
-                        courseCode = null,
-                        onDismissRequest = { showRestoreDialog.value = false },
-                        onConfirm = {
-                            showRestoreDialog.value = false
-
-                            // Reset the selected students to original data
-                            attendanceState.value = originalState.toMutableStateList()
-
-                            // Optional: Show a Toast
-                            Toast.makeText(
-                                context,
-                                "Attendance restored to Original.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        },
-                        rightButtonLabel = "Reset",
-                        leftButtonLabel = "Cancel",
-                        title = "Restore Attendance?",
-                        message1 = "Restore Attendance back to Original?",
-                        message2 = " All Changes will be lost!",
-                        titleIcon = Icons.Default.Warning,
-                        rightButtonIcon = Icons.Default.Restore,
-                        rightButtonColor = MaterialTheme.colorScheme.error
-                    )
-                }
-
+                ConfirmationDialog(
+                    courseCode = null,
+                    onDismissRequest = { showRestoreDialog.value = false },
+                    onConfirm = {
+                        showRestoreDialog.value = false
+                        attendanceState.value = originalState.toMutableStateList()
+                        Toast.makeText(
+                            context,
+                            "Attendance restored to Original.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    rightButtonLabel = "Reset",
+                    leftButtonLabel = "Cancel",
+                    title = "Restore Attendance?",
+                    message1 = "Restore Attendance back to Original?",
+                    message2 = "All changes will be lost!",
+                    titleIcon = Icons.Default.Warning,
+                    rightButtonIcon = Icons.Default.Restore,
+                    rightButtonColor = MaterialTheme.colorScheme.error
+                )
             }
+
             if (showEditDialog.value) {
                 ConfirmationDialog(
                     courseCode = null,
@@ -198,26 +219,21 @@ fun EditAttendanceScreen(
                     rightButtonLabel = "Edit",
                     leftButtonLabel = "Cancel",
                     title = "Save Changes?",
-                    message1 = "Are you sure you want to edit attendance? ",
-                    message2 = "Once submitted, previous data will be lost..",
+                    message1 = "Are you sure you want to edit attendance?",
+                    message2 = "Once submitted, previous data will be lost.",
                     titleIcon = Icons.AutoMirrored.Filled.Send,
                     rightButtonIcon = Icons.Default.Edit,
                     rightButtonColor = MaterialTheme.colorScheme.secondary
                 )
             }
+
             Column(
                 modifier = Modifier
                     .padding(padding)
                     .padding(16.dp)
-            )
-            {
-
-                // Title (center aligned with gradient text)
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                )
-                {
+            ) {
+                // Header
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "📋 Attendance Report List",
                         style = MaterialTheme.typography.headlineSmall.copy(
@@ -235,38 +251,27 @@ fun EditAttendanceScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Row: Course Code on left, Date Picker on right (balanced)
+                // Course Info + Date Picker
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
-                )
-                {
-                    // Surface Card for Course Code
+                ) {
                     Spacer(
                         modifier = Modifier
                             .width(4.dp)
                             .weight(0.25f)
                     )
                     Card(
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .weight(2.5f),
+                        modifier = Modifier.weight(2.5f),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 22.dp,
-                            pressedElevation = 13.dp
-                        )
-                    )
-                    {
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimaryContainer),
+                        elevation = CardDefaults.cardElevation(22.dp)
+                    ) {
                         Box(
-                            modifier = Modifier
-                                .padding(vertical = 12.dp, horizontal = 16.dp),
+                            modifier = Modifier.padding(12.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -278,61 +283,50 @@ fun EditAttendanceScreen(
                             )
                         }
                     }
-
                     Spacer(
                         modifier = Modifier
                             .width(4.dp)
                             .weight(0.25f)
                     )
-
-                    // Date Picker Field (styled and aligned)
-                    Box(
-                        modifier = Modifier
-                            .weight(3f),
-                        contentAlignment = Alignment.CenterEnd
-                    )
-                    {
+                    Box(modifier = Modifier.weight(3f), contentAlignment = Alignment.CenterEnd) {
                         DatePickerField(
                             selectedDate = selectedDate,
                             onDateSelected = { date ->
                                 selectedDate = date
-                                timestampsForDate.value =
-                                    attendanceRecords.value[date]?.map { it.first } ?: emptyList()
-                                selectedTimestamp.value = timestampsForDate.value.firstOrNull()
+                                selectedTimestamp.value =
+                                    attendanceRecords.value[date]?.firstOrNull()?.first
+                            }
 
-                                selectedTimestamp.value?.let { ts ->
-                                    val entryList =
-                                        attendanceRecords.value[date]?.firstOrNull { it.first == ts }?.second
-                                    attendanceState.value =
-                                        entryList?.toMutableStateList() ?: mutableStateListOf()
-                                }
-                            },
                         )
                     }
-
-//                    Spacer(
-//                        modifier = Modifier
-//                            .width(4.dp)
-//                            .weight(0.25f)
-//                    )
                 }
-                if (timestamps.size > 1) {
-                    selectedTimestamp.value = timestamps.firstOrNull()
+
+                // Timestamp Dropdown
+                if (timestamps.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(1.dp))
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
-                    )
-                    {
+                    ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth(0.4f),
+                            modifier = Modifier.fillMaxWidth(0.4f),
                             horizontalAlignment = Alignment.CenterHorizontally
-                        )
-                        {
+                        ) {
+                            val displayTimestamp = selectedTimestamp.value?.let {
+                                try {
+                                    val millis = it.toLong()
+                                    SimpleDateFormat("hh:mm a", Locale.getDefault()).format(
+                                        Date(
+                                            millis
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    it
+                                }
+                            } ?: ""
+
                             OutlinedTextField(
-                                value = selectedTimestamp.value.orEmpty(),
+                                value = displayTimestamp,
                                 onValueChange = {},
                                 readOnly = true,
                                 label = {
@@ -353,7 +347,6 @@ fun EditAttendanceScreen(
                                     }
                                 },
                                 textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                    //fontSize = 18.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     fontFamily = FontFamily(Font(R.font.notosans_variablefont)),
                                     color = MaterialTheme.colorScheme.onPrimary
@@ -370,23 +363,31 @@ fun EditAttendanceScreen(
                                     focusedTextColor = MaterialTheme.colorScheme.onPrimary,
                                     unfocusedTextColor = MaterialTheme.colorScheme.onPrimary
                                 ),
-                                modifier = Modifier,
                                 shape = RoundedCornerShape(16.dp),
                                 singleLine = true,
                             )
+
                             DropdownMenu(
                                 expanded = expanded,
                                 offset = DpOffset(18.dp, 3.dp),
                                 onDismissRequest = { expanded = false }
-                            )
-                            {
-                                timestamps.forEach { time ->
+                            ) {
+                                timestamps.forEach { raw ->
+                                    val formatted = try {
+                                        val millis = raw.toLong()
+                                        SimpleDateFormat(
+                                            "hh:mm a",
+                                            Locale.getDefault()
+                                        ).format(Date(millis))
+                                    } catch (e: Exception) {
+                                        raw
+                                    }
+
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                text = time,
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
+                                                text = formatted,
+                                                modifier = Modifier.fillMaxWidth(),
                                                 textAlign = TextAlign.Center,
                                                 style = MaterialTheme.typography.bodyLarge,
                                                 fontFamily = FontFamily(Font(R.font.lobster_regular)),
@@ -394,30 +395,41 @@ fun EditAttendanceScreen(
                                             )
                                         },
                                         onClick = {
-                                            selectedTimestamp.value = time
+                                            selectedTimestamp.value = raw
                                             val entryList =
-                                                attendanceRecords.value[selectedDate]?.firstOrNull { it.first == time }?.second
+                                                attendanceRecords.value[selectedDate]?.firstOrNull { it.first == raw }?.second
                                             attendanceState.value = entryList?.toMutableStateList()
                                                 ?: mutableStateListOf()
+                                            expanded = false
                                         }
-
                                     )
                                 }
                             }
                         }
                     }
+                } else {
+                    Text(
+                        text = "No attendance data available for the selected date.",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
+
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-
+                // Attendance Grid
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
-                )
-                {
+                ) {
                     AttendanceReportGrid(
                         attendanceState = attendanceState.value,
                         onToggleAttendance = { entry ->
@@ -427,66 +439,38 @@ fun EditAttendanceScreen(
                     )
                 }
 
-
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Edit & Restore Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
-                )
-                {
-                    Spacer(
-                        modifier = Modifier
-                            .weight(0.25f)
-                    )
+                ) {
+                    Spacer(modifier = Modifier.weight(0.25f))
                     Button(
-                        onClick = {
-                            // Simulate saving the updated attendanceState
-                            // Replace with your update logic
-                            showEditDialog.value = true
-                        },
+                        onClick = { showEditDialog.value = true },
                         elevation = ButtonDefaults.buttonElevation(10.dp),
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.onSurface,
                             contentColor = MaterialTheme.colorScheme.primaryContainer
                         )
-                    )
-                    {
-                        Text(
-                            text = "Edit",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    ) {
+                        Text("Edit", fontWeight = FontWeight.Bold)
                     }
-                    Spacer(
-                        modifier = Modifier
-                            .weight(0.25f)
-                    )
+                    Spacer(modifier = Modifier.weight(0.25f))
                     Button(
-                        onClick = {
-                            showRestoreDialog.value = true
-                        },
+                        onClick = { showRestoreDialog.value = true },
                         elevation = ButtonDefaults.buttonElevation(10.dp),
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.onSurface,
                             contentColor = MaterialTheme.colorScheme.primaryContainer
                         )
-                    )
-                    {
-                        Text(
-                            text = "Restore",
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    ) {
+                        Text("Restore", fontWeight = FontWeight.Bold)
                     }
-                    Spacer(
-                        modifier = Modifier
-                            .weight(0.25f)
-                    )
+                    Spacer(modifier = Modifier.weight(0.25f))
                 }
             }
         }
