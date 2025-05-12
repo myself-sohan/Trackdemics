@@ -51,6 +51,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
+    //Apache POI for excel sheets
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
