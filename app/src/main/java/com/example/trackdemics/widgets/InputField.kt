@@ -3,6 +3,7 @@ package com.example.trackdemics.widgets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -46,7 +49,12 @@ fun InputField(
             valueState.value = it
         },
         label = {
-            Text(text = labelId)
+            Text(
+                text = labelId,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic
+            )
         },
         textStyle = TextStyle(
             color = Color(0, 0, 102),
@@ -54,21 +62,22 @@ fun InputField(
         ),
         singleLine = isSingleLine,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Blue.copy(0.5f),
-            unfocusedBorderColor = Color.Blue.copy(0.5f),
-            focusedLabelColor = Color.Blue.copy(0.5f),
-            unfocusedLabelColor = Color.Blue.copy(0.5f),
+            focusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.9f),
+            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(0.9f),
+            focusedLabelColor = MaterialTheme.colorScheme.primary.copy(1f),
+            unfocusedLabelColor = MaterialTheme.colorScheme.primary.copy(1f),
             cursorColor = Color.Blue
         ),
         modifier = modifier
             .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
+            .height(70.dp)
             .fillMaxWidth()
             .background(
             brush = Brush.horizontalGradient(
                 colors = listOf(
-                    MaterialTheme.colorScheme.primary.copy(0.1f),
-                    MaterialTheme.colorScheme.primary.copy(0.2f),
-                    MaterialTheme.colorScheme.primary.copy(0.1f),
+                    MaterialTheme.colorScheme.surfaceVariant.copy(0.7f),
+                    MaterialTheme.colorScheme.surfaceVariant.copy(0.9f),
+                    MaterialTheme.colorScheme.surfaceVariant.copy(0.7f),
                 )
             )
         ),
@@ -82,6 +91,6 @@ fun InputField(
         trailingIcon = {
             if (iconShow)
                 PasswordVisibility(passwordVisibility = passwordVisibility)
-        }
+        },
     )
 }
