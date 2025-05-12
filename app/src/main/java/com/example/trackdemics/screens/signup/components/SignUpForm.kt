@@ -4,6 +4,8 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,6 +21,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.trackdemics.widgets.EmailInput
 import com.example.trackdemics.widgets.PasswordInput
@@ -57,7 +60,8 @@ fun SignUpForm(
         verticalArrangement = Arrangement.Center
     ) {
         NameInput(
-            modifier = Modifier,
+            modifier = Modifier
+                .height(70.dp),
             nameState = firstName,
             labelId = "First Name",
             enabled = !loading,
@@ -65,28 +69,34 @@ fun SignUpForm(
                 lastNameFocusRequest.requestFocus()
             },
         )
-
+        Spacer(modifier = Modifier.height(20.dp))
         NameInput(
             nameState = lastName,
-            modifier = Modifier.focusRequester(lastNameFocusRequest),
+            modifier = Modifier
+                .focusRequester(lastNameFocusRequest)
+                .height(70.dp),
             labelId = "Last Name",
             enabled = !loading,
             onAction = KeyboardActions {
                 emailFocusRequest.requestFocus()
             },
         )
-
+        Spacer(modifier = Modifier.height(20.dp))
         EmailInput(
-            modifier = Modifier.focusRequester(emailFocusRequest),
+            modifier = Modifier
+                .focusRequester(emailFocusRequest)
+                .height(70.dp),
             emailState = email,
             enabled = !loading,
             onAction = KeyboardActions {
                 passwordFocusRequest.requestFocus()
             },
         )
-
+        Spacer(modifier = Modifier.height(20.dp))
         PasswordInput(
-            modifier = Modifier.focusRequester(passwordFocusRequest),
+            modifier = Modifier
+                .focusRequester(passwordFocusRequest)
+                .height(70.dp),
             passwordState = password,
             enabled = !loading,
             passwordVisibility = passwordVisibility,
@@ -95,9 +105,10 @@ fun SignUpForm(
                     Toast.makeText(context, "Invalid Credentials", Toast.LENGTH_SHORT).show()
                     return@KeyboardActions
                 }
+                keyboardController?.hide()
             }
         )
-
+        Spacer(modifier = Modifier.height(30.dp))
         SubmitButton(
             textId = "Sign Up",
             loading = loading,

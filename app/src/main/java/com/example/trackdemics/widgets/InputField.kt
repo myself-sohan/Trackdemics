@@ -54,7 +54,8 @@ fun InputField(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.9f)
         )
-    ) {
+    )
+    {
         OutlinedTextField(
             value = valueState.value,
             onValueChange = {
@@ -85,7 +86,7 @@ fun InputField(
             ),
             modifier = modifier
                 .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
-                .height(70.dp)
+                //.height(70.dp)
                 .fillMaxWidth()
                 .background(
                     brush = Brush.horizontalGradient(
