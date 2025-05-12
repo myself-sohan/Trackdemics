@@ -40,6 +40,7 @@ import com.example.trackdemics.screens.attendance.components.ProfessorAttendance
 import com.example.trackdemics.screens.attendance.model.Course
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.screens.attendance.model.SemesterCourses
+import com.example.trackdemics.widgets.LottieFromAssets
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -186,8 +187,8 @@ fun ProfessorAttendanceScreen(
                     {
                         Card(
                             modifier = Modifier
-                                .fillMaxHeight(0.1f)
-                                .fillMaxWidth(0.5f),
+                                .fillMaxHeight(0.45f)
+                                .fillMaxWidth(0.85f),
                             shape = MaterialTheme.shapes.medium,
                             elevation = CardDefaults.cardElevation(24.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -196,15 +197,21 @@ fun ProfessorAttendanceScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = "No Courses Found",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center
+                            )
+                            {
+                                LottieFromAssets(
+                                    assetName = "no_data.json",
+                                    modifier = Modifier
+                                        .fillMaxSize()
                                 )
+//                                Text(
+//                                    text = "No Courses Found",
+//                                    fontSize = 18.sp,
+//                                    fontWeight = FontWeight.Bold,
+//                                    color = MaterialTheme.colorScheme.error,
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    textAlign = TextAlign.Center
+//                                )
                             }
                         }
                     }
