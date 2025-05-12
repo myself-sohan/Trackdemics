@@ -26,7 +26,7 @@ fun PasswordVisibility(passwordVisibility: MutableState<Boolean>) {
             imageVector = imageVector,
             contentDescription = description,
             modifier = Modifier.size(25.dp),
-            tint = Color.Blue
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 }

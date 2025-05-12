@@ -1,6 +1,8 @@
 package com.example.trackdemics.screens.login
 
+import WelcomeText
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,14 +32,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.login.components.LoginForm
 import com.example.trackdemics.widgets.TrackdemicsAppBar
-import com.example.trackdemics.widgets.WelcomeText
+import com.example.trackdemics.R
 
 @Composable
 fun LoginScreen(
@@ -88,7 +95,7 @@ fun LoginScreen(
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                MaterialTheme.colorScheme.primary.copy(0.9f),
+                                MaterialTheme.colorScheme.primary.copy(1f),
                                 MaterialTheme.colorScheme.primary.copy(0.7f)
                             )
                         )
@@ -98,27 +105,20 @@ fun LoginScreen(
                 Column(modifier = Modifier.fillMaxSize()) {
 
                     // Top Greeting Text
-                    Column(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 24.dp, top = 48.dp),
+                            .padding(start = 24.dp, end = 16.dp, top = 48.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     )
                     {
-                        Text(
-                            text = "Hello",
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                        Text(
-                            text = "Log In",
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                color = Color.White,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                        WelcomeText(
+                            greet = "Welcome",
+                            role = role
                         )
                     }
+
 
                     Spacer(modifier = Modifier.height(30.dp))
 
@@ -149,35 +149,42 @@ fun LoginScreen(
                             }
 
 
-                            Spacer(modifier = Modifier.height(120.dp))
+                            Spacer(modifier = Modifier.height(40.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(bottom = 2.dp, end = 24.dp), // adjust bottom padding to match your design
+                                contentAlignment = Alignment.BottomEnd
+                            )
+                            {
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = if (role == "ADMIN") "Not an admin?" else "Don't have an account?",
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
 
-                            // Sign up section
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                val text = if (role == "ADMIN") "Go Back" else "Sign Up"
-                                val message = if (role == "ADMIN") "Not an admin?" else "Don't have an account?"
-
-                                Text(
-                                    text = message,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = text,
-                                    modifier = Modifier
-                                        .padding(start = 4.dp)
-                                        .clickable {
-                                            if (role == "ADMIN")
-                                                navController.navigate(TrackdemicsScreens.RoleScreen.name)
-                                            else
-                                                navController.navigate(TrackdemicsScreens.SignUpScreen.name + "/$role")
-                                        },
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                    Text(
+                                        text = if (role == "ADMIN") "Go Back" else "Sign Up",
+                                        modifier = Modifier
+                                            .padding(top = 2.dp)
+                                            .clickable {
+                                                if (role == "ADMIN")
+                                                    navController.navigate(TrackdemicsScreens.RoleScreen.name)
+                                                else
+                                                    navController.navigate(TrackdemicsScreens.SignUpScreen.name + "/$role")
+                                            },
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontFamily = FontFamily(Font(R.font.lobster_regular)),
+                                        letterSpacing = 1.2.sp
+                                    )
+                                }
                             }
+
                         }
                     }
                 }
