@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.attendance.components
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
@@ -42,11 +43,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.example.trackdemics.R
 import com.example.trackdemics.repository.AppFirestoreService
+import com.example.trackdemics.repository.generateExcelFromAttendance
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
 import com.example.trackdemics.ui.theme.onSurfaceLight
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -82,8 +86,33 @@ fun ProfessorAttendanceCard(
                     navController.navigate("EditAttendanceScreen/${course.courseCode}/${course.courseName}")
                 },
                 onDownloadPdf = {
-                    showDialog.value = false
-                },
+                    coroutineScope.launch {
+                        val file = generateExcelFromAttendance(
+                            context = context,
+                            courseCode = course.courseCode,
+                            courseName = course.courseName,
+                            firestore = FirebaseFirestore.getInstance()
+                        )
+
+                        if (file != null) {
+                            Toast.makeText(context, "Excel saved to Downloads", Toast.LENGTH_SHORT).show()
+
+                            // Optional: Open it
+                            val uri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider", // <- make sure to define this in AndroidManifest.xml
+                                file
+                            )
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setDataAndType(uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                ,
                 onTakeAttendance = {
                     val codeEncoded = course.courseCode.replace(" ", "%20")
                     val nameEncoded = course.courseName.replace(" ", "%20")
