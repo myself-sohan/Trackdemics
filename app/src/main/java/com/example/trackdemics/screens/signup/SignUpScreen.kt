@@ -35,7 +35,7 @@ import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.signup.components.SignUpForm
 import com.example.trackdemics.widgets.TrackdemicsAppBar
-import com.example.trackdemics.widgets.WelcomeText
+//import com.example.trackdemics.widgets.WelcomeText
 
 @Composable
 fun SignUpScreen(
@@ -107,10 +107,10 @@ fun SignUpScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
-                    WelcomeText(
-                        greet = "Get Started",
-                        role = role
-                    )
+//                    //WelcomeText(
+//                        greet = "Get Started",
+//                        role = role
+//                    )
 
                     SignUpForm(
                         role = role,

@@ -1,6 +1,7 @@
 package com.example.trackdemics.screens.login.components
 
 import android.widget.Toast
+import com.example.trackdemics.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.trackdemics.widgets.EmailInput
 import com.example.trackdemics.widgets.PasswordInput
 import com.example.trackdemics.widgets.SubmitButton
@@ -78,7 +82,7 @@ fun LoginForm(
                     return@KeyboardActions
                 }
                 keyboardController?.hide()
-                onSubmit(email.value.trim(), password.value.trim()) // ✅ Trigger login
+                //onSubmit(email.value.trim(), password.value.trim()) // ✅ Trigger login
             }
         )
         Spacer(modifier = Modifier.height(30.dp))
@@ -91,9 +95,11 @@ fun LoginForm(
         {
             Text(
                 text = "Forgot password?",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.primary
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = FontFamily(Font(R.font.lobster_regular))
                 ),
+                letterSpacing = 1.sp,
                 modifier = Modifier.padding(end = 8.dp)
             )
         }
@@ -101,7 +107,7 @@ fun LoginForm(
         Spacer(modifier = Modifier.height(54.dp))
 
         SubmitButton(
-            textId = "Login",
+            textId = "Log In",
             loading = loading,
             validInputs = valid
         ) {
