@@ -55,7 +55,8 @@ fun ProfessorAttendanceCard(
     navController: NavController,
     course: ProfessorCourse,
     coroutineScope: CoroutineScope,
-    onCourseDeleted: (String) -> Unit
+    onCourseDeleted: (String) -> Unit,
+    studentsInCourse: String = "30"
 )
 {
     val context = LocalContext.current
@@ -145,7 +146,7 @@ fun ProfessorAttendanceCard(
                 )
                 {
                     Text(
-                        text = "No of Enrolled students",
+                        text = "No of Enrolled students: $studentsInCourse",
                         fontSize = 14.sp,
                         color = onSurfaceLight.copy(alpha = 0.6f)
                     )

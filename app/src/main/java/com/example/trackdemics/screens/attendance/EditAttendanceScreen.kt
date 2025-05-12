@@ -269,6 +269,7 @@ fun EditAttendanceScreen(
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     reloadTrigger.intValue++
+                                    navController.popBackStack()
                                 }
                             )
                         } ?: Toast.makeText(
