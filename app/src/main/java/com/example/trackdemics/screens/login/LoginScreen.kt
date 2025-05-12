@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -66,72 +67,124 @@ fun LoginScreen(
             )
         }
     }
-    
+
     Scaffold(
         topBar = {
             TrackdemicsAppBar(onBackClick = {
                 navController.navigate(TrackdemicsScreens.RoleScreen.name)
             })
         }
-    ) {
+    )
+    {
         Surface(
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
-        ) {
+        )
+        {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        brush = Brush.verticalGradient(
-                            listOf(Color.White, MaterialTheme.colorScheme.primary.copy(0.7f))
+                        Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary.copy(0.9f),
+                                MaterialTheme.colorScheme.primary.copy(0.7f)
+                            )
                         )
                     )
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    WelcomeText(greet = "Welcome", role = role)
+            )
+            {
+                Column(modifier = Modifier.fillMaxSize()) {
 
-                    LoginForm(
-                        loading = loading,
-                        role = role
-                    ) { email, password ->
-                        loading = true
-                        viewModel.login(email, password, role)
+                    // Top Greeting Text
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 24.dp, top = 48.dp),
+                    )
+                    {
+                        Text(
+                            text = "Hello",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                        Text(
+                            text = "Log In",
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
 
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val text = if (role == "ADMIN") "Go Back" else "Sign Up"
-                        val message = if (role == "ADMIN") "Not an admin?" else "New User?"
-
-                        Text(text = message)
-                        Text(
-                            text = text,
+                    // Bottom Card Section
+                    Surface(
+                        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier
+                            .fillMaxSize()
+                    )
+                    {
+                        Column(
                             modifier = Modifier
-                                .clickable {
-                                    if (role == "ADMIN")
-                                        navController.navigate(TrackdemicsScreens.RoleScreen.name)
-                                    else
-                                        navController.navigate(TrackdemicsScreens.SignUpScreen.name + "/$role")
-                                }
-                                .padding(start = 5.dp),
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
+                                .padding(24.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // Login form
+                            LoginForm(
+                                loading = loading,
+                                role = role
+                            ) { email, password ->
+                                loading = true
+                                viewModel.login(email, password, role)
+                            }
+
+
+                            Spacer(modifier = Modifier.height(120.dp))
+
+                            // Sign up section
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                val text = if (role == "ADMIN") "Go Back" else "Sign Up"
+                                val message = if (role == "ADMIN") "Not an admin?" else "Don't have an account?"
+
+                                Text(
+                                    text = message,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = text,
+                                    modifier = Modifier
+                                        .padding(start = 4.dp)
+                                        .clickable {
+                                            if (role == "ADMIN")
+                                                navController.navigate(TrackdemicsScreens.RoleScreen.name)
+                                            else
+                                                navController.navigate(TrackdemicsScreens.SignUpScreen.name + "/$role")
+                                        },
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
 }
 
 
