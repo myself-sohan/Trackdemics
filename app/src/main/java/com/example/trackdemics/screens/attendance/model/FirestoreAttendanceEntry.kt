@@ -5,6 +5,7 @@ data class FirestoreAttendanceEntry(
     val rollNumber: String,
     val fullName: String,
     val email: String,
-    var isPresent: Boolean
+    var isPresent: Boolean,
+    val attendancePercentage: Int = -1
 )
 
