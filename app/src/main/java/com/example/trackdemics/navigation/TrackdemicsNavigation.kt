@@ -1,8 +1,11 @@
 package com.example.trackdemics.navigation
 
+import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
+import androidx.navigation.activity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -22,6 +25,7 @@ import com.example.trackdemics.screens.routine.RoutineScreen
 import com.example.trackdemics.screens.signup.SignUpScreen
 import com.example.trackdemics.screens.signup.SignUpViewModel
 import com.example.trackdemics.screens.splash.SplashScreen
+import com.example.trackdemics.widgets.ConfirmExitOnBack
 
 @Composable
 fun TrackdemicsNavigation() {
@@ -46,18 +50,26 @@ fun TrackdemicsNavigation() {
             ProfessorAttendanceScreen(navController = navController)
         }
         composable(TrackdemicsScreens.StudentHomeScreen.name) {
+            val activity = LocalContext.current as Activity
+            ConfirmExitOnBack(activity = activity)
             StudentHomeScreen(navController = navController)
         }
         composable(TrackdemicsScreens.StudentAttendanceScreen.name) {
             StudentAttendanceScreen(navController = navController)
         }
         composable(TrackdemicsScreens.AdminHomeScreen.name) {
+            val activity = LocalContext.current as Activity
+            ConfirmExitOnBack(activity = activity)
             AdminHomeScreen(navController = navController)
         }
         composable(TrackdemicsScreens.ProfessorHomeScreen.name) {
+            val activity = LocalContext.current as Activity
+            ConfirmExitOnBack(activity = activity)
             ProfessorHomeScreen(navController = navController)
         }
         composable(TrackdemicsScreens.RoleScreen.name) {
+            val activity = LocalContext.current as Activity
+            ConfirmExitOnBack(activity = activity)
             RoleScreen(navController = navController)
         }
 

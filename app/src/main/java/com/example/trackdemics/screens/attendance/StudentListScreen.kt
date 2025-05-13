@@ -8,7 +8,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,7 +39,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -69,6 +67,8 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.Alignment
 
 
 @Composable
@@ -408,9 +408,11 @@ fun AttendanceSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-    ) {
-        students.chunked(5).forEach { rowItems ->
+            .padding(horizontal = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    )
+    {
+        students.chunked(4).forEach { rowItems ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier
@@ -452,8 +454,8 @@ fun AttendanceSection(
                     }
                 }
 
-                if (rowItems.size < 5) {
-                    repeat(5 - rowItems.size) {
+                if (rowItems.size < 4) {
+                    repeat(4 - rowItems.size) {
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 }
