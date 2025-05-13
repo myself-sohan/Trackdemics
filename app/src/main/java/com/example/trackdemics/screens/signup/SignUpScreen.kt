@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -42,6 +41,7 @@ import com.example.trackdemics.R
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.signup.components.SignUpForm
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+
 //import com.example.trackdemics.widgets.WelcomeText
 
 @Composable
@@ -50,16 +50,20 @@ fun SignUpScreen(
     role: String,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
-    val signUpState by viewModel.signUpState.collectAsState()
+    val signUpState = viewModel.signUpState.collectAsState(initial = null).value
     var loading by remember { mutableStateOf(false) }
     var resultHandled by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     LaunchedEffect(signUpState) {
-        if (signUpState != null && !resultHandled) {
+        if (signUpState == null) {
+            resultHandled = false
+            return@LaunchedEffect
+        }
+        if (!resultHandled) {
             resultHandled = true // prevent re-handling
 
-            signUpState!!.fold(
+            signUpState.fold(
                 onSuccess = {
                     loading = false
                     viewModel.clearSignUpState()
@@ -73,11 +77,11 @@ fun SignUpScreen(
                 },
                 onFailure = { error ->
                     loading = false
-                    viewModel.clearSignUpState()
 
                     Log.d("SIGNUP_FAIL", "Sign up error: ${error.message}")
-                    Toast.makeText(context, error.message ?: "Sign up failed", Toast.LENGTH_LONG)
+                    Toast.makeText(context, error.message ?: "Sign up failed", Toast.LENGTH_SHORT)
                         .show()
+                    viewModel.clearSignUpState()
                 }
             )
         }
@@ -159,7 +163,10 @@ fun SignUpScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(bottom = 2.dp, end = 24.dp), // adjust bottom padding to match your design
+                                    .padding(
+                                        bottom = 2.dp,
+                                        end = 24.dp
+                                    ), // adjust bottom padding to match your design
                                 contentAlignment = Alignment.BottomEnd
                             )
                             {

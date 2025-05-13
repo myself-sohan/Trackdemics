@@ -22,7 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.trackdemics.screens.login.LoginViewModel
+import com.example.trackdemics.screens.signup.SignUpViewModel
 import com.example.trackdemics.widgets.EmailInput
 import com.example.trackdemics.widgets.PasswordInput
 import com.example.trackdemics.widgets.SubmitButton
@@ -32,7 +35,8 @@ fun SignUpForm(
     role: String,
     loading: Boolean,
     onSubmit: (String, String, String, String) -> Unit,
-    navController: NavController
+    navController: NavController,
+    viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val email = rememberSaveable { mutableStateOf("") }
@@ -116,6 +120,7 @@ fun SignUpForm(
         ) {
             if (!valid) {
                 Toast.makeText(context, "Invalid Credentials", Toast.LENGTH_SHORT).show()
+                viewModel.clearSignUpState()
                 return@SubmitButton
             }
             onSubmit(

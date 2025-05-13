@@ -33,6 +33,7 @@ class SignUpViewModel @Inject constructor(
     fun logout() {
         authService.signOut()
     }
+
     fun clearSignUpState() {
         _signUpState.value = null
     }
