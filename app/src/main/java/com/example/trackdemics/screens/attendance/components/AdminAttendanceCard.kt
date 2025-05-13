@@ -92,7 +92,15 @@ fun AdminAttendanceCard(
                 onDismissRequest = { showDialog.value = false },
                 onEditAttendance = {
                     showDialog.value = false
-                    navController.navigate("EditAttendanceScreen")
+
+                    val code = course["code"]?.toString()?.trim() ?: return@AdminActionDialog
+                    val name = course["name"]?.toString()?.trim() ?: return@AdminActionDialog
+
+                    val encodedCode = java.net.URLEncoder.encode(code, "UTF-8")
+                    val encodedName = java.net.URLEncoder.encode(name, "UTF-8")
+
+                    navController.navigate("EditAttendanceScreen/$encodedCode/$encodedName")
+                    showDialog.value = false
                 },
                 onDownloadPdf = {
                     showDialog.value = false
