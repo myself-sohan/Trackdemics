@@ -1,11 +1,16 @@
 package com.example.trackdemics.widgets
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
@@ -14,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -24,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +47,7 @@ fun TrackdemicsAppBar(
     titleTextColor: Color = MaterialTheme.colorScheme.background,
     isEntryScreen: Boolean = true,
     isActionScreen: Boolean = false,
+    isScheduleScreen: Boolean = false,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -88,17 +96,43 @@ fun TrackdemicsAppBar(
             }
         },
         actions = {
-            IconButton(
-                onClick = { /* Add navigation functionality if needed */ },
-                modifier = Modifier
-                    .size(logoSize)
-                    .padding(end = 10.dp)
-            )
+            if(!isScheduleScreen)
             {
-                Image(
-                    painter = painterResource(R.drawable.nitm),
-                    contentDescription = "NIT Logo",
+                IconButton(
+                    onClick = { /* Add navigation functionality if needed */ },
+                    modifier = Modifier
+                        .size(logoSize)
+                        .padding(end = 10.dp)
                 )
+                {
+                    Image(
+                        painter = painterResource(R.drawable.nitm),
+                        contentDescription = "NIT Logo",
+                    )
+                }
+            }
+            else{
+                OutlinedButton(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .padding(end = 20.dp),
+                    onClick = { /* open help */ },
+                    border = BorderStroke(
+                        color = titleContainerColor,
+                        width = 1.dp
+                    ),
+                    shape = RoundedCornerShape(14.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 1.dp)
+                ) {
+                    Text(
+                        text = "Need Help?",
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = FontFamily.Serif,
+                            color = titleContainerColor
+                        )
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

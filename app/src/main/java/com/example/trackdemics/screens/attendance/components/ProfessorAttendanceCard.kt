@@ -49,7 +49,6 @@ import com.example.trackdemics.R
 import com.example.trackdemics.repository.AppFirestoreService
 import com.example.trackdemics.repository.generateExcelFromAttendance
 import com.example.trackdemics.screens.attendance.model.ProfessorCourse
-import com.example.trackdemics.ui.theme.onSurfaceLight
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -61,8 +60,7 @@ fun ProfessorAttendanceCard(
     coroutineScope: CoroutineScope,
     onCourseDeleted: (String) -> Unit,
     studentsInCourse: String = "30"
-)
-{
+) {
     val context = LocalContext.current
     var showDialog = remember { mutableStateOf(false) }
     var showDeleteDialog = remember { mutableStateOf(false) }
@@ -95,7 +93,8 @@ fun ProfessorAttendanceCard(
                         )
 
                         if (file != null) {
-                            Toast.makeText(context, "Excel saved to Downloads", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Excel saved to Downloads", Toast.LENGTH_SHORT)
+                                .show()
 
                             // Optional: Open it
                             val uri = FileProvider.getUriForFile(
@@ -104,21 +103,22 @@ fun ProfessorAttendanceCard(
                                 file
                             )
                             val intent = Intent(Intent.ACTION_VIEW)
-                            intent.setDataAndType(uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                            intent.setDataAndType(
+                                uri,
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            )
                             intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                             context.startActivity(intent)
                         } else {
                             Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
                         }
                     }
-                }
-                ,
+                },
                 onTakeAttendance = {
                     val codeEncoded = course.courseCode.replace(" ", "%20")
                     val nameEncoded = course.courseName.replace(" ", "%20")
                     navController.navigate("CourseAttendanceScreen/$codeEncoded/$nameEncoded")
-                }
-                ,
+                },
                 onDeleteCourse = {
                     showDialog.value = false
                     showDeleteDialog.value = true

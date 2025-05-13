@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Notifications
@@ -134,13 +135,18 @@ fun ProfessorFeatureGrid(
         FeatureItem(
             "Attendance", Icons.Default.Groups
         ) { navController.navigate("ProfessorAttendanceScreen") },
-        FeatureItem("Projects", Icons.Default.Lightbulb) { },
+        FeatureItem("Transport", Icons.Default.DirectionsBus) {
+            navController.navigate("BusScheduleScreen")
+        },
         FeatureItem("College Routine", Icons.Default.Schedule) {
             navController.navigate(
                 TrackdemicsScreens.RoutineScreen.name
             )
         },
         FeatureItem("Reminders", Icons.Default.Notifications) {
+
+        },
+        FeatureItem("Assignments", Icons.Default.Lightbulb) {
 
         },
         FeatureItem(
