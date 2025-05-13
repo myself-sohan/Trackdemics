@@ -1,6 +1,8 @@
 package com.example.trackdemics.screens.attendance.components
 
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
@@ -41,10 +43,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.example.trackdemics.R
+import com.example.trackdemics.repository.generateExcelFromAttendance
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 @Composable
@@ -58,6 +63,9 @@ fun AdminAttendanceCard(
 
     var showDialog = remember { mutableStateOf(false) }
     var professorName by remember { mutableStateOf("Unknown") }
+
+    val code = course["code"]?.toString()?.trim() ?: return
+    val name = course["name"]?.toString()?.trim() ?: return
 
     LaunchedEffect(course["code"]) {
         val courseCode = course["code"]?.toString()?.replace(" ", "") ?: return@LaunchedEffect
@@ -93,9 +101,6 @@ fun AdminAttendanceCard(
                 onEditAttendance = {
                     showDialog.value = false
 
-                    val code = course["code"]?.toString()?.trim() ?: return@AdminActionDialog
-                    val name = course["name"]?.toString()?.trim() ?: return@AdminActionDialog
-
                     val encodedCode = java.net.URLEncoder.encode(code, "UTF-8")
                     val encodedName = java.net.URLEncoder.encode(name, "UTF-8")
 
@@ -103,7 +108,37 @@ fun AdminAttendanceCard(
                     showDialog.value = false
                 },
                 onDownloadPdf = {
-                    showDialog.value = false
+                    coroutineScope.launch {
+                        val encodedCode = java.net.URLEncoder.encode(code, "UTF-8")
+                        val encodedName = java.net.URLEncoder.encode(name, "UTF-8")
+                        val file = generateExcelFromAttendance(
+                            context = context,
+                            courseCode = encodedCode,
+                            courseName = encodedName,
+                            firestore = FirebaseFirestore.getInstance()
+                        )
+
+                        if (file != null) {
+                            Toast.makeText(context, "Excel saved to Downloads", Toast.LENGTH_SHORT)
+                                .show()
+
+                            // Optional: Open it
+                            val uri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider", // <- make sure to define this in AndroidManifest.xml
+                                file
+                            )
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setDataAndType(
+                                uri,
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            )
+                            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 },
             )
         }
