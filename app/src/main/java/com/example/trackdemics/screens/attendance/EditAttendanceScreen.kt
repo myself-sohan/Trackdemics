@@ -79,7 +79,11 @@ fun EditAttendanceScreen(
     courseName: String,
     viewModel: AttendanceViewModel = hiltViewModel()
 ) {
-    var selectedDate by remember { mutableStateOf("2025-05-10") }
+    var selectedDate by remember {
+        mutableStateOf(
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        )
+    }
     var expanded by remember { mutableStateOf(false) }
     val reloadTrigger = remember { mutableIntStateOf(0) }
 
@@ -129,15 +133,15 @@ fun EditAttendanceScreen(
 
                     // Auto-select new data if available
                     if (grouped.containsKey(selectedDate)) {
-                        timestampsForDate.value =
-                            grouped[selectedDate]?.map { it.first } ?: emptyList()
+                        timestampsForDate.value = grouped[selectedDate]?.map { it.first } ?: emptyList()
                         selectedTimestamp.value = timestampsForDate.value.firstOrNull()
-                    } else if (grouped.isNotEmpty()) {
+                    } else if (selectedDate.isBlank() && grouped.isNotEmpty()) {
+                        // Only override if selectedDate was blank (defensive)
                         selectedDate = grouped.keys.first()
-                        timestampsForDate.value =
-                            grouped[selectedDate]?.map { it.first } ?: emptyList()
+                        timestampsForDate.value = grouped[selectedDate]?.map { it.first } ?: emptyList()
                         selectedTimestamp.value = timestampsForDate.value.firstOrNull()
                     }
+
 
                     selectedTimestamp.value?.let { ts ->
                         val entryList =
