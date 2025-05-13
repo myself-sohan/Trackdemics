@@ -105,7 +105,7 @@ fun EditAttendanceScreen(
             .whereEqualTo("course_code", courseCode.replace(" ", ""))
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Toast.makeText(context, "Failed to load attendance", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "Failed to load attendance", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
