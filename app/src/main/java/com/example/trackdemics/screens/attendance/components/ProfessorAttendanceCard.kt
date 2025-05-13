@@ -175,9 +175,12 @@ fun ProfessorAttendanceCard(
                 )
                 {
                     Text(
-                        text = "No of Enrolled students: $studentsInCourse",
+                        text = "Students Enrolled: $studentsInCourse",
                         fontSize = 14.sp,
-                        color = onSurfaceLight.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 1.6f),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontFamily = FontFamily(Font(R.font.notosans_variablefont))
                     )
 
                     Text(

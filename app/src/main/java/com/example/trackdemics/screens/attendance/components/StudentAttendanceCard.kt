@@ -162,9 +162,12 @@ fun StudentAttendanceCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Professor Name",
+                    text ="Professor Name",
                     fontSize = 14.sp,
-                    color = onSurfaceLight.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 1.6f),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontFamily = FontFamily(Font(R.font.notosans_variablefont))
                 )
                 Text(
                     text = "${attended.intValue}/${total.intValue}",
