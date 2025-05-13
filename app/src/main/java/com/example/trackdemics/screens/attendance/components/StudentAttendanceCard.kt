@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import com.example.trackdemics.R
 import com.example.trackdemics.repository.AppFirestoreService
 import com.example.trackdemics.screens.attendance.model.StudentCourse
-import com.example.trackdemics.ui.theme.onSurfaceLight
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -47,6 +46,7 @@ fun StudentAttendanceCard(
     coroutineScope: CoroutineScope,
     onCourseDeleted: (String) -> Unit
 ) {
+
     val auth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
     val showDeleteDialog = remember { mutableStateOf(false) }
@@ -54,6 +54,7 @@ fun StudentAttendanceCard(
 
     val attended = remember { mutableIntStateOf(0) }
     val total = remember { mutableIntStateOf(0) }
+    val professorName = remember { mutableStateOf("Unknown") }
 
     LaunchedEffect(Unit) {
         val authEmail = auth.currentUser?.email ?: return@LaunchedEffect
@@ -72,7 +73,6 @@ fun StudentAttendanceCard(
             .get()
             .await()
 
-        // Step 3: Count how many sessions the student attended
         val attendedCount = snapshots.documents.count { doc ->
             val students = doc["students"] as? List<Map<String, Any>> ?: return@count false
             students.any { entry ->
@@ -84,13 +84,23 @@ fun StudentAttendanceCard(
 
         attended.intValue = attendedCount
 
-        // Step 4: Get total sessions
         val courseSnapshot = firestore.collection("courses")
             .document(normalizedCourseCode)
             .get()
             .await()
 
         total.intValue = courseSnapshot.getLong("classes_taken")?.toInt() ?: 0
+
+        // 🔍 Fetch professor name
+        val professorSnapshot = firestore.collection("professors")
+            .whereArrayContains("handled_courses", normalizedCourseCode)
+            .get()
+            .await()
+
+        val profDoc = professorSnapshot.documents.firstOrNull()
+        val firstName = profDoc?.getString("first_name") ?: ""
+        val lastName = profDoc?.getString("last_name") ?: ""
+        professorName.value = "$firstName $lastName".trim()
 
         Log.d("Attendance", "Found $attendedCount sessions attended by $studentUid.")
     }
@@ -161,8 +171,9 @@ fun StudentAttendanceCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                val name = professorName.value
                 Text(
-                    text ="Professor Name",
+                    text = "Dr. $name",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 1.6f),
                     style = MaterialTheme.typography.titleMedium,

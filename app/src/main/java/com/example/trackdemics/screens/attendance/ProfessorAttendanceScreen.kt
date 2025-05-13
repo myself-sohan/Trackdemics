@@ -16,7 +16,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -27,10 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.repository.AppFirestoreService
@@ -78,7 +74,19 @@ fun ProfessorAttendanceScreen(
                     if (uid != null) {
                         val courses = firestoreService.getProfessorCourses(uid)
                         professorCourses.clear()
-                        professorCourses.addAll(courses)
+
+                        for (course in courses) {
+                            val studentsSnapshot = FirebaseFirestore.getInstance()
+                                .collection("students")
+                                .whereArrayContains("enrolled_courses", course.courseCode)
+                                .get()
+                                .await()
+
+                            val count = studentsSnapshot.size()
+                            professorCourses.add(
+                                course.copy(studentCount = count) // override count for UI
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -172,7 +180,8 @@ fun ProfessorAttendanceScreen(
                                 navController = navController,
                                 onCourseDeleted = { deletedCode ->
                                     professorCourses.removeAll { it.courseCode == deletedCode }
-                                }
+                                },
+                                studentsInCourse = professorCourses[index].studentCount.toString()
                             )
                         }
                     }
