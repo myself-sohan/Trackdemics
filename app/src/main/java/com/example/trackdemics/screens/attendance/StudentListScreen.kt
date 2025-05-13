@@ -119,20 +119,92 @@ fun StudentListScreen(
         val showSubmitDialog = remember { mutableStateOf(false) }
         val showResetDialog = remember { mutableStateOf(false) }
         val context = LocalContext.current
+        val codeEncoded = code.replace(" ", "%20")
+        val nameEncoded = name.replace(" ", "%20")
         if (showSubmitDialog.value) {
             ConfirmationDialog(
                 courseCode = code,
                 onDismissRequest = { showSubmitDialog.value = false },
                 onConfirm = {
                     showSubmitDialog.value = false
-                    navController.navigate("CourseAttendanceScreen")
+                    val firestore = FirebaseFirestore.getInstance()
+                    val auth = FirebaseAuth.getInstance()
+                    val sessionDate =
+                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    val timestamp = System.currentTimeMillis()
 
-                    println("Submitting data: ${selectedCards.value}")
-                    Toast.makeText(
-                        context,
-                        "Attendance Report Submitted Successfully",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    val presentRolls = selectedCards.value.map { it.lowercase() }.toSet()
+
+                    firestore.collection("students")
+                        .whereArrayContains("enrolled_courses", code)
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            val studentRecords = snapshot.documents.mapNotNull { doc ->
+                                val email = doc.getString("email") ?: return@mapNotNull null
+                                val uid = doc.id
+                                val rollNumber = email.substringBefore("@").lowercase()
+                                val fullName =
+                                    "${doc.getString("first_name") ?: ""} ${doc.getString("last_name") ?: ""}".trim()
+
+                                mapOf(
+                                    "uid" to uid,
+                                    "rollNumber" to rollNumber,
+                                    "fullName" to fullName,
+                                    "email" to email,
+                                    "present" to (rollNumber in presentRolls)
+                                )
+                            }
+                            val attendanceRecord = mapOf(
+                                "course_code" to code.replace(" ", ""), // Normalized
+                                "session_date" to sessionDate,
+                                "timestamp" to timestamp,
+                                "taken_by" to auth.currentUser?.uid,
+                                "students" to studentRecords
+                            )
+
+                            firestore.collection("attendance_record")
+                                .add(attendanceRecord)
+
+                                .addOnSuccessListener {
+                                    val courseRef = firestore.collection("courses").document(code.replace(" ", ""))
+                                    firestore.runTransaction { transaction ->
+                                        val snapshot = transaction.get(courseRef)
+                                        val currentCount = snapshot.getLong("classes_taken") ?: 0
+                                        transaction.update(
+                                            courseRef,
+                                            "classes_taken",
+                                            currentCount + 1
+                                        )
+                                    }.addOnSuccessListener {
+                                        Toast.makeText(
+                                            context,
+                                            "Attendance saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        navController.navigate("${TrackdemicsScreens.CourseAttendanceScreen.name}/$codeEncoded/$nameEncoded")
+                                    }.addOnFailureListener {
+                                        Toast.makeText(
+                                            context,
+                                            "Failed to update classes count",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to save attendance",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                context,
+                                "Failed to fetch student data",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                 },
                 rightButtonLabel = "Submit",
                 leftButtonLabel = "Cancel",
@@ -230,89 +302,9 @@ fun StudentListScreen(
                     }
                 }
             )
-            val codeEncoded = code.replace(" ", "%20")
-            val nameEncoded = name.replace(" ", "%20")
-            val context = LocalContext.current
             ActionButtonsSection(
                 onSubmitClick = {
-                    val firestore = FirebaseFirestore.getInstance()
-                    val auth = FirebaseAuth.getInstance()
-                    val sessionDate =
-                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val timestamp = System.currentTimeMillis()
-
-                    val presentRolls = selectedCards.value.map { it.lowercase() }.toSet()
-
-                    firestore.collection("students")
-                        .whereArrayContains("enrolled_courses", code)
-                        .get()
-                        .addOnSuccessListener { snapshot ->
-                            val studentRecords = snapshot.documents.mapNotNull { doc ->
-                                val email = doc.getString("email") ?: return@mapNotNull null
-                                val uid = doc.id
-                                val rollNumber = email.substringBefore("@").lowercase()
-                                val fullName =
-                                    "${doc.getString("first_name") ?: ""} ${doc.getString("last_name") ?: ""}".trim()
-
-                                mapOf(
-                                    "uid" to uid,
-                                    "rollNumber" to rollNumber,
-                                    "fullName" to fullName,
-                                    "email" to email,
-                                    "present" to (rollNumber in presentRolls)
-                                )
-                            }
-                            val attendanceRecord = mapOf(
-                                "course_code" to code.replace(" ", ""), // Normalized
-                                "session_date" to sessionDate,
-                                "timestamp" to timestamp,
-                                "taken_by" to auth.currentUser?.uid,
-                                "students" to studentRecords
-                            )
-
-                            firestore.collection("attendance_record")
-                                .add(attendanceRecord)
-
-                                .addOnSuccessListener {
-                                    val courseRef = firestore.collection("courses").document(code.replace(" ", ""))
-                                    firestore.runTransaction { transaction ->
-                                        val snapshot = transaction.get(courseRef)
-                                        val currentCount = snapshot.getLong("classes_taken") ?: 0
-                                        transaction.update(
-                                            courseRef,
-                                            "classes_taken",
-                                            currentCount + 1
-                                        )
-                                    }.addOnSuccessListener {
-                                        Toast.makeText(
-                                            context,
-                                            "Attendance saved",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        navController.navigate("${TrackdemicsScreens.CourseAttendanceScreen.name}/$codeEncoded/$nameEncoded")
-                                    }.addOnFailureListener {
-                                        Toast.makeText(
-                                            context,
-                                            "Failed to update classes count",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(
-                                        context,
-                                        "Failed to save attendance",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(
-                                context,
-                                "Failed to fetch student data",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                    showSubmitDialog.value = true
                 },
                 onResetClick = {
                     showResetDialog.value = true

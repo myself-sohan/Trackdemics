@@ -306,8 +306,9 @@ fun EditAttendanceScreen(
                         style = MaterialTheme.typography.headlineSmall.copy(
                             brush = Brush.linearGradient(
                                 listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.onBackground
+                                    MaterialTheme.colorScheme.primaryContainer.copy(1f),
+                                    MaterialTheme.colorScheme.onPrimary.copy(0.7f),
+                                    MaterialTheme.colorScheme.onPrimary.copy(1f),
                                 )
                             ),
                             fontWeight = FontWeight.ExtraBold,
