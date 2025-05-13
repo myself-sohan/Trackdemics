@@ -1,5 +1,6 @@
 package com.example.trackdemics.screens.home
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +24,13 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -34,6 +41,9 @@ import com.example.trackdemics.screens.home.components.SideNavigationPanel
 import com.example.trackdemics.screens.home.model.FeatureItem
 import com.example.trackdemics.screens.signup.SignUpViewModel
 import com.example.trackdemics.widgets.TrackdemicsAppBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun AdminHomeScreen(
@@ -41,6 +51,30 @@ fun AdminHomeScreen(
     navController: NavController,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val auth = remember { FirebaseAuth.getInstance() }
+    val firestore = remember { FirebaseFirestore.getInstance() }
+    val user = auth.currentUser
+    var firstName by remember { mutableStateOf<String?>(null) }
+    var department by remember { mutableStateOf<String?>(null) }
+    var designation by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    LaunchedEffect(Unit) {
+        user?.email?.let { email ->
+            val normalizedEmail = email.trim().lowercase()
+
+            val adminSnapshot = firestore.collection("admin")
+                .whereEqualTo("email", normalizedEmail)
+                .get()
+                .await()
+
+            val adminDoc = adminSnapshot.documents.firstOrNull()
+            firstName = adminDoc?.getString("first_name") ?: "Admin"
+            department = adminDoc?.getString("department") ?: "Department"
+            designation = adminDoc?.getString("designation") ?: "Designation"
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -78,7 +112,7 @@ fun AdminHomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 ProfileSection(
-                    collection = "professors",
+                    collection = "admin",
                     modifier = Modifier,
                     label = "Hello Admin"
                 )
