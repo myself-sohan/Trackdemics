@@ -25,6 +25,8 @@ import com.example.trackdemics.screens.routine.RoutineScreen
 import com.example.trackdemics.screens.signup.SignUpScreen
 import com.example.trackdemics.screens.signup.SignUpViewModel
 import com.example.trackdemics.screens.splash.SplashScreen
+import com.example.trackdemics.screens.transport.BusScheduleScreen
+import com.example.trackdemics.screens.transport.SpecialBusScreen
 import com.example.trackdemics.widgets.ConfirmExitOnBack
 
 @Composable
@@ -33,10 +35,16 @@ fun TrackdemicsNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = TrackdemicsScreens.SplashScreen.name
+        startDestination = TrackdemicsScreens.BusScheduleScreen.name
     ) {
 
         // Screens without arguments
+        composable(TrackdemicsScreens.SpecialBusScreen.name) {
+            SpecialBusScreen(navController = navController)
+        }
+        composable(TrackdemicsScreens.BusScheduleScreen.name) {
+            BusScheduleScreen(navController = navController)
+        }
         composable(TrackdemicsScreens.AdminAttendanceScreen.name) {
             AdminAttendanceScreen(navController = navController)
         }
