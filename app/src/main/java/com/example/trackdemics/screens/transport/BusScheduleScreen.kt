@@ -34,33 +34,67 @@ import com.example.trackdemics.screens.transport.components.HeaderArea
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 
 
+
 data class ScheduleItem(
     val id: Int,
     val time: String,
     val routeTitle: String,
     val routeCodes: String,
-    val note: String? = null
+    val note: String? = null,
+    val day: String = "MON",      // "MON", "TUE", ..., "SAT"
+    val inside: Boolean = false, // true => Inside Campus, false => Outside Campus
+    val rightLabel: String? = null, // optional small right-side label (e.g. "51/60")
+    val status: String? = null      // optional status text (e.g. "Book", "Booking Confirmed", "Bus Full")
 )
-
 @Composable
 fun BusScheduleScreen(navController: NavController) {
     // Sample data to populate list (mirror the Figma content)
-    val schedules = remember {
+    // --- REPLACE data class and sample data with this ---
+
+
+// All schedules for all combinations (MON/ SAT × Inside/Outside).
+// Fill entries to match the four visual types from your Figma screenshots.
+    val allSchedules = remember {
         listOf(
-            ScheduleItem(1, "6:45 AM", "Route 3", "5850   6822"),
-            ScheduleItem(2, "7:00 AM", "Route 2", "4133   6560"),
-            ScheduleItem(3, "7:10 AM", "Route 1", "Not yet updated"),
-            ScheduleItem(4, "7:20 AM", "Route 2", "For Faculties and Officers", "Traveller"),
-            ScheduleItem(5, "4:20 PM", "Route 4", "4300   4312")
+            // --- Monday, OUTSIDE Campus (MON + outside) ----
+            ScheduleItem(1, "6:45 AM", "Route 3", "5850   6822", day = "MON", inside = false),
+            ScheduleItem(2, "7:00 AM", "Route 2", "4133   6560", day = "MON", inside = false),
+            ScheduleItem(3, "7:10 AM", "Route 1", "Not yet updated", day = "MON", inside = false),
+            ScheduleItem(4, "7:20 AM", "Route 2", "For Faculties and Officers", note = "Traveller", day = "MON", inside = false),
+            ScheduleItem(5, "4:20 PM", "Route 4", "4300   4312", day = "MON", inside = false),
+
+            // --- Monday, INSIDE Campus (MON + inside) ----
+            ScheduleItem(6, "8:25 AM", "Route A", "Local Bus 1", day = "MON", inside = true),
+            ScheduleItem(7, "9:00 AM", "Route A", "Local Bus 2", day = "MON", inside = true),
+            ScheduleItem(8, "9:30 AM", "Route A", "Local Bus 1", day = "MON", inside = true),
+            ScheduleItem(9, "10:00 AM", "Route A", "Local Bus 1", day = "MON", inside = true),
+            ScheduleItem(10, "10:30 AM", "Route A", "Shillong Bus 1", day = "MON", inside = true),
+            ScheduleItem(11, "11:00 AM", "Route A", "Local Bus 2", day = "MON", inside = true),
+
+            // --- Saturday, OUTSIDE Campus (SAT + outside) ----
+            ScheduleItem(12, "9:00 AM", "Route 1", "5850   6822", rightLabel = "51/60", status = "Book", day = "SAT", inside = false),
+            ScheduleItem(13, "10:00 AM", "Route 1", "4133", rightLabel = "11/30", status = "Booking Confirmed", day = "SAT", inside = false),
+            ScheduleItem(14, "5:00 PM", "Route 1", "9059", rightLabel = "36/30", status = "Bus Full", day = "SAT", inside = false),
+            ScheduleItem(15, "5:30 PM", "Route 2", "Not yet updated", day = "SAT", inside = false),
+
+            // --- Saturday, INSIDE Campus (SAT + inside) ----
+            ScheduleItem(16, "1:00 PM", "Route P", "Local Bus 1", day = "SAT", inside = true),
+            ScheduleItem(17, "1:45 PM", "Route S", "Local Bus 2", day = "SAT", inside = true),
+            ScheduleItem(18, "7:00 PM", "Route P", "Local Bus 1", day = "SAT", inside = true)
         )
     }
+
+
 
     // UI state
     var selectedDay by remember { mutableStateOf("MON") }
     var insideCampus by remember { mutableStateOf(false) } // false -> outside
     var selectedRoute by remember { mutableStateOf(false)}
     var routineclick by remember { mutableStateOf(false) }
-
+// --- Filter by selectedDay and campus toggle (insideCampus) ---
+    val filteredSchedules = remember(allSchedules, selectedDay, insideCampus) {
+        allSchedules.filter { it.day.equals(selectedDay, ignoreCase = true) && it.inside == insideCampus }
+    }
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
@@ -120,18 +154,31 @@ fun BusScheduleScreen(navController: NavController) {
                 selectedRoute = !selectedRoute
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
+            Spacer(modifier = Modifier.height(10.dp))
+            HorizontalDivider(
+                thickness = 2.dp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
             // Schedule list
-            LazyColumn(
+            // --- REPLACE LazyColumn(schedules) { ... } with this filtered list ---
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 24.dp)
-            ) {
-                items(schedules) { item ->
-                    ScheduleCard(item)
+                    .background(Color(0xFFB7E2F5))
+            )
+            {
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredSchedules) { item ->
+                        // We intentionally pass the same ScheduleItem used before;
+                        // ScheduleCard uses `time`, `routeTitle`, `routeCodes`, `note` so it continues to work unchanged.
+                        ScheduleCard(item)
+                    }
                 }
             }
         }
