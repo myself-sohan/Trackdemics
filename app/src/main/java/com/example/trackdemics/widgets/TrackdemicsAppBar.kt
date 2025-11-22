@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -48,6 +49,7 @@ fun TrackdemicsAppBar(
     isEntryScreen: Boolean = true,
     isActionScreen: Boolean = false,
     isScheduleScreen: Boolean = false,
+    logoimage: Painter = painterResource(R.drawable.nitm),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -106,7 +108,7 @@ fun TrackdemicsAppBar(
                 )
                 {
                     Image(
-                        painter = painterResource(R.drawable.nitm),
+                        painter = logoimage,
                         contentDescription = "NIT Logo",
                     )
                 }

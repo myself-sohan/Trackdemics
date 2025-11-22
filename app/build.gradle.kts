@@ -46,6 +46,9 @@ android {
 
 dependencies {
 
+    //Google Fonts
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.9.3")
+
     //QR Code
     implementation("com.google.zxing:core:3.5.1")
     implementation("androidx.core:core-ktx:1.16.0")
