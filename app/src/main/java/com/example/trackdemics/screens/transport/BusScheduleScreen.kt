@@ -479,11 +479,11 @@ private fun RoutePill(
 private fun ScheduleCard(item: ScheduleItem) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(14.dp)),
-        shape = RoundedCornerShape(14.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 20.dp)
+    )
+    {
         Column(modifier = Modifier.padding(14.dp)) {
             // Centered time
             Text(
