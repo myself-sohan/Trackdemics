@@ -136,7 +136,7 @@ fun ProfessorFeatureGrid(
             "Attendance", Icons.Default.Groups
         ) { navController.navigate("ProfessorAttendanceScreen") },
         FeatureItem("Transport", Icons.Default.DirectionsBus) {
-            navController.navigate("BusScheduleScreen")
+            navController.navigate("BusScheduleScreen/PROFESSOR")
         },
         FeatureItem("College Routine", Icons.Default.Schedule) {
             navController.navigate(

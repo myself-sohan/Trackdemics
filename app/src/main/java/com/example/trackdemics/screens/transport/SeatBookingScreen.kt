@@ -1,35 +1,50 @@
 package com.example.trackdemics.screens.transport
 
-import android.widget.Toast
-import androidx.compose.foundation.Image
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirlineSeatReclineExtra
-import androidx.compose.material.icons.filled.DirectionsBus
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -41,12 +56,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.trackdemics.widgets.TrackdemicsAppBar
-import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.R
+import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.transport.components.ConfirmationDialog
-import com.example.trackdemics.widgets.PasswordVisibility
 import com.example.trackdemics.widgets.SubmitButton
+import com.example.trackdemics.widgets.TrackdemicsAppBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import java.net.URLDecoder
 
 /**
@@ -73,20 +90,43 @@ fun SeatBookingScreen(
     busCode: String,
     seatsTaken: Int,
     capacity: Int,
-    isBooked: Boolean
+    isBooked: Boolean,
+    role: String
 ) {
-    // --- Form state ---
-    // Pre-filled and read-only fields per your design
-    var firstName by remember { mutableStateOf("SOHAN") }
-    var lastName by remember { mutableStateOf("SAHA") }
-    var role by remember { mutableStateOf("STUDENT") }
 
-    // Editable required fields
-    var rollNumber by remember { mutableStateOf("") }
+    val auth = remember { FirebaseAuth.getInstance() }
+    val firestore = remember { FirebaseFirestore.getInstance() }
+    var firstName by remember { mutableStateOf<String>("FirstName") }
+    var lastName by remember { mutableStateOf<String>("LastName") }
+    val user = auth.currentUser
+
+    val userRole = when (role) {
+        "STUDENT" -> "students"
+        "ADMIN" -> "admin"
+        "PROFESSOR" -> "professors"
+        else -> ""
+    }
+    LaunchedEffect(Unit) {
+        user?.email?.let { email ->
+            val normalizedEmail = email.trim().lowercase()
+
+            val studentSnapshot = firestore.collection(userRole)
+                .whereEqualTo("email", normalizedEmail)
+                .get()
+                .await()
+
+            val studentDoc = studentSnapshot.documents.firstOrNull()
+            firstName = studentDoc?.getString("first_name") ?: "Student"
+            lastName = studentDoc?.getString("last_name") ?: "Student"
+        }
+    }
+    val email = user?.email
+    val rollNumber = email?.trim()?.split("@")?.get(0)
+
     var phoneNumber by remember { mutableStateOf("") }
 
     // Confirm enabled only when both required fields are non-empty
-    val canConfirm by derivedStateOf { rollNumber.isNotBlank() && phoneNumber.isNotBlank() }
+    val canConfirm by remember { derivedStateOf { rollNumber?.isNotBlank()!! && phoneNumber.isNotBlank() } }
     var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -95,9 +135,9 @@ fun SeatBookingScreen(
                 onBackClick = { navController.popBackStack() },
                 isScheduleScreen = false,
                 isActionScreen = true,
-                logoimage = painterResource(R.drawable.img_profile),
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                titleTextColor = MaterialTheme.colorScheme.background
+                titleTextColor = MaterialTheme.colorScheme.background,
+                isSeatBookingScreen = true
             )
         }
     ) { padding ->
@@ -108,22 +148,17 @@ fun SeatBookingScreen(
                 .verticalScroll(rememberScrollState())
         )
         {
-            if(showDialog)
-            {
+            if (showDialog) {
                 ConfirmationDialog(
                     title = "Confirm Booking",
                     message1 = "Are you sure you want to book this bus?",
                     rightButtonColor = MaterialTheme.colorScheme.primary,
                     onDismissRequest = { showDialog = false },
                     onConfirm = {
-                         //compute updated seats and navigate back to SpecialBusScreen with args
-                                    val newSeats = (seatsTaken + 1).coerceAtMost(capacity)
+                        //compute updated seats and navigate back to SpecialBusScreen with args
+                        val newSeats = (seatsTaken + 1).coerceAtMost(capacity)
 
-                                    // pop this booking screen
-                                    navController.popBackStack()
-
-                                    // navigate to SpecialBusScreen with bookedBusId and updatedSeats
-                                    navController.navigate("${TrackdemicsScreens.SpecialBusScreen.name}/$busId/$newSeats")
+                        navController.navigate("${TrackdemicsScreens.SpecialBusScreen.name}/$busId/$newSeats/$role")
                     }
                 )
             }
@@ -134,8 +169,6 @@ fun SeatBookingScreen(
                     .background(MaterialTheme.colorScheme.primary)
             )
             {
-
-
                 Box(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -245,6 +278,7 @@ fun SeatBookingScreen(
                         enabled = false,
                         hint = ""
                     )
+
                     Spacer(modifier = Modifier.height(14.dp))
 
                     // Last Name (read-only)
@@ -268,17 +302,22 @@ fun SeatBookingScreen(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     // Roll Number - editable, required
-                    SmallLabeledField(
-                        label = "Roll Number",
-                        value = rollNumber,
-                        onValueChange = { rollNumber = it },
-                        enabled = true,
-                        hint = "B22CS034",
-                        onAction = KeyboardActions {
-                            ph_numberFocusRequest.requestFocus()
-                        },
-                    )
-                    Spacer(modifier = Modifier.height(14.dp))
+                    if (role != "STUDENT") {
+                        // NO ROLL NUMBER FIELD for ADMIN and PROFESSORS
+                    } else {
+                        SmallLabeledField(
+                            label = "Roll Number",
+                            value = if (rollNumber.isNullOrEmpty()) "" else rollNumber,
+                            onValueChange = { /* disabled*/ },
+                            enabled = true,
+                            hint = "B22CS034",
+                            onAction = KeyboardActions {
+                                ph_numberFocusRequest.requestFocus()
+                            },
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                    }
+
 
                     // Phone Number - editable, required
                     SmallLabeledField(
@@ -354,7 +393,7 @@ private fun SmallLabeledField(
     value: String,
     onValueChange: (String) -> Unit,
     enabled: Boolean = true,
-    onAction: KeyboardActions = KeyboardActions.Default ,
+    onAction: KeyboardActions = KeyboardActions.Default,
     imeAction: ImeAction = ImeAction.Next,
     keyboardType: KeyboardType = KeyboardType.Ascii,
     hint: String = ""
@@ -376,7 +415,7 @@ private fun SmallLabeledField(
                 imeAction = imeAction
             ),
             onValueChange = { newValue -> onValueChange.invoke(newValue) },
-            label ={
+            label = {
                 Text(
                     text = label,
                     style = MaterialTheme.typography.titleMedium,
@@ -386,7 +425,7 @@ private fun SmallLabeledField(
                 )
             },
             textStyle = TextStyle(
-                color = if(enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 1.2.sp,
@@ -397,7 +436,7 @@ private fun SmallLabeledField(
                 cursorColor = Color.Blue
             ),
             modifier = modifier
-                .padding( start = 3.dp, end = 3.dp, bottom = 2.dp, top = 2.dp)
+                .padding(start = 3.dp, end = 3.dp, bottom = 2.dp, top = 2.dp)
                 //.height(70.dp)
                 .fillMaxWidth(),
             enabled = enabled,

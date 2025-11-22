@@ -129,7 +129,7 @@ fun StudentFeatureGrid(
             Icons.Default.Groups
         ) { navController.navigate(TrackdemicsScreens.StudentAttendanceScreen.name) },
         FeatureItem("Transport", Icons.Default.DirectionsBus) {
-            navController.navigate("BusScheduleScreen")
+            navController.navigate("BusScheduleScreen/STUDENT")
         },
         FeatureItem("College Routine", Icons.Default.Schedule) {
             navController.navigate(

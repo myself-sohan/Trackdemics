@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
-import androidx.navigation.activity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -40,10 +39,6 @@ fun TrackdemicsNavigation() {
     ) {
 
         // Screens without arguments
-
-        composable(TrackdemicsScreens.BusScheduleScreen.name) {
-            BusScheduleScreen(navController = navController)
-        }
         composable(TrackdemicsScreens.AdminAttendanceScreen.name) {
             AdminAttendanceScreen(navController = navController)
         }
@@ -82,7 +77,8 @@ fun TrackdemicsNavigation() {
 
         // Screens with code & name arguments
         // --- SeatBooking route with full bus arguments ---
-        val seatBookingRoute = "${TrackdemicsScreens.SeatBookingScreen.name}/{id}/{dateTime}/{route}/{busCode}/{seatsTaken}/{capacity}/{isBooked}"
+        val seatBookingRoute =
+            "${TrackdemicsScreens.SeatBookingScreen.name}/{id}/{dateTime}/{route}/{busCode}/{seatsTaken}/{capacity}/{isBooked}/{role}"
         composable(
             route = seatBookingRoute,
             arguments = listOf(
@@ -92,7 +88,8 @@ fun TrackdemicsNavigation() {
                 navArgument("busCode") { type = NavType.StringType },
                 navArgument("seatsTaken") { type = NavType.IntType },
                 navArgument("capacity") { type = NavType.IntType },
-                navArgument("isBooked") { type = NavType.BoolType }
+                navArgument("isBooked") { type = NavType.BoolType },
+                navArgument("role") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
@@ -102,6 +99,7 @@ fun TrackdemicsNavigation() {
             val seatsTaken = backStackEntry.arguments?.getInt("seatsTaken") ?: 0
             val capacity = backStackEntry.arguments?.getInt("capacity") ?: 0
             val isBooked = backStackEntry.arguments?.getBoolean("isBooked") ?: false
+            val role = backStackEntry.arguments?.getString("role").orEmpty()
 
             SeatBookingScreen(
                 navController = navController,
@@ -111,27 +109,57 @@ fun TrackdemicsNavigation() {
                 busCode = busCode,
                 seatsTaken = seatsTaken,
                 capacity = capacity,
-                isBooked = isBooked
+                isBooked = isBooked,
+                role = role
             )
         }
 
-// --- SpecialBusScreen: keep the original no-arg route (for normal entry) ---
-        composable(TrackdemicsScreens.SpecialBusScreen.name) {
-            SpecialBusScreen(navController = navController)
-        }
-
-// --- SpecialBusScreen route to receive booking result updates: (bookedBusId + updatedSeats) ---
-        val specialBusResultRoute = "${TrackdemicsScreens.SpecialBusScreen.name}/{bookedBusId}/{updatedSeats}"
+        // --- SpecialBusScreen route to receive booking result updates: (bookedBusId + updatedSeats + role again) ---
+        val specialBusResultRoute1 =
+            "${TrackdemicsScreens.SpecialBusScreen.name}/{bookedBusId}/{updatedSeats}/{role}"
         composable(
-            route = specialBusResultRoute,
+            route = specialBusResultRoute1,
             arguments = listOf(
                 navArgument("bookedBusId") { type = NavType.IntType },
-                navArgument("updatedSeats") { type = NavType.IntType }
+                navArgument("updatedSeats") { type = NavType.IntType },
+                navArgument("role") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val bookedBusId = backStackEntry.arguments?.getInt("bookedBusId")
             val updatedSeats = backStackEntry.arguments?.getInt("updatedSeats")
-            SpecialBusScreen(navController = navController, bookedBusId = bookedBusId, updatedSeats = updatedSeats)
+            val role = backStackEntry.arguments?.getString("role").orEmpty()
+            SpecialBusScreen(
+                navController = navController,
+                bookedBusId = bookedBusId,
+                updatedSeats = updatedSeats,
+                role = role
+            )
+        }
+        // --- SpecialBusScreen: keep the original no-arg route (for normal entry) ---
+        val specialBusResultRoute2 = "${TrackdemicsScreens.SpecialBusScreen.name}/{role}"
+        composable(
+            route = specialBusResultRoute2,
+            arguments = listOf(
+                navArgument("role") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val role = backStackEntry.arguments?.getString("role").orEmpty()
+            SpecialBusScreen(navController = navController, role = role)
+        }
+
+        // Bus Schedule Screen
+        val busScheduleRoute = "${TrackdemicsScreens.BusScheduleScreen.name}/{role}"
+        composable(
+            route = busScheduleRoute,
+            arguments = listOf(
+                navArgument("role") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val role = backStackEntry.arguments?.getString("role").orEmpty()
+            BusScheduleScreen(
+                navController = navController,
+                role = role,
+            )
         }
 
         val courseAttendanceRoute =

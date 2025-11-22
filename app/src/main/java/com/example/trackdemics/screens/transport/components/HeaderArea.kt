@@ -1,12 +1,10 @@
 package com.example.trackdemics.screens.transport.components
 
-import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,8 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -34,17 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
 fun HeaderArea(
     navController: NavController,
-    routineclick: () -> Unit = {},
+    role: String,
+    routineclick: () -> Unit = {}
 ) {
     // gradient colors and header shape
     val headerGradient = Brush.verticalGradient(
@@ -55,9 +50,11 @@ fun HeaderArea(
     )
 
     // Use an outer Box so we can draw the pill overlapping the Card (half above, half inside)
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(top=25.dp))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 25.dp)
+    )
     {
 
         // Main card (the blue gradient background)
@@ -101,8 +98,9 @@ fun HeaderArea(
                         routineclick()
                     }
 
-                    Spacer(modifier = Modifier
-                        .weight(0.2f)
+                    Spacer(
+                        modifier = Modifier
+                            .weight(0.2f)
                     )
 
                     // Special Bus button
@@ -119,7 +117,7 @@ fun HeaderArea(
                         modifier = Modifier.weight(0.4f)
                     )
                     {
-                        navController.navigate("SpecialBusScreen")
+                        navController.navigate("SpecialBusScreen/$role")
                     }
                 }
             }
@@ -168,13 +166,12 @@ private fun SmallHeaderButton(
     trailing: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     onclick: () -> Unit = {}
-)
-{
+) {
     Card(
         colors = CardDefaults.cardColors(Color(0xFFF6F9FB)),
         modifier = modifier
             .height(50.dp)
-            .clickable{
+            .clickable {
                 onclick.invoke()
             }
             .padding(vertical = 2.dp, horizontal = 2.dp),
