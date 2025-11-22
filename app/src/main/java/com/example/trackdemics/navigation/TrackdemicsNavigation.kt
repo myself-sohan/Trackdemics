@@ -26,6 +26,7 @@ import com.example.trackdemics.screens.signup.SignUpScreen
 import com.example.trackdemics.screens.signup.SignUpViewModel
 import com.example.trackdemics.screens.splash.SplashScreen
 import com.example.trackdemics.screens.transport.BusScheduleScreen
+import com.example.trackdemics.screens.transport.SeatBookingScreen
 import com.example.trackdemics.screens.transport.SpecialBusScreen
 import com.example.trackdemics.widgets.ConfirmExitOnBack
 
@@ -39,9 +40,7 @@ fun TrackdemicsNavigation() {
     ) {
 
         // Screens without arguments
-        composable(TrackdemicsScreens.SpecialBusScreen.name) {
-            SpecialBusScreen(navController = navController)
-        }
+
         composable(TrackdemicsScreens.BusScheduleScreen.name) {
             BusScheduleScreen(navController = navController)
         }
@@ -82,6 +81,59 @@ fun TrackdemicsNavigation() {
         }
 
         // Screens with code & name arguments
+        // --- SeatBooking route with full bus arguments ---
+        val seatBookingRoute = "${TrackdemicsScreens.SeatBookingScreen.name}/{id}/{dateTime}/{route}/{busCode}/{seatsTaken}/{capacity}/{isBooked}"
+        composable(
+            route = seatBookingRoute,
+            arguments = listOf(
+                navArgument("id") { type = NavType.IntType },
+                navArgument("dateTime") { type = NavType.StringType },
+                navArgument("route") { type = NavType.StringType },
+                navArgument("busCode") { type = NavType.StringType },
+                navArgument("seatsTaken") { type = NavType.IntType },
+                navArgument("capacity") { type = NavType.IntType },
+                navArgument("isBooked") { type = NavType.BoolType }
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: 0
+            val dateTime = backStackEntry.arguments?.getString("dateTime").orEmpty()
+            val routeArg = backStackEntry.arguments?.getString("route").orEmpty()
+            val busCode = backStackEntry.arguments?.getString("busCode").orEmpty()
+            val seatsTaken = backStackEntry.arguments?.getInt("seatsTaken") ?: 0
+            val capacity = backStackEntry.arguments?.getInt("capacity") ?: 0
+            val isBooked = backStackEntry.arguments?.getBoolean("isBooked") ?: false
+
+            SeatBookingScreen(
+                navController = navController,
+                busId = id,
+                dateTime = dateTime,
+                route = routeArg,
+                busCode = busCode,
+                seatsTaken = seatsTaken,
+                capacity = capacity,
+                isBooked = isBooked
+            )
+        }
+
+// --- SpecialBusScreen: keep the original no-arg route (for normal entry) ---
+        composable(TrackdemicsScreens.SpecialBusScreen.name) {
+            SpecialBusScreen(navController = navController)
+        }
+
+// --- SpecialBusScreen route to receive booking result updates: (bookedBusId + updatedSeats) ---
+        val specialBusResultRoute = "${TrackdemicsScreens.SpecialBusScreen.name}/{bookedBusId}/{updatedSeats}"
+        composable(
+            route = specialBusResultRoute,
+            arguments = listOf(
+                navArgument("bookedBusId") { type = NavType.IntType },
+                navArgument("updatedSeats") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val bookedBusId = backStackEntry.arguments?.getInt("bookedBusId")
+            val updatedSeats = backStackEntry.arguments?.getInt("updatedSeats")
+            SpecialBusScreen(navController = navController, bookedBusId = bookedBusId, updatedSeats = updatedSeats)
+        }
+
         val courseAttendanceRoute =
             "${TrackdemicsScreens.CourseAttendanceScreen.name}/{code}/{name}"
         composable(

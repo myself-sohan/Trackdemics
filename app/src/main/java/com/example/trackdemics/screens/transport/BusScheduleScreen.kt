@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -151,77 +152,85 @@ fun RouteDetailsDialog(
         // Card with thin blue border and rounded corners to match the Figma look.
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.94f),
-            shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.dp, Color(0xFF0F517D)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            elevation = CardDefaults.cardElevation(defaultElevation = 45.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 // Title area
-                Box(
+                Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                        .fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 50.dp)
+                )
+                {
                     Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
                         text = "Route Details",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F517D)
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        textAlign = TextAlign.Center
                     )
                 }
 
-                HorizontalDivider(color = Color(0xFF0F517D), thickness = 1.dp)
-
-                // Scrollable content area (keeps height bounded)
-                Column(
+                // inside your composable
+                LazyColumn(
                     modifier = Modifier
                         .padding(horizontal = 14.dp, vertical = 12.dp)
-                        .verticalScroll(rememberScrollState())
-                        .heightIn(max = 360.dp) // allow scrolling when content is long
+                        .heightIn(max = 360.dp), // allow scrolling when content is long
+                    // you can add contentPadding or verticalArrangement if needed
                 ) {
-                    routeDetails.forEach { (title, desc) ->
+                    items(routeDetails) { pair ->
+                        val (title, desc) = pair
+
                         Text(
                             text = title,
+                            fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F517D),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
+                            style = MaterialTheme.typography.bodyMedium,
                             text = desc,
-                            color = Color.Black,
+                            fontFamily = FontFamily.Serif,
+                            color = MaterialTheme.colorScheme.onSurface ,
                             lineHeight = 18.sp
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
 
-                // Close button centered, pill-shaped
+// Close button centered, pill-shaped
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .clickable { onDismiss() }
-                            .background(color = Color(0xFF0F517D), shape = RoundedCornerShape(24.dp))
-                            .padding(horizontal = 28.dp, vertical = 10.dp),
-                        contentAlignment = Alignment.Center
+                    Button(
+                        onClick = { onDismiss() },
+                        modifier = Modifier.wrapContentWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        contentPadding = PaddingValues(horizontal = 40.dp, vertical = 10.dp),
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onPrimaryContainer)
                     ) {
                         Text(
                             text = "Close",
-                            color = Color.White,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.surface,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
+
             }
         }
     }
@@ -234,6 +243,7 @@ private fun defaultRouteDetails(): List<Pair<String, String>> = listOf(
     "Route 3" to "Mawpat, Langkyrding, Lumshyiap, Golflink, Mawroh, Mawkynroh, NEHU, Kyntonmasser, Mawdabtaki, Motsyiar, Iewrynghep, Jaiaw Langsning, Umshyrpi, Laimer, 12 mer, Mylliem, Sohra",
     "Route 4" to "Mawpat, Langkyrding, Lumshyiap, Golflink, Mawroh, Phudmuri, Mawdabtaki, Motsyiar, Iewrynghep, Jaiaw Langsning, Umshyrpi, Laimer, 12 mer, Mylliem, Sohra",
     "Route A" to "A. Quarter, D. Quarter, PhD Hostel, Boys Hostel, A Block, C Block",
+    "Route S" to "A. Quarter, PhD Hostel, Boys Hostel, Admin, Main Gate, Cherapunjee Market",
     "Route P" to "PhD Hostel, Boys Hostel, C Block"
 )
 

@@ -17,5 +17,6 @@ enum class TrackdemicsScreens
     AdminAttendanceScreen,
     RoutineScreen,
     BusScheduleScreen,
-    SpecialBusScreen
+    SpecialBusScreen,
+    SeatBookingScreen
 }

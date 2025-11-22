@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 fun SubmitButton(
     textId: String,
     loading: Boolean,
-    validInputs: Boolean,
+    validInputs: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     val isDarkMode = isSystemInDarkTheme()
