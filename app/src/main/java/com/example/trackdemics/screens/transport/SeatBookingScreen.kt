@@ -229,7 +229,7 @@ fun SeatBookingScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
-                        .background(MaterialTheme.colorScheme.inversePrimary),
+                        .background(Color(0xFFB7E2F5)),
                     //.padding(horizontal = 16.dp, vertical = 20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 )
