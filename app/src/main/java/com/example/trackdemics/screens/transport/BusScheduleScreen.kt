@@ -2,20 +2,43 @@ package com.example.trackdemics.screens.transport
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,8 +56,6 @@ import androidx.navigation.NavController
 import com.example.trackdemics.screens.transport.components.HeaderArea
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 
-
-
 data class ScheduleItem(
     val id: Int,
     val time: String,
@@ -46,8 +67,12 @@ data class ScheduleItem(
     val rightLabel: String? = null, // optional small right-side label (e.g. "51/60")
     val status: String? = null      // optional status text (e.g. "Book", "Booking Confirmed", "Bus Full")
 )
+
 @Composable
-fun BusScheduleScreen(navController: NavController) {
+fun BusScheduleScreen(
+    navController: NavController,
+    role: String
+) {
     // Sample data to populate list (mirror the Figma content)
     // --- REPLACE data class and sample data with this ---
 
@@ -60,7 +85,15 @@ fun BusScheduleScreen(navController: NavController) {
             ScheduleItem(1, "6:45 AM", "Route 3", "5850   6822", day = "MON", inside = false),
             ScheduleItem(2, "7:00 AM", "Route 2", "4133   6560", day = "MON", inside = false),
             ScheduleItem(3, "7:10 AM", "Route 1", "Not yet updated", day = "MON", inside = false),
-            ScheduleItem(4, "7:20 AM", "Route 2", "For Faculties and Officers", note = "Traveller", day = "MON", inside = false),
+            ScheduleItem(
+                4,
+                "7:20 AM",
+                "Route 2",
+                "For Faculties and Officers",
+                note = "Traveller",
+                day = "MON",
+                inside = false
+            ),
             ScheduleItem(5, "4:20 PM", "Route 4", "4300   4312", day = "MON", inside = false),
 
             // --- Monday, INSIDE Campus (MON + inside) ----
@@ -72,9 +105,36 @@ fun BusScheduleScreen(navController: NavController) {
             ScheduleItem(11, "11:00 AM", "Route A", "Local Bus 2", day = "MON", inside = true),
 
             // --- Saturday, OUTSIDE Campus (SAT + outside) ----
-            ScheduleItem(12, "9:00 AM", "Route 1", "5850   6822", rightLabel = "51/60", status = "Book", day = "SAT", inside = false),
-            ScheduleItem(13, "10:00 AM", "Route 1", "4133", rightLabel = "11/30", status = "Booking Confirmed", day = "SAT", inside = false),
-            ScheduleItem(14, "5:00 PM", "Route 1", "9059", rightLabel = "36/30", status = "Bus Full", day = "SAT", inside = false),
+            ScheduleItem(
+                12,
+                "9:00 AM",
+                "Route 1",
+                "5850   6822",
+                rightLabel = "51/60",
+                status = "Book",
+                day = "SAT",
+                inside = false
+            ),
+            ScheduleItem(
+                13,
+                "10:00 AM",
+                "Route 1",
+                "4133",
+                rightLabel = "11/30",
+                status = "Booking Confirmed",
+                day = "SAT",
+                inside = false
+            ),
+            ScheduleItem(
+                14,
+                "5:00 PM",
+                "Route 1",
+                "9059",
+                rightLabel = "36/30",
+                status = "Bus Full",
+                day = "SAT",
+                inside = false
+            ),
             ScheduleItem(15, "5:30 PM", "Route 2", "Not yet updated", day = "SAT", inside = false),
 
             // --- Saturday, INSIDE Campus (SAT + inside) ----
@@ -85,15 +145,19 @@ fun BusScheduleScreen(navController: NavController) {
     }
 
 
-
     // UI state
     var selectedDay by remember { mutableStateOf("MON") }
     var insideCampus by remember { mutableStateOf(false) } // false -> outside
-    var selectedRoute by remember { mutableStateOf(false)}
+    var selectedRoute by remember { mutableStateOf(false) }
     var routineclick by remember { mutableStateOf(false) }
 // --- Filter by selectedDay and campus toggle (insideCampus) ---
     val filteredSchedules = remember(allSchedules, selectedDay, insideCampus) {
-        allSchedules.filter { it.day.equals(selectedDay, ignoreCase = true) && it.inside == insideCampus }
+        allSchedules.filter {
+            it.day.equals(
+                selectedDay,
+                ignoreCase = true
+            ) && it.inside == insideCampus
+        }
     }
     Scaffold(
         topBar = {
@@ -113,17 +177,16 @@ fun BusScheduleScreen(navController: NavController) {
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                //.background(Color(0xFFF4F6F8))
+            //.background(Color(0xFFF4F6F8))
         ) {
             // Gradient header area
             HeaderArea(
-                navController = navController
-            )
-            {
+                navController = navController,
+                role = role
+            ) {
                 routineclick = true
             }
-            if(routineclick)
-            {
+            if (routineclick) {
                 RouteDetailsDialog() {
                     routineclick = false
                 }
@@ -189,8 +252,7 @@ fun BusScheduleScreen(navController: NavController) {
 fun RouteDetailsDialog(
     routeDetails: List<Pair<String, String>> = defaultRouteDetails(),
     onDismiss: () -> Unit
-)
-{
+) {
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -248,7 +310,7 @@ fun RouteDetailsDialog(
                             style = MaterialTheme.typography.bodyMedium,
                             text = desc,
                             fontFamily = FontFamily.Serif,
-                            color = MaterialTheme.colorScheme.onSurface ,
+                            color = MaterialTheme.colorScheme.onSurface,
                             lineHeight = 18.sp
                         )
                         Spacer(modifier = Modifier.height(12.dp))
@@ -344,7 +406,6 @@ private fun DayTabsRow(selectedDay: String, onDaySelected: (String) -> Unit) {
 }
 
 
-
 @Composable
 private fun CampusToggle(
     inside: Boolean,
@@ -357,10 +418,12 @@ private fun CampusToggle(
     // asymmetrical shapes: left has big rounding on the end, right has big rounding on the start
     val leftShape = RoundedCornerShape(
         topStart = 0.dp, bottomStart = 30.dp,
-        topEnd = 30.dp, bottomEnd = 0.dp)
+        topEnd = 30.dp, bottomEnd = 0.dp
+    )
     val rightShape = RoundedCornerShape(
         topStart = 30.dp, bottomStart = 0.dp,
-        topEnd = 0.dp, bottomEnd = 30.dp)
+        topEnd = 0.dp, bottomEnd = 30.dp
+    )
 
     Row(
         modifier = Modifier
@@ -433,7 +496,8 @@ private fun CampusToggle(
 private fun RoutePill(
     selectedRoute: Boolean,
     inside: Boolean,
-    onClick: () -> Unit) {
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -451,15 +515,15 @@ private fun RoutePill(
         )
         {
             Text(
-                text = if(selectedRoute && !inside)
-                        "NITM Sohra to Shillong"
-                       else if(!selectedRoute && !inside)
-                        "Shillong to NITM Sohra"
-                       else if(!selectedRoute && inside)
-                        "Towards Living Quarters"
-                       else
-                        "From Living Quarters",
-                style = MaterialTheme.typography.titleMedium    ,
+                text = if (selectedRoute && !inside)
+                    "NITM Sohra to Shillong"
+                else if (!selectedRoute && !inside)
+                    "Shillong to NITM Sohra"
+                else if (!selectedRoute && inside)
+                    "Towards Living Quarters"
+                else
+                    "From Living Quarters",
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
 
                 color = MaterialTheme.colorScheme.onSurface
@@ -511,14 +575,22 @@ private fun ScheduleCard(item: ScheduleItem) {
                     Spacer(modifier = Modifier.height(6.dp))
                     // If routeCodes includes "Not yet updated" display it as muted text
                     if (item.routeCodes.contains("Not yet updated", ignoreCase = true)) {
-                        Text(text = item.routeCodes, color = Color.Gray, fontStyle = FontStyle.Italic)
+                        Text(
+                            text = item.routeCodes,
+                            color = Color.Gray,
+                            fontStyle = FontStyle.Italic
+                        )
                     } else {
                         Text(text = item.routeCodes, style = MaterialTheme.typography.bodySmall)
                     }
                     // optional extra note in red
                     if (!item.note.isNullOrBlank()) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = item.note, color = Color(0xFFB00020), fontStyle = FontStyle.Italic)
+                        Text(
+                            text = item.note,
+                            color = Color(0xFFB00020),
+                            fontStyle = FontStyle.Italic
+                        )
                     }
                 }
             }

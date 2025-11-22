@@ -1,22 +1,34 @@
 package com.example.trackdemics.screens.transport
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -28,13 +40,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.trackdemics.navigation.TrackdemicsScreens
 import com.example.trackdemics.screens.transport.components.ConfirmationDialog
@@ -65,9 +73,9 @@ data class SpecialBusItem(
 fun SpecialBusScreen(
     navController: NavController,
     bookedBusId: Int? = null,
-    updatedSeats: Int? = null
-)
-{
+    updatedSeats: Int? = null,
+    role: String
+) {
     // sample data - you can replace / append more items to this list
     val busesState = remember {
         mutableStateListOf(
@@ -108,7 +116,7 @@ fun SpecialBusScreen(
     Scaffold(
         topBar = {
             TrackdemicsAppBar(
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.navigate("BusScheduleScreen/$role") },
                 isScheduleScreen = true,
                 isActionScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -125,7 +133,7 @@ fun SpecialBusScreen(
             if (showDialog.value) {
                 ConfirmationDialog(
                     onDismissRequest = {
-                        showDialog.value     = false
+                        showDialog.value = false
                         cancelingIndex.value = -1
                     },
                     onConfirm = {
@@ -162,39 +170,39 @@ fun SpecialBusScreen(
             )
 
 
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .offset(y = 0.dp)
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(Color(0xFFF6F9FB))
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.onPrimaryContainer,
-                            RoundedCornerShape(50.dp)
-                        )
-                        .padding(horizontal = 18.dp, vertical = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // bus icon (using android built-in as placeholder)
-                        Icon(
-                            imageVector = Icons.Default.DirectionsBus,
-                            contentDescription = "bus",
-                            tint = Color.Black,
-                            modifier = Modifier.size(30.dp)
-                        )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = 0.dp)
+                    .clip(RoundedCornerShape(50.dp))
+                    .background(Color(0xFFF6F9FB))
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.onPrimaryContainer,
+                        RoundedCornerShape(50.dp)
+                    )
+                    .padding(horizontal = 18.dp, vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // bus icon (using android built-in as placeholder)
+                    Icon(
+                        imageVector = Icons.Default.DirectionsBus,
+                        contentDescription = "bus",
+                        tint = Color.Black,
+                        modifier = Modifier.size(30.dp)
+                    )
 
-                        Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
 
-                        Text(
-                            text = "Special Bus",
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.Black,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
+                    Text(
+                        text = "Special Bus",
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.Black,
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
+            }
 
 
             // Content area that starts below the pill / header
@@ -218,11 +226,11 @@ fun SpecialBusScreen(
                             isBooked = isBooked,
                             onBookClicked = {
                                 // Book: mark in bookedMap and increase seatsTaken by 1
-
                                 // Cancel: unmark and decrease seatsTaken by 1 (not below 0)
                                 val encodedDate = java.net.URLEncoder.encode(bus.dateTime, "utf-8")
                                 val encodedRoute = java.net.URLEncoder.encode(bus.route, "utf-8")
-                                val route = "${TrackdemicsScreens.SeatBookingScreen.name}/${bus.id}/$encodedDate/$encodedRoute/${bus.busCode}/${bus.seatsTaken}/${bus.capacity}/false"
+                                val route =
+                                    "${TrackdemicsScreens.SeatBookingScreen.name}/${bus.id}/$encodedDate/$encodedRoute/${bus.busCode}/${bus.seatsTaken}/${bus.capacity}/false/$role"
                                 navController.navigate(route)
                             },
                             onCancelClicked = {
@@ -314,8 +322,7 @@ private fun SpecialBusCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    if(!isBooked)
-                    {
+                    if (!isBooked) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable { onBookClicked() }
@@ -334,9 +341,7 @@ private fun SpecialBusCard(
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                    }
-                    else
-                    {
+                    } else {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable { onCancelClicked() }
@@ -351,8 +356,7 @@ private fun SpecialBusCard(
                     }
                 }
             }
-            if(isBooked)
-            {
+            if (isBooked) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),

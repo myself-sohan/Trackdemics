@@ -137,8 +137,6 @@ fun ProfileSection(
                         CircleShape
                     )
             )
-
-
             WelcomeCard(
                 label = label
             )
