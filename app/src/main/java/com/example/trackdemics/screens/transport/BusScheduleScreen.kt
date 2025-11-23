@@ -1550,7 +1550,7 @@ fun BusScheduleScreen(
     }
 
     // UI state
-    var selectedDay by remember { mutableStateOf("MON") }
+    var selectedDay by remember { mutableStateOf("SAT") }
     var insideCampus by remember { mutableStateOf(false) }
     var selectedRoute by remember { mutableStateOf(false) }
     var routineclick by remember { mutableStateOf(false) }
@@ -2226,7 +2226,7 @@ fun WeekendOutsideScheduleCard(
                                 Text(
                                     text = "Cancel",
                                     fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.error
                                 )
                             }
                         }
