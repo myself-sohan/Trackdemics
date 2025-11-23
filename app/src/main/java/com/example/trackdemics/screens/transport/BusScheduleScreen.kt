@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import com.example.trackdemics.navigation.TrackdemicsScreens
+import com.example.trackdemics.screens.home.StudentHomeScreen
 import com.example.trackdemics.screens.transport.components.HeaderArea
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 
@@ -163,7 +165,11 @@ fun BusScheduleScreen(
         topBar = {
             TrackdemicsAppBar(
                 onBackClick = {
-                    navController.popBackStack()
+                    when (role) {
+                        "STUDENT" -> navController.navigate(TrackdemicsScreens.StudentHomeScreen.name)
+                        "PROFESSOR" -> navController.navigate(TrackdemicsScreens.ProfessorHomeScreen.name)
+                        "ADMIN" -> navController.navigate(TrackdemicsScreens.AdminHomeScreen.name)
+                    }
                 },
                 isScheduleScreen = true,
                 isActionScreen = true,
