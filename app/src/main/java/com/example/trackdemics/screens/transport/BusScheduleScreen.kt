@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -92,8 +93,8 @@ fun BusScheduleScreen(
     // --- REPLACE data class and sample data with this ---
 
 
-// All schedules for all combinations (MON/ SAT × Inside/Outside).
-// Fill entries to match the four visual types from your Figma screenshots.
+    // All schedules for all combinations (MON/ SAT × Inside/Outside).
+    // Fill entries to match the four visual types from your Figma screenshots.
     val allSchedules = remember {
         mutableStateListOf(
             // --- Monday, OUTSIDE Campus (MON + outside) ----
@@ -1548,14 +1549,13 @@ fun BusScheduleScreen(
             )
     }
 
-
     // UI state
     var selectedDay by remember { mutableStateOf("MON") }
     var insideCampus by remember { mutableStateOf(false) }
     var selectedRoute by remember { mutableStateOf(false) }
     var routineclick by remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
-    val cancelingIndex = remember { mutableStateOf(-1) }
+    val cancelingIndex = remember { mutableIntStateOf(-1) }
     // Map to hold which bus (by id) is currently booked by the user in this session
     val bookedMap = remember { mutableStateMapOf<Int, Boolean>() }
     LaunchedEffect(key1 = bookedBusId, key2 = updatedSeats) {
@@ -1568,7 +1568,7 @@ fun BusScheduleScreen(
             }
         }
     }
-// --- Filter by selectedDay and campus toggle (insideCampus) ---
+    // --- Filter by selectedDay and campus toggle (insideCampus) ---
     /// REPLACE the existing filteredSchedules computation with this:
     val filteredSchedules = remember(allSchedules, selectedDay, insideCampus, selectedRoute) {
         val currentTracker = if (!insideCampus) {
@@ -1592,7 +1592,11 @@ fun BusScheduleScreen(
         topBar = {
             TrackdemicsAppBar(
                 onBackClick = {
-                    navController.popBackStack()
+                    when (role) {
+                        "STUDENT" -> navController.navigate(TrackdemicsScreens.StudentHomeScreen.name)
+                        "PROFESSOR" -> navController.navigate(TrackdemicsScreens.ProfessorHomeScreen.name)
+                        "ADMIN" -> navController.navigate(TrackdemicsScreens.AdminHomeScreen.name)
+                    }
                 },
                 isScheduleScreen = true,
                 isActionScreen = true,

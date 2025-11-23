@@ -110,14 +110,14 @@ fun SeatBookingScreen(
         user?.email?.let { email ->
             val normalizedEmail = email.trim().lowercase()
 
-            val studentSnapshot = firestore.collection(userRole)
+            val userSnapshot = firestore.collection(userRole)
                 .whereEqualTo("email", normalizedEmail)
                 .get()
                 .await()
 
-            val studentDoc = studentSnapshot.documents.firstOrNull()
-            firstName = studentDoc?.getString("first_name") ?: "Student"
-            lastName = studentDoc?.getString("last_name") ?: "Student"
+            val userDoc = userSnapshot.documents.firstOrNull()
+            firstName = userDoc?.getString("first_name") ?: "Student"
+            lastName = userDoc?.getString("last_name") ?: "Student"
         }
     }
     val email = user?.email
@@ -137,7 +137,8 @@ fun SeatBookingScreen(
                 isActionScreen = true,
                 titleContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 titleTextColor = MaterialTheme.colorScheme.background,
-                isSeatBookingScreen = true
+                isSeatBookingScreen = true,
+                role = role
             )
         }
     ) { padding ->
@@ -157,8 +158,15 @@ fun SeatBookingScreen(
                     onConfirm = {
                         //compute updated seats and navigate back to SpecialBusScreen with args
                         val newSeats = (seatsTaken + 1).coerceAtMost(capacity)
-
-                        navController.navigate("${TrackdemicsScreens.SpecialBusScreen.name}/$busId/$newSeats/$role")
+                        val previousScreen =
+                            navController.previousBackStackEntry?.destination?.route
+                        Log.d("PreviousScreen", previousScreen!!)
+                        val route = when (previousScreen) {
+                            "SpecialBusScreen/{role}" -> TrackdemicsScreens.SpecialBusScreen.name
+                            "SpecialBusScreen/{bookedBusId}/{updatedSeats}/{role}" -> TrackdemicsScreens.SpecialBusScreen.name
+                            else -> TrackdemicsScreens.BusScheduleScreen.name
+                        }
+                        navController.navigate("${route}/$busId/$newSeats/$role")
                     }
                 )
             }

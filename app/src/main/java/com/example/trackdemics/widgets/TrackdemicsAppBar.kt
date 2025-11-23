@@ -64,6 +64,7 @@ fun TrackdemicsAppBar(
     isSeatBookingScreen: Boolean = false,
     logoimage: Painter = painterResource(R.drawable.nitm),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
+    role: String = "STUDENT"
 ) {
     val auth = remember { FirebaseAuth.getInstance() }
     val firestore = remember { FirebaseFirestore.getInstance() }
@@ -75,10 +76,17 @@ fun TrackdemicsAppBar(
 
     val coroutineScope = rememberCoroutineScope()
 
+    val userRole = when (role) {
+        "STUDENT" -> "students"
+        "ADMIN" -> "admin"
+        "PROFESSOR" -> "professors"
+        else -> ""
+    }
+
     LaunchedEffect(Unit) {
         auth.currentUser?.email?.let { email ->
             val normalizedEmail = email.trim().lowercase()
-            val snapshot = firestore.collection("students")
+            val snapshot = firestore.collection(userRole)
                 .whereEqualTo("email", normalizedEmail)
                 .get()
                 .await()
