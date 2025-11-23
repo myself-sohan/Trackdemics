@@ -67,7 +67,6 @@ import com.example.trackdemics.screens.transport.components.HeaderArea
 import com.example.trackdemics.widgets.TrackdemicsAppBar
 import kotlin.collections.set
 
-// --- REPLACE this data class with the version that includes a mutable 'tracker' field ---
 data class ScheduleItem(
     val id: Int,
     val time: String,
@@ -77,7 +76,7 @@ data class ScheduleItem(
     val day: String = "MON",      // "MON", "TUE", ..., "SAT"
     val inside: Boolean = false, // true => Inside Campus, false => Outside Campus
     val seatsTaken: Int? = null,
-    val capacity: Int? = null, // optional small right-side label (e.g. "51/60")
+    val capacity: Int? = null,
     val status: String? = null,      // optional status text (e.g. "Book", "Booking Confirmed", "Bus Full")
     val tracker: String? = null      // <-- tracker text (populated dynamically per UI state)
 )
@@ -363,7 +362,7 @@ fun BusScheduleScreen(
 
     // UI state
     var selectedDay by remember { mutableStateOf("MON") }
-    var insideCampus by remember { mutableStateOf(false) } // false -> outside
+    var insideCampus by remember { mutableStateOf(false) }
     var selectedRoute by remember { mutableStateOf(false) }
     var routineclick by remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
