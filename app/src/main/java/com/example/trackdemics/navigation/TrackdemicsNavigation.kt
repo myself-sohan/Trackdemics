@@ -1,5 +1,6 @@
 package com.example.trackdemics.navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +30,7 @@ import com.example.trackdemics.screens.transport.SeatBookingScreen
 import com.example.trackdemics.screens.transport.SpecialBusScreen
 import com.example.trackdemics.widgets.ConfirmExitOnBack
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun TrackdemicsNavigation() {
     val navController = rememberNavController()
@@ -146,11 +148,30 @@ fun TrackdemicsNavigation() {
             val role = backStackEntry.arguments?.getString("role").orEmpty()
             SpecialBusScreen(navController = navController, role = role)
         }
-
-        // Bus Schedule Screen
-        val busScheduleRoute = "${TrackdemicsScreens.BusScheduleScreen.name}/{role}"
+        val busScheduleRoute2 =
+            "${TrackdemicsScreens.BusScheduleScreen.name}/{bookedBusId}/{updatedSeats}/{role}"
         composable(
-            route = busScheduleRoute,
+            route = busScheduleRoute2,
+            arguments = listOf(
+                navArgument("bookedBusId") { type = NavType.IntType },
+                navArgument("updatedSeats") { type = NavType.IntType },
+                navArgument("role") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val bookedBusId = backStackEntry.arguments?.getInt("bookedBusId")
+            val updatedSeats = backStackEntry.arguments?.getInt("updatedSeats")
+            val role = backStackEntry.arguments?.getString("role").orEmpty()
+            BusScheduleScreen(
+                navController = navController,
+                bookedBusId = bookedBusId,
+                updatedSeats = updatedSeats,
+                role = role
+            )
+        }
+        // Bus Schedule Screen
+        val busScheduleRoute1 = "${TrackdemicsScreens.BusScheduleScreen.name}/{role}"
+        composable(
+            route = busScheduleRoute1,
             arguments = listOf(
                 navArgument("role") { type = NavType.StringType }
             )
